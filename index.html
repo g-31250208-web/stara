@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Pengurusan Sukantara Sekolah (Online Dashboard)</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        navy: {
+                            50: '#f4f6fa',
+                            100: '#e9edf5',
+                            200: '#cbd5e8',
+                            300: '#a3b5d6',
+                            400: '#758ebd',
+                            500: '#536ea4',
+                            600: '#3f5385',
+                            700: '#33436c',
+                            800: '#25304e',
+                            950: '#0b0f19',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'Inter', 'Segoe UI', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Firebase SDK (Compat) -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-attachment: fixed;
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        /* Neon glow classes */
+        .neon-glow {
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.2);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 via-slate-50 to-white text-slate-800 min-h-screen">
+
+    <div class="h-1.5 w-full bg-gradient-to-r from-cyan-400 via-blue-600 to-indigo-900"></div>
+
+    <div class="container mx-auto px-4 py-8 max-w-7xl">
+        
+        <!-- HEADER HERO SECTION -->
+        <header class="relative mb-10 p-8 rounded-3xl bg-gradient-to-r from-navy-950 via-blue-950 to-navy-900 text-white shadow-2xl overflow-hidden neon-glow">
+            <div class="absolute top-0 right-0 -mt-20 -mr-20 w-80 h-80 rounded-full bg-cyan-500/20 blur-3xl"></div>
+            <div class="absolute bottom-0 left-1/3 -mb-20 w-80 h-80 rounded-full bg-indigo-500/20 blur-3xl"></div>
+
+            <div class="relative z-10 flex flex-col md:flex-row justify-between items-center gap-6">
+                <div class="text-center md:text-left">
+                    <span class="bg-blue-500/20 text-blue-300 border border-blue-500/30 px-4 py-1.5 rounded-full text-xs font-semibold tracking-wider uppercase">
+                        Sistem Kejohanan Sukan Sekolah
+                    </span>
+                    <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight mt-3 bg-gradient-to-r from-white via-blue-100 to-cyan-300 bg-clip-text text-transparent">
+                        Sistem Pengurusan Sukantara
+                    </h1>
+                    <p class="text-blue-200/80 text-sm md:text-base mt-2 max-w-xl">
+                        Kemaskini penglibatan murid secara terus pada jadual lembaran kerja digital. Segala data disinkronisasi merentasi pelbagai peranti secara langsung.
+                    </p>
+                </div>
+                <!-- Status Badge -->
+                <div class="flex items-center gap-3 bg-white/5 backdrop-blur-md border border-white/10 px-5 py-3 rounded-2xl">
+                    <span class="relative flex h-3.5 w-3.5">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-500"></span>
+                    </span>
+                    <div class="text-left">
+                        <p class="text-xs text-slate-400 font-medium">Status Pangkalan Data</p>
+                        <p id="dbStatus" class="text-sm font-bold text-emerald-400">Menghubung...</p>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+            <div class="bg-white/80 backdrop-blur-md p-6 rounded-2xl border border-slate-100 shadow-md flex items-center gap-4 transition duration-300 hover:shadow-lg">
+                <div class="p-3 bg-blue-50 rounded-xl text-blue-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                </div>
+                <div>
+                    <p class="text-xs text-slate-500 font-semibold tracking-wider uppercase">Jumlah Murid</p>
+                    <h3 id="statTotalStudents" class="text-2xl font-bold text-navy-950 mt-1">0</h3>
+                </div>
+            </div>
+            <div class="bg-white/80 backdrop-blur-md p-6 rounded-2xl border border-slate-100 shadow-md flex items-center gap-4 transition duration-300 hover:shadow-lg">
+                <div class="p-3 bg-cyan-50 rounded-xl text-cyan-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                </div>
+                <div>
+                    <p class="text-xs text-slate-500 font-semibold tracking-wider uppercase">Jumlah Rumah</p>
+                    <h3 id="statTotalHouses" class="text-2xl font-bold text-navy-950 mt-1">0</h3>
+                </div>
+            </div>
+            <div class="bg-white/80 backdrop-blur-md p-6 rounded-2xl border border-slate-100 shadow-md flex items-center gap-4 transition duration-300 hover:shadow-lg">
+                <div class="p-3 bg-emerald-50 rounded-xl text-emerald-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path></svg>
+                </div>
+                <div>
+                    <p class="text-xs text-slate-500 font-semibold tracking-wider uppercase">Mata Terkumpul</p>
+                    <h3 id="statTotalPoints" class="text-2xl font-bold text-navy-950 mt-1">0</h3>
+                </div>
+            </div>
+            <div class="bg-gradient-to-br from-indigo-900 to-navy-950 p-6 rounded-2xl border border-indigo-900 text-white shadow-md flex items-center gap-4 transition duration-300 hover:shadow-lg">
+                <div class="p-3 bg-indigo-500/20 rounded-xl text-indigo-300">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5a2 2 0 10-2 2h2zm0 0h4m-4 0H8m0 0v13m0 13t0"></path></svg>
+                </div>
+                <div>
+                    <p class="text-xs text-indigo-300 font-semibold tracking-wider uppercase">Rumah Pendahulu</p>
+                    <h3 id="statLeadingHouse" class="text-xl font-extrabold text-white mt-1">-</h3>
+                </div>
+            </div>
+        </section>
+
+        <main class="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-8">
+            
+            <!-- LEFT PANEL: Kedudukan & Tetapan (5 Columns) -->
+            <div class="lg:col-span-5 flex flex-col gap-8">
+                
+                <!-- LEADERBOARD PANEL -->
+                <section class="bg-white rounded-3xl p-6 border border-slate-100 shadow-md relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-b from-yellow-100/30 to-transparent rounded-bl-full pointer-events-none"></div>
+                    
+                    <div class="flex justify-between items-center mb-6">
+                        <div class="flex items-center gap-2.5">
+                            <span class="text-2xl">🏆</span>
+                            <h2 class="text-xl font-bold text-navy-950">Kedudukan & Juara</h2>
+                        </div>
+                        <span class="text-xs bg-amber-500/10 text-amber-600 font-bold px-3 py-1 rounded-full border border-amber-500/20">LIVE</span>
+                    </div>
+
+                    <div class="overflow-hidden rounded-2xl border border-slate-100">
+                        <table id="leaderboardTable" class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-gradient-to-r from-navy-900 to-blue-900 text-white text-xs font-semibold uppercase tracking-wider">
+                                    <th class="py-3.5 px-4 text-center w-16">Ked.</th>
+                                    <th class="py-3.5 px-4">Rumah Sukan</th>
+                                    <th class="py-3.5 px-4 text-right">Jumlah Mata</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 text-sm">
+                                <tr>
+                                    <td colspan="3" class="py-12 text-center text-slate-400 font-medium">
+                                        Mengira kedudukan semasa...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- RUMAH SUKAN SETTINGS PANEL -->
+                <section class="bg-white rounded-3xl p-6 border border-slate-100 shadow-md">
+                    <div class="flex items-center gap-2.5 mb-6">
+                        <span class="text-2xl">⚙️</span>
+                        <h2 class="text-xl font-bold text-navy-950">Tetapan Rumah Sukan</h2>
+                    </div>
+
+                    <form id="houseForm" class="mb-6">
+                        <div class="flex flex-col sm:flex-row gap-3">
+                            <div class="relative flex-grow">
+                                <input type="text" id="houseName" required placeholder="Cth: Merah, Biru, Hijau" 
+                                    class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all placeholder:text-slate-400">
+                            </div>
+                            <button type="submit" class="sm:w-auto px-5 py-3 bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white font-bold rounded-xl text-sm transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
+                                Tambah
+                            </button>
+                        </div>
+                    </form>
+
+                    <div class="overflow-hidden rounded-2xl border border-slate-100 max-h-60 overflow-y-auto">
+                        <table id="houseTable" class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-50 text-slate-500 text-xs font-semibold uppercase tracking-wider border-b border-slate-100">
+                                    <th class="py-3 px-4">Senarai Rumah Sukan</th>
+                                    <th class="py-3 px-4 text-center w-24">Tindakan</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 text-sm text-slate-700">
+                                <tr>
+                                    <td colspan="2" class="py-8 text-center text-slate-400">Sila muat turun data...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+            </div>
+
+            <!-- RIGHT PANEL: Borang Pendaftaran & Pengurusan Penuh (7 Columns) -->
+            <div class="lg:col-span-7 flex flex-col gap-8">
+                
+                <!-- DATA ENTRY FORM -->
+                <section class="bg-white rounded-3xl p-6 border border-slate-100 shadow-md">
+                    <div class="flex items-center gap-2.5 mb-6">
+                        <span class="text-2xl">📝</span>
+                        <h2 class="text-xl font-bold text-navy-950">Daftar Murid Baru</h2>
+                    </div>
+
+                    <form id="studentForm" class="space-y-5">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <!-- Left Col -->
+                            <div class="space-y-4">
+                                <div>
+                                    <label for="studentName" class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Nama Pelajar</label>
+                                    <input type="text" id="studentName" required placeholder="Nama penuh murid" 
+                                        class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
+                                </div>
+                                <div>
+                                    <label for="studentClass" class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Kelas</label>
+                                    <select id="studentClass" required 
+                                        class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-700">
+                                        <option value="">-- Pilih Kelas --</option>
+                                        <option value="Pra Sekolah">Pra Sekolah</option>
+                                        <option value="Tahun 1">Tahun 1</option>
+                                        <option value="Tahun 2">Tahun 2</option>
+                                        <option value="Tahun 3">Tahun 3</option>
+                                        <option value="Tahun 4">Tahun 4</option>
+                                        <option value="Tahun 5">Tahun 5</option>
+                                        <option value="Tahun 6">Tahun 6</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Right Col -->
+                            <div class="space-y-4">
+                                <div>
+                                    <label for="studentGender" class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Jantina</label>
+                                    <select id="studentGender" required 
+                                        class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-700">
+                                        <option value="">-- Pilih Jantina --</option>
+                                        <option value="Lelaki">Lelaki</option>
+                                        <option value="Perempuan">Perempuan</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="studentHouse" class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Rumah Sukan</label>
+                                    <select id="studentHouse" required 
+                                        class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-700">
+                                        <option value="">-- Sila Tambah Rumah Sukan Terlebih Dahulu --</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Info Label -->
+                        <p class="text-xs text-slate-400 mt-2 italic">
+                            *Nota: Selepas didaftar, anda boleh terus menanda (tick) penglibatan acara murid pada borang jadual mengikut rumah sukan di bawah.
+                        </p>
+
+                        <button type="submit" class="w-full py-3.5 bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white font-extrabold rounded-xl text-sm transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path></svg>
+                            Daftarkan Murid Baru
+                        </button>
+                    </form>
+                </section>
+            </div>
+        </main>
+
+        <!-- BOTTOM SECTION: BORANG LEMBARAN KERJA (SPREADSHEET FORM) MENGIKUT RUMAH SUKAN -->
+        <section class="bg-white rounded-3xl p-6 border border-slate-100 shadow-xl mb-10">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 pb-4 border-b border-slate-100">
+                <div>
+                    <h2 class="text-2xl font-extrabold text-navy-950 flex items-center gap-2">
+                        <span>📊</span> Borang Aktiviti Rumah Sukan (Lembaran Kerja)
+                    </h2>
+                    <p class="text-slate-400 text-xs mt-1">Setiap acara yang ditanda memberikan <strong class="text-blue-600">2 mata</strong> sukantara secara automatik.</p>
+                </div>
+
+                <!-- Backup & Reset Controls -->
+                <div class="flex flex-wrap gap-2 w-full md:w-auto">
+                    <button onclick="triggerJsonImport()" class="px-3.5 py-2 bg-blue-50 text-blue-600 border border-blue-100 hover:bg-blue-100 hover:text-blue-700 font-bold rounded-xl text-xs transition-all flex items-center gap-1.5 shadow-sm">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                        Import JSON
+                    </button>
+                    <input type="file" id="jsonFileInput" accept=".json" class="hidden" onchange="importJSON(event)">
+
+                    <button onclick="exportJSON()" class="px-3.5 py-2 bg-slate-50 text-slate-600 border border-slate-200 hover:bg-slate-100 hover:text-slate-700 font-bold rounded-xl text-xs transition-all flex items-center gap-1.5 shadow-sm">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                        Eksport JSON
+                    </button>
+
+                    <button onclick="confirmResetData()" class="px-3.5 py-2 bg-rose-50 text-rose-600 border border-rose-100 hover:bg-rose-100 hover:text-rose-700 font-bold rounded-xl text-xs transition-all flex items-center gap-1.5 shadow-sm">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        Padam Semua Rekod
+                    </button>
+                </div>
+            </div>
+
+            <!-- TABS UNTUK SETIAP RUMAH SUKAN -->
+            <div class="mb-6">
+                <div id="houseTabsContainer" class="flex flex-wrap gap-2 border-b border-slate-100 pb-3 overflow-x-auto">
+                    <!-- Dinamik Tab Rumah Sukan akan muncul di sini -->
+                </div>
+            </div>
+
+            <!-- SPREADSHEET TABLE CONTAINER -->
+            <div class="overflow-x-auto rounded-2xl border border-slate-100 shadow-inner">
+                <table id="worksheetTable" class="w-full text-left border-collapse min-w-[900px]">
+                    <thead>
+                        <tr class="bg-gradient-to-r from-navy-950 to-blue-950 text-white text-xs font-bold uppercase tracking-wider border-b border-slate-200">
+                            <th class="py-4 px-4 text-center w-14">Bil.</th>
+                            <th class="py-4 px-4 min-w-[180px]">Nama Pelajar</th>
+                            <th class="py-4 px-4 text-center w-24">Jantina</th>
+                            <th class="py-4 px-4 text-center w-28">Kelas</th>
+                            <th class="py-4 px-3 text-center w-28 bg-blue-950/20">Lompat Jauh</th>
+                            <th class="py-4 px-3 text-center w-28 bg-blue-950/30">Lompat Tinggi</th>
+                            <th class="py-4 px-3 text-center w-28 bg-blue-950/20">Larian</th>
+                            <th class="py-4 px-3 text-center w-28 bg-blue-950/30">Lontar Peluru</th>
+                            <th class="py-4 px-4 text-center w-24">Mata</th>
+                            <th class="py-4 px-4 min-w-[150px]">Catatan (Tulis Nota Sini)</th>
+                            <th class="py-4 px-3 text-center w-16">Batal</th>
+                        </tr>
+                    </thead>
+                    <tbody id="worksheetBody" class="divide-y divide-slate-100 text-sm text-slate-700">
+                        <tr>
+                            <td colspan="11" class="py-12 text-center text-slate-400 font-medium">
+                                Sila daftarkan rumah sukan dan murid terlebih dahulu.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <!-- CUSTOM NOTIFICATION SYSTEM (TOAST) -->
+    <div id="toastContainer" class="fixed bottom-6 right-6 z-50 flex flex-col gap-3 max-w-sm w-full pointer-events-none"></div>
+
+    <!-- CUSTOM CONFIRMATION MODAL -->
+    <div id="confirmModal" class="fixed inset-0 z-50 bg-navy-950/40 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl border border-slate-100 transform transition-all scale-95 duration-200">
+            <div class="w-12 h-12 bg-rose-50 text-rose-600 rounded-2xl flex items-center justify-center mb-4">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            </div>
+            <h3 id="modalTitle" class="text-lg font-bold text-navy-950 mb-2">Sahkan Tindakan</h3>
+            <p id="modalDescription" class="text-sm text-slate-500 mb-6 leading-relaxed">Adakah anda pasti mahu meneruskan tindakan ini?</p>
+            <div class="flex gap-3">
+                <button id="modalCancelBtn" class="flex-1 py-3 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 font-bold rounded-xl text-sm transition-all">Batal</button>
+                <button id="modalConfirmBtn" class="flex-1 py-3 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl text-sm transition-all shadow-md">Sahkan</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // ⚙️ KONFIGURASI FIREBASE ANDA
+        // ==========================================
+        const firebaseConfig = {
+            apiKey: "TAMPAL_KOD_KONFIGURASI_FIREBASE_ANDA_DI_SINI",
+            authDomain: "TAMPAL_KOD_KONFIGURASI_FIREBASE_ANDA_DI_SINI",
+            projectId: "TAMPAL_KOD_KONFIGURASI_FIREBASE_ANDA_DI_SINI",
+            storageBucket: "TAMPAL_KOD_KONFIGURASI_FIREBASE_ANDA_DI_SINI",
+            messagingSenderId: "TAMPAL_KOD_KONFIGURASI_FIREBASE_ANDA_DI_SINI",
+            appId: "TAMPAL_KOD_KONFIGURASI_FIREBASE_ANDA_DI_SINI"
+        };
+
+        // Mengatur ID Aplikasi unik & rujukan Firestore yang patuh aturan iFrame Sandbox
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'sukantara-sekolah-app';
+        let db;
+        let housesRef;
+        let studentsRef;
+        const isDefaultConfig = firebaseConfig.apiKey.includes("TAMPAL_KOD");
+
+        // Simpanan Sandaran Tempatan
+        let localHouses = JSON.parse(localStorage.getItem('sukantara_houses')) || ['Merah', 'Biru', 'Kuning', 'Hijau'];
+        let localStudents = JSON.parse(localStorage.getItem('sukantara_students')) || [];
+
+        let houses = [];
+        let students = [];
+        let activeHouseTab = ''; // Rumah sukan yang aktif dipilih di tab
+
+        // Inisialisasi Firebase & Otentikasi Anonim sebelum query dijalankan (Aturan 3 & Aturan 1)
+        const initApp = async () => {
+            if (!isDefaultConfig) {
+                try {
+                    const app = firebase.initializeApp(firebaseConfig);
+                    db = firebase.firestore();
+                    const auth = firebase.auth();
+
+                    // Otentikasi terlebih dahulu
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                        await auth.signInWithCustomToken(__initial_auth_token);
+                    } else {
+                        await auth.signInAnonymously();
+                    }
+
+                    // Tentukan path berstruktur (Aturan 1)
+                    housesRef = db.collection('artifacts').doc(appId).collection('public').doc('data').collection('houses');
+                    studentsRef = db.collection('artifacts').doc(appId).collection('public').doc('data').collection('students');
+
+                    document.getElementById('dbStatus').innerText = "Bersambung (Live)";
+                    document.getElementById('dbStatus').className = "text-sm font-bold text-emerald-400";
+
+                    // Langgan kemas kini data selepas otentikasi berjaya
+                    subscribeRealtimeData();
+                } catch (err) {
+                    console.error("Ralat Firebase:", err);
+                    document.getElementById('dbStatus').innerText = "Ralat Sambungan";
+                    document.getElementById('dbStatus').className = "text-sm font-bold text-rose-400";
+                    showToast("Gagal menyambung ke Firebase.", "danger");
+                }
+            } else {
+                document.getElementById('dbStatus').innerText = "Mod Simulasi (Offline)";
+                document.getElementById('dbStatus').className = "text-sm font-bold text-amber-400";
+                showToast("Menggunakan Mod Offline. Sila tetapkan kunci Firebase untuk keupayaan Live-Sync.", "warning");
+                syncLocalData();
+            }
+        };
+
+        // ==========================================
+        // 📡 REAL-TIME DATA LISTENER
+        // ==========================================
+        function subscribeRealtimeData() {
+            housesRef.onSnapshot(snapshot => {
+                houses = [];
+                snapshot.forEach(doc => {
+                    houses.push({ id: doc.id, ...doc.data() });
+                });
+                if (houses.length > 0 && !activeHouseTab) {
+                    activeHouseTab = houses[0].name;
+                }
+                renderHouses();
+                renderDropdown();
+                renderHouseTabs();
+                renderWorksheet();
+                updateLeaderboardAndStats();
+            }, error => {
+                console.error(error);
+                showToast("Gagal mengemaskini rumah sukan dari Firebase.", "danger");
+            });
+
+            // Tiada query kompleks (Aturan 2) untuk mengelakkan ralat indeks
+            studentsRef.onSnapshot(snapshot => {
+                students = [];
+                snapshot.forEach(doc => {
+                    students.push({ id: doc.id, ...doc.data() });
+                });
+                renderWorksheet();
+                updateLeaderboardAndStats();
+            }, error => {
+                console.error(error);
+                showToast("Gagal mengemaskini rekod pelajar.", "danger");
+            });
+        }
+
+        function syncLocalData() {
+            houses = localHouses.map((name, i) => ({ id: `local_house_${i}`, name }));
+            students = localStudents;
+            if (houses.length > 0 && !activeHouseTab) {
+                activeHouseTab = houses[0].name;
+            }
+            renderHouses();
+            renderDropdown();
+            renderHouseTabs();
+            renderWorksheet();
+            updateLeaderboardAndStats();
+        }
+
+        function saveLocalData() {
+            localStorage.setItem('sukantara_houses', JSON.stringify(localHouses));
+            localStorage.setItem('sukantara_students', JSON.stringify(localStudents));
+            syncLocalData();
+        }
+
+        // ==========================================
+        // 📥 EVENTS & DATABASE INPUTS
+        // ==========================================
+
+        // Tambah Rumah Sukan baru
+        document.getElementById('houseForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const houseName = document.getElementById('houseName').value.trim();
+            const exists = houses.some(h => h.name.toLowerCase() === houseName.toLowerCase());
+
+            if (exists) {
+                showToast(`Rumah ${houseName} sudah pun wujud!`, 'warning');
+                return;
+            }
+
+            if (!isDefaultConfig && db) {
+                housesRef.add({ name: houseName })
+                .then(() => {
+                    document.getElementById('houseName').value = '';
+                    activeHouseTab = houseName;
+                    showToast(`Rumah ${houseName} berjaya ditambah!`, 'success');
+                });
+            } else {
+                localHouses.push(houseName);
+                activeHouseTab = houseName;
+                saveLocalData();
+                document.getElementById('houseName').value = '';
+                showToast(`Rumah ${houseName} berjaya ditambah!`, 'success');
+            }
+        });
+
+        // Padam Rumah Sukan
+        function deleteHouse(id, name) {
+            showConfirm("Padam Rumah Sukan", `Adakah anda pasti mahu memadam Rumah ${name}? Semua data penglibatan ahli di dalamnya tidak akan dikira.`, () => {
+                if (!isDefaultConfig && db) {
+                    housesRef.doc(id).delete()
+                    .then(() => {
+                        if (activeHouseTab === name) activeHouseTab = '';
+                        showToast(`Rumah ${name} dipadam!`, 'success');
+                    });
+                } else {
+                    localHouses = localHouses.filter(h => h !== name);
+                    localStudents = localStudents.filter(s => s.house !== name);
+                    if (activeHouseTab === name) activeHouseTab = '';
+                    saveLocalData();
+                    showToast(`Rumah ${name} dipadam secara offline!`, 'success');
+                }
+            });
+        }
+
+        // Pendaftaran Murid Baru
+        document.getElementById('studentForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const name = document.getElementById('studentName').value.trim();
+            const studentClass = document.getElementById('studentClass').value;
+            const gender = document.getElementById('studentGender').value;
+            const house = document.getElementById('studentHouse').value;
+
+            if (!house) {
+                showToast("Sila tambah atau pilih rumah sukan terlebih dahulu!", "warning");
+                return;
+            }
+
+            const payload = {
+                name,
+                studentClass,
+                gender,
+                house,
+                lompatJauh: false,
+                lompatTinggi: false,
+                larian: false,
+                lontarPeluru: false,
+                catatan: "",
+                points: 0
+            };
+
+            if (!isDefaultConfig && db) {
+                payload.timestamp = firebase.firestore.FieldValue.serverTimestamp();
+                studentsRef.add(payload)
+                .then(() => {
+                    showToast(`Rekod ${name} didaftarkan ke Rumah ${house}!`, 'success');
+                    activeHouseTab = house; // Autotab ke rumah murid tersebut
+                    resetFormFields();
+                });
+            } else {
+                payload.id = 'local_stud_' + Date.now();
+                localStudents.unshift(payload);
+                activeHouseTab = house;
+                saveLocalData();
+                showToast(`Rekod ${name} disimpan (Offline)!`, 'success');
+                resetFormFields();
+            }
+        });
+
+        function resetFormFields() {
+            document.getElementById('studentName').value = '';
+            document.getElementById('studentName').focus();
+        }
+
+        // Padam Rekod Murid
+        function deleteStudent(id, name) {
+            showConfirm("Padam Rekod Pelajar", `Padam rekod kejohanan ${name}?`, () => {
+                if (!isDefaultConfig && db) {
+                    studentsRef.doc(id).delete()
+                    .then(() => showToast(`Rekod ${name} telah dipadam!`, 'success'));
+                } else {
+                    localStudents = localStudents.filter(s => s.id !== id);
+                    saveLocalData();
+                    showToast(`Rekod ${name} dipadam secara offline!`, 'success');
+                }
+            });
+        }
+
+        // Kemaskini Data Penglibatan Sukan Murid (Direct on Sheet/Table)
+        function updateStudentActivity(studentId, field, value) {
+            // Cari data murid
+            let stud = students.find(s => s.id === studentId);
+            if (!stud) return;
+
+            // Update field secara maya untuk pengiraan mata langsung
+            stud[field] = value;
+            
+            // Pengiraan Automatik: 2 mata bagi setiap acara yang ditanda
+            let updatedPoints = 0;
+            if (stud.lompatJauh) updatedPoints += 2;
+            if (stud.lompatTinggi) updatedPoints += 2;
+            if (stud.larian) updatedPoints += 2;
+            if (stud.lontarPeluru) updatedPoints += 2;
+            
+            stud.points = updatedPoints;
+
+            if (!isDefaultConfig && db) {
+                // Hantar kemasukan terus ke Firebase Database
+                studentsRef.doc(studentId).update({
+                    [field]: value,
+                    points: updatedPoints
+                }).catch(() => {
+                    showToast("Gagal mengemaskini data pada pelayan.", "danger");
+                });
+            } else {
+                // Mode offline local storage
+                let idx = localStudents.findIndex(s => s.id === studentId || s.id === stud.id);
+                if (idx !== -1) {
+                    localStudents[idx][field] = value;
+                    localStudents[idx].points = updatedPoints;
+                    saveLocalData();
+                }
+            }
+        }
+
+        // ==========================================
+        // 🎨 RENDERING WORK SHEET & UI LAYOUT
+        // ==========================================
+
+        // Dapatkan Gaya Butang Tab Rumah Sukan
+        function getHouseTabStyle(houseName, isActive) {
+            const h = houseName.toLowerCase();
+            let baseColor = "bg-slate-100 hover:bg-slate-200 text-slate-700";
+            
+            if (isActive) {
+                if (h.includes('merah')) return 'bg-rose-600 text-white shadow-md ring-2 ring-rose-300';
+                if (h.includes('biru')) return 'bg-blue-600 text-white shadow-md ring-2 ring-blue-300';
+                if (h.includes('kuning')) return 'bg-amber-500 text-white shadow-md ring-2 ring-amber-300';
+                if (h.includes('hijau')) return 'bg-emerald-600 text-white shadow-md ring-2 ring-emerald-300';
+                if (h.includes('ungu')) return 'bg-purple-600 text-white shadow-md ring-2 ring-purple-300';
+                if (h.includes('jingga')) return 'bg-orange-500 text-white shadow-md ring-2 ring-orange-300';
+                return 'bg-navy-800 text-white shadow-md ring-2 ring-navy-400';
+            } else {
+                if (h.includes('merah')) return 'bg-rose-50 hover:bg-rose-100/80 text-rose-700 border border-rose-100';
+                if (h.includes('biru')) return 'bg-blue-50 hover:bg-blue-100/80 text-blue-700 border border-blue-100';
+                if (h.includes('kuning')) return 'bg-amber-50 hover:bg-amber-100/80 text-amber-700 border border-amber-200';
+                if (h.includes('hijau')) return 'bg-emerald-50 hover:bg-emerald-100/80 text-emerald-700 border border-emerald-100';
+                return 'bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200';
+            }
+        }
+
+        // Memaparkan tab pilihan rumah sukan
+        function renderHouseTabs() {
+            const container = document.getElementById('houseTabsContainer');
+            if (houses.length === 0) {
+                container.innerHTML = '<span class="text-xs text-slate-400">Tiada rumah sukan didaftarkan lagi.</span>';
+                return;
+            }
+
+            container.innerHTML = '';
+            houses.forEach(h => {
+                const isActive = activeHouseTab === h.name;
+                const buttonStyle = getHouseTabStyle(h.name, isActive);
+                container.innerHTML += `
+                    <button onclick="setTabActive('${h.name}')" class="px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${buttonStyle}">
+                        🎯 Rumah ${h.name}
+                    </button>
+                `;
+            });
+        }
+
+        function setTabActive(houseName) {
+            activeHouseTab = houseName;
+            renderHouseTabs();
+            renderWorksheet();
+        }
+
+        // Memaparkan Borang Berjadual (Worksheet)
+        function renderWorksheet() {
+            const tbody = document.getElementById('worksheetBody');
+            
+            if (!activeHouseTab) {
+                tbody.innerHTML = `<tr><td colspan="11" class="py-12 text-center text-slate-400 font-medium">Sila pastikan rumah sukan diwujudkan terlebih dahulu.</td></tr>`;
+                return;
+            }
+
+            // Tapis murid mengikut rumah sukan aktif
+            const houseMembers = students.filter(s => s.house === activeHouseTab);
+
+            if (houseMembers.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="11" class="py-12 text-center text-slate-400 font-medium">
+                    <p class="text-slate-500 mb-1">Tiada ahli berdaftar di bawah Rumah <strong>${activeHouseTab}</strong>.</p>
+                    <p class="text-xs text-slate-400">Gunakan borang "Daftar Murid Baru" di atas untuk menambahkan ahli rumah sukan.</p>
+                </td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = '';
+            houseMembers.forEach((s, idx) => {
+                const bil = idx + 1;
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50/50 transition-colors border-b border-slate-100">
+                        <!-- Bil. -->
+                        <td class="py-3 px-4 text-center font-bold text-slate-400 text-xs">${bil}</td>
+                        
+                        <!-- Nama -->
+                        <td class="py-3 px-4 font-bold text-slate-800">${s.name}</td>
+                        
+                        <!-- Jantina -->
+                        <td class="py-3 px-4 text-center text-slate-500 text-xs">${s.gender}</td>
+                        
+                        <!-- Kelas -->
+                        <td class="py-3 px-4 text-center text-slate-500 text-xs font-semibold">${s.studentClass}</td>
+                        
+                        <!-- Checkbox Lompat Jauh -->
+                        <td class="py-3 px-3 text-center bg-blue-50/10">
+                            <input type="checkbox" ${s.lompatJauh ? 'checked' : ''} 
+                                onchange="updateStudentActivity('${s.id}', 'lompatJauh', this.checked)"
+                                class="w-5 h-5 rounded text-blue-600 focus:ring-blue-500/25 border-slate-300 transition-all cursor-pointer">
+                        </td>
+
+                        <!-- Checkbox Lompat Tinggi -->
+                        <td class="py-3 px-3 text-center bg-blue-50/30">
+                            <input type="checkbox" ${s.lompatTinggi ? 'checked' : ''} 
+                                onchange="updateStudentActivity('${s.id}', 'lompatTinggi', this.checked)"
+                                class="w-5 h-5 rounded text-blue-600 focus:ring-blue-500/25 border-slate-300 transition-all cursor-pointer">
+                        </td>
+
+                        <!-- Checkbox Larian -->
+                        <td class="py-3 px-3 text-center bg-blue-50/10">
+                            <input type="checkbox" ${s.larian ? 'checked' : ''} 
+                                onchange="updateStudentActivity('${s.id}', 'larian', this.checked)"
+                                class="w-5 h-5 rounded text-blue-600 focus:ring-blue-500/25 border-slate-300 transition-all cursor-pointer">
+                        </td>
+
+                        <!-- Checkbox Lontar Peluru -->
+                        <td class="py-3 px-3 text-center bg-blue-50/30">
+                            <input type="checkbox" ${s.lontarPeluru ? 'checked' : ''} 
+                                onchange="updateStudentActivity('${s.id}', 'lontarPeluru', this.checked)"
+                                class="w-5 h-5 rounded text-blue-600 focus:ring-blue-500/25 border-slate-300 transition-all cursor-pointer">
+                        </td>
+
+                        <!-- Jumlah Mata -->
+                        <td class="py-3 px-4 text-center">
+                            <span class="inline-block px-2.5 py-1 text-xs font-extrabold bg-blue-50 text-blue-700 rounded-lg border border-blue-100">
+                                ${s.points || 0} m
+                            </span>
+                        </td>
+
+                        <!-- Catatan (Form Input Box) -->
+                        <td class="py-2 px-4">
+                            <input type="text" value="${s.catatan || ''}" 
+                                onblur="updateStudentActivity('${s.id}', 'catatan', this.value)"
+                                placeholder="Tulis nota kejohanan..."
+                                class="w-full px-3 py-1.5 bg-slate-50 focus:bg-white border border-transparent focus:border-blue-500 rounded-lg text-xs transition-all text-slate-700">
+                        </td>
+
+                        <!-- Button Batal (Padam Murid) -->
+                        <td class="py-3 px-3 text-center">
+                            <button onclick="deleteStudent('${s.id}', '${s.name}')" class="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg transition-all" title="Padam Murid">
+                                <svg class="w-4 h-4 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        // Paparkan tetapan senarai rumah sukan ke table kecil
+        function renderHouses() {
+            const tbody = document.querySelector('#houseTable tbody');
+            if (houses.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="2" class="py-6 text-center text-slate-400">Sila masukkan rumah sukan untuk memulakan.</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = '';
+            houses.forEach(h => {
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50 transition-all">
+                        <td class="py-3 px-4">
+                            <span class="inline-block px-3 py-1 text-xs font-bold rounded-lg bg-navy-100 border border-navy-200 text-navy-800">
+                                ${h.name}
+                            </span>
+                        </td>
+                        <td class="py-3 px-4 text-center">
+                            <button onclick="deleteHouse('${h.id}', '${h.name}')" class="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg transition-all">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        // Sediakan senarai pilihan rumah sukan di dalam dropdown
+        function renderDropdown() {
+            const select = document.getElementById('studentHouse');
+            if (houses.length === 0) {
+                select.innerHTML = '<option value="">-- Sila Tambah Rumah Sukan Dahulu --</option>';
+                return;
+            }
+            select.innerHTML = '<option value="">-- Pilih Rumah Sukan --</option>';
+            houses.forEach(h => {
+                select.innerHTML += `<option value="${h.name}">${h.name}</option>`;
+            });
+        }
+
+        // Pengiraan kedudukan carta dan kemaskini kad KPI
+        function updateLeaderboardAndStats() {
+            let scores = {};
+            houses.forEach(h => scores[h.name] = 0);
+
+            let totalPointsRegistered = 0;
+            students.forEach(s => {
+                if (scores[s.house] !== undefined) {
+                    scores[s.house] += s.points || 0;
+                }
+                totalPointsRegistered += s.points || 0;
+            });
+
+            // Susun mata mengikut turutan tertinggi
+            let sortedScores = Object.keys(scores).map(key => {
+                return { house: key, points: scores[key] };
+            }).sort((a, b) => b.points - a.points);
+
+            // Kemaskini KPI
+            document.getElementById('statTotalStudents').innerText = students.length;
+            document.getElementById('statTotalHouses').innerText = houses.length;
+            document.getElementById('statTotalPoints').innerText = totalPointsRegistered;
+
+            if (sortedScores.length > 0 && sortedScores[0].points > 0) {
+                document.getElementById('statLeadingHouse').innerText = "Rumah " + sortedScores[0].house;
+            } else {
+                document.getElementById('statLeadingHouse').innerText = "-";
+            }
+
+            // Kemaskini senarai carta kedudukan
+            const tbody = document.querySelector('#leaderboardTable tbody');
+            if (houses.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="3" class="py-8 text-center text-slate-400 font-medium">Sila daftarkan rumah sukan.</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = '';
+            
+            sortedScores.forEach((score, index) => {
+                const rank = index + 1;
+                let rankDisplay = rank;
+                let bgStyle = "hover:bg-slate-50";
+
+                if (rank === 1 && score.points > 0) {
+                    rankDisplay = `<span class="flex items-center justify-center w-7 h-7 rounded-full bg-amber-500 text-white font-black text-xs shadow-md">🥇</span>`;
+                    bgStyle = "bg-amber-50/40 hover:bg-amber-50/60 font-semibold";
+                } else if (rank === 2 && score.points > 0) {
+                    rankDisplay = `<span class="flex items-center justify-center w-7 h-7 rounded-full bg-slate-400 text-white font-black text-xs shadow-md">🥈</span>`;
+                } else if (rank === 3 && score.points > 0) {
+                    rankDisplay = `<span class="flex items-center justify-center w-7 h-7 rounded-full bg-amber-700 text-white font-black text-xs shadow-md">🥉</span>`;
+                } else {
+                    rankDisplay = `<span class="flex items-center justify-center w-7 h-7 rounded-full bg-slate-100 text-slate-600 text-xs font-bold">${rank}</span>`;
+                }
+
+                tbody.innerHTML += `
+                    <tr class="${bgStyle} transition-all border-b border-slate-100">
+                        <td class="py-3 px-4 text-center flex justify-center items-center">${rankDisplay}</td>
+                        <td class="py-3 px-4 font-semibold text-slate-800">
+                            Rumah ${score.house}
+                        </td>
+                        <td class="py-3 px-4 text-right font-extrabold text-navy-900">${score.points.toLocaleString()} Mata</td>
+                    </tr>
+                `;
+            });
+        }
+
+        // ==========================================
+        // 📥 IMPORT / EXPORT JSON LOGIC
+        // ==========================================
+        
+        function triggerJsonImport() {
+            document.getElementById('jsonFileInput').click();
+        }
+
+        // Fungsi import JSON pintar yang memetakan header bil, nama, jantina, kelas
+        function importJSON(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                try {
+                    const parsedData = JSON.parse(e.target.result);
+                    
+                    let importedStudents = [];
+                    let importedHouses = [];
+
+                    // Menerima data sama ada berbentuk array terus (flat array) atau objek berstruktur
+                    if (Array.isArray(parsedData)) {
+                        importedStudents = parsedData;
+                    } else if (typeof parsedData === 'object' && parsedData !== null) {
+                        if (Array.isArray(parsedData.students)) {
+                            importedStudents = parsedData.students;
+                        } else if (Array.isArray(parsedData.murid)) {
+                            importedStudents = parsedData.murid;
+                        }
+                        
+                        if (Array.isArray(parsedData.houses)) {
+                            importedHouses = parsedData.houses;
+                        } else if (Array.isArray(parsedData.rumah)) {
+                            importedHouses = parsedData.rumah;
+                        }
+                    } else {
+                        showToast("Format fail JSON tidak sah.", "danger");
+                        return;
+                    }
+
+                    let importedHousesCount = 0;
+                    let importedStudentsCount = 0;
+
+                    // 1. Memproses Rumah Sukan terlebih dahulu jika disenaraikan
+                    if (importedHouses.length > 0) {
+                        for (const h of importedHouses) {
+                            const name = (typeof h === 'string' ? h : (h.name || h.nama || '')).trim();
+                            if (!name) continue;
+                            
+                            const exists = houses.some(existingHouse => existingHouse.name.toLowerCase() === name.toLowerCase());
+                            if (!exists) {
+                                if (!isDefaultConfig && db) {
+                                    await housesRef.add({ name });
+                                } else {
+                                    localHouses.push(name);
+                                }
+                                importedHousesCount++;
+                            }
+                        }
+                    }
+
+                    // 2. Memproses dan Memetakan Ahli Pelajar (Murid)
+                    if (importedStudents.length > 0) {
+                        for (const s of importedStudents) {
+                            // Pemetaan header pintar: menyokong bil/Bil, nama/Nama/name, jantina/Jantina/gender, kelas/Kelas/class
+                            const name = (s.nama || s.Nama || s.name || s.Name || "").trim();
+                            if (!name) continue; // Nama wajib diisi
+
+                            const gender = (s.jantina || s.Jantina || s.gender || s.Gender || "Lelaki").trim();
+                            const studentClass = (s.kelas || s.Kelas || s.studentClass || s.class || s.Class || "Tahun 1").trim();
+                            
+                            // Rumah sukan: Jika tiada, gunakan tab aktif atau rumah sukan pertama sedia ada
+                            let house = (s.house || s.House || s.rumah || s.Rumah || "").trim();
+                            if (!house) {
+                                house = activeHouseTab || (houses.length > 0 ? houses[0].name : "Merah");
+                            }
+
+                            // Memastikan rumah sukan murid tersebut wujud dalam tetapan sistem terlebih dahulu
+                            const houseExists = houses.some(existingHouse => existingHouse.name.toLowerCase() === house.toLowerCase());
+                            if (!houseExists && house) {
+                                if (!isDefaultConfig && db) {
+                                    await housesRef.add({ name: house });
+                                } else {
+                                    localHouses.push(house);
+                                }
+                                // Muatkan rumah sukan baru ke senarai maya tempatan segera
+                                houses.push({ id: `temp_${Date.now()}`, name: house });
+                                importedHousesCount++;
+                            }
+
+                            // Nilai aktiviti lalai adalah 'false' (belum selesai) jika tiada dalam fail
+                            const lompatJauh = s.lompatJauh || s.LompatJauh || false;
+                            const lompatTinggi = s.lompatTinggi || s.LompatTinggi || false;
+                            const larian = s.larian || s.Larian || false;
+                            const lontarPeluru = s.lontarPeluru || s.LontarPeluru || false;
+                            const catatan = s.catatan || s.Catatan || s.nota || s.Nota || "";
+
+                            // Kira mata secara automatik (2 mata bagi setiap aktiviti yang telah diselesaikan/true)
+                            let points = 0;
+                            if (lompatJauh === true || lompatJauh === "true") points += 2;
+                            if (lompatTinggi === true || lompatTinggi === "true") points += 2;
+                            if (larian === true || larian === "true") points += 2;
+                            if (lontarPeluru === true || lontarPeluru === "true") points += 2;
+
+                            const payload = {
+                                name,
+                                studentClass,
+                                gender,
+                                house,
+                                lompatJauh: (lompatJauh === true || lompatJauh === "true"),
+                                lompatTinggi: (lompatTinggi === true || lompatTinggi === "true"),
+                                larian: (larian === true || larian === "true"),
+                                lontarPeluru: (lontarPeluru === true || lontarPeluru === "true"),
+                                catatan,
+                                points
+                            };
+
+                            if (!isDefaultConfig && db) {
+                                payload.timestamp = firebase.firestore.FieldValue.serverTimestamp();
+                                await studentsRef.add(payload);
+                            } else {
+                                payload.id = 'local_stud_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
+                                localStudents.push(payload);
+                            }
+                            importedStudentsCount++;
+                        }
+                    }
+
+                    if (isDefaultConfig) {
+                        saveLocalData();
+                    }
+
+                    showToast(`Sukses! Berhasil mengimpor ${importedHousesCount} Rumah & ${importedStudentsCount} Pelajar!`, "success");
+                } catch (err) {
+                    console.error(err);
+                    showToast("Gagal memproses fail JSON. Sila pastikan format data adalah betul.", "danger");
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+
+        function exportJSON() {
+            const exportData = {
+                houses: houses.map(h => h.name),
+                students: students.map(s => ({
+                    name: s.name,
+                    studentClass: s.studentClass,
+                    gender: s.gender,
+                    house: s.house,
+                    lompatJauh: s.lompatJauh || false,
+                    lompatTinggi: s.lompatTinggi || false,
+                    larian: s.larian || false,
+                    lontarPeluru: s.lontarPeluru || false,
+                    catatan: s.catatan || "",
+                    points: s.points || 0
+                }))
+            };
+
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportData, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", "sukantara_full_backup.json");
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+            
+            showToast("Backup lembaran kerja berjaya dieksport!", "success");
+        }
+
+        // ==========================================
+        // 🔔 TOAST & CONFIRMATION DIALOGS
+        // ==========================================
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            
+            let icon = `<svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
+            let colorClasses = 'bg-white border-l-4 border-l-blue-500 text-slate-800 shadow-xl';
+
+            if (type === 'success') {
+                icon = `<svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
+                colorClasses = 'bg-white border-l-4 border-l-emerald-500 text-slate-800 shadow-xl';
+            } else if (type === 'warning') {
+                icon = `<svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>`;
+                colorClasses = 'bg-white border-l-4 border-l-amber-500 text-slate-800 shadow-xl';
+            } else if (type === 'danger') {
+                icon = `<svg class="w-5 h-5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
+                colorClasses = 'bg-white border-l-4 border-l-rose-500 text-slate-800 shadow-xl';
+            }
+
+            toast.className = `flex items-center gap-3 p-4 rounded-2xl border border-slate-100 ${colorClasses} pointer-events-auto transform translate-y-2 opacity-0 transition-all duration-300 ease-out`;
+            toast.innerHTML = `
+                <div class="flex-shrink-0">${icon}</div>
+                <div class="text-xs font-semibold text-slate-700">${message}</div>
+            `;
+
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            }, 10);
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-1');
+                setTimeout(() => {
+                    toast.remove();
+                }, 300);
+            }, 4000);
+        }
+
+        let currentConfirmAction = null;
+
+        function showConfirm(title, description, onConfirm) {
+            const modal = document.getElementById('confirmModal');
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalDescription').innerText = description;
+            
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            
+            currentConfirmAction = onConfirm;
+        }
+
+        document.getElementById('modalCancelBtn').addEventListener('click', hideConfirm);
+        document.getElementById('modalConfirmBtn').addEventListener('click', () => {
+            if (currentConfirmAction) currentConfirmAction();
+            hideConfirm();
+        });
+
+        function hideConfirm() {
+            const modal = document.getElementById('confirmModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            currentConfirmAction = null;
+        }
+
+        function confirmResetData() {
+            showConfirm(
+                "Mula Semula Kejohanan (Reset)", 
+                "Adakah anda pasti mahu memadam SEMUA rekod mata murid sukantara secara kekal? Bilangan rumah sukan sedia ada akan dikekalkan.", 
+                async () => {
+                    if (!isDefaultConfig && db) {
+                        try {
+                            const batch = db.batch();
+                            const snapshot = await studentsRef.get();
+                            snapshot.forEach(doc => batch.delete(doc.ref));
+                            await batch.commit();
+                            showToast('Semua rekod murid berjaya dipadam secara live!', 'success');
+                        } catch (err) {
+                            showToast('Gagal memadam semua rekod.', 'danger');
+                        }
+                    } else {
+                        localStudents = [];
+                        saveLocalData();
+                        showToast('Semua rekod murid berjaya dipadam offline!', 'success');
+                    }
+                }
+            );
+        }
+
+        // Jalankan aplikasi utama
+        window.onload = function() {
+            initApp();
+        };
+    </script>
+</body>
+</html>
