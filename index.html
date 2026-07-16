@@ -107,10 +107,12 @@
                         </button>
                     </div>
 
-                    <!-- Login Button -->
-                    <button id="loginBtn" onclick="loginWithGoogle()" class="px-5 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-bold rounded-2xl text-sm transition-all shadow-md flex items-center gap-2">
-                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M12.24 10.285V13.4h6.887C18.2 15.614 15.645 18 12.24 18c-3.86 0-7-3.14-7-7s3.14-7 7-7c1.7 0 3.25.61 4.47 1.62l2.367-2.367C17.27 1.54 14.91 1 12.24 1 6.59 1 2 5.59 2 11.24s4.59 10.24 10.24 10.24c5.79 0 10.24-4.11 10.24-10.24 0-.62-.06-1.21-.17-1.78H12.24z"/></svg>
-                        Log Masuk Google
+                    <!-- Enhanced Login Button for Google / DELIMa -->
+                    <button id="loginBtn" onclick="loginWithGoogle()" class="px-5 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-bold rounded-2xl text-sm transition-all shadow-md flex items-center gap-2 border border-blue-400/30">
+                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12.24 10.285V13.4h6.887C18.2 15.614 15.645 18 12.24 18c-3.86 0-7-3.14-7-7s3.14-7 7-7c1.7 0 3.25.61 4.47 1.62l2.367-2.367C17.27 1.54 14.91 1 12.24 1 6.59 1 2 5.59 2 11.24s4.59 10.24 10.24 10.24c5.79 0 10.24-4.11 10.24-10.24 0-.62-.06-1.21-.17-1.78H12.24z"/>
+                        </svg>
+                        <span>Log Masuk Google / DELIMa</span>
                     </button>
 
                     <!-- DB Status Badge -->
@@ -509,7 +511,7 @@
                     role = 'Admin Utama';
                     isReadOnly = false;
                 } else if (/^g-.*@moe-dl\.edu\.my$/.test(email)) {
-                    role = 'Guru Delima';
+                    role = 'Guru DELIMa';
                     isReadOnly = false;
                 }
 
@@ -518,10 +520,10 @@
                 
                 if (isReadOnly) {
                     badge.className = "inline-block mt-0.5 px-2 py-0.5 font-extrabold rounded bg-slate-300 text-slate-800 scale-90 origin-left";
-                    showToast(`Log masuk berjaya. Peranan anda: Pelawat (Tiada akses menulis).`, 'warning');
+                    showToast(`Log masuk berjaya. Peranan anda: Pelawat (Akses Tontonan Sahaja).`, 'warning');
                 } else {
-                    badge.className = "inline-block mt-0.5 px-2 py-0.5 font-extrabold rounded bg-emerald-500 text-white scale-90 origin-left";
-                    showToast(`Log masuk berjaya! Anda disahkan sebagai ${role}. Akses penuh diberikan.`, 'success');
+                    badge.className = "inline-block mt-0.5 px-2 py-0.5 font-extrabold rounded bg-emerald-500 text-white scale-90 origin-left animate-bounce";
+                    showToast(`Selamat Datang ${role}! Akses kemas kini data diaktifkan.`, 'success');
                 }
             } else {
                 // Tiada akaun Google dikesan / Mod Anonymous sahaja
@@ -567,6 +569,10 @@
         // Panggil Log Masuk Google Pop-up
         function loginWithGoogle() {
             const provider = new firebase.auth.GoogleAuthProvider();
+            // Memberi tumpuan kepada pemilihan akaun Google / moe-dl.edu.my
+            provider.setCustomParameters({
+                prompt: 'select_account'
+            });
             auth.signInWithPopup(provider).catch(error => {
                 console.error(error);
                 showToast("Log masuk gagal: " + error.message, "danger");
