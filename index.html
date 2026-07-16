@@ -93,9 +93,21 @@
                     </p>
                 </div>
                 
-                <!-- Login & Status Badge Area -->
+                <!-- Login & Status Badge Area (Disusun Semula: Login/Profil kini berada di paling kanan) -->
                 <div class="flex flex-col sm:flex-row items-center gap-4">
-                    <!-- User Profile Card (Hidden by default, shown when logged in with Google) -->
+                    <!-- 1. DB Status Badge -->
+                    <div class="flex items-center gap-2.5 bg-white/5 backdrop-blur-md border border-white/10 px-4 py-2.5 rounded-2xl">
+                        <span class="relative flex h-3 w-3">
+                            <span id="pingDot" class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                            <span id="statusDot" class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                        </span>
+                        <div class="text-left text-xs">
+                            <p class="text-slate-400 font-medium leading-none">Database</p>
+                            <p id="dbStatus" class="font-bold text-emerald-400 mt-1 leading-none">Menghubung...</p>
+                        </div>
+                    </div>
+
+                    <!-- 2. User Profile Card (Hidden by default, shown when logged in with Google) -->
                     <div id="userProfile" class="hidden items-center gap-3 bg-white/10 backdrop-blur-md border border-white/15 px-4 py-2.5 rounded-2xl">
                         <img id="userAvatar" src="" alt="Avatar" class="w-9 h-9 rounded-full border border-white/20">
                         <div class="text-left text-xs max-w-[150px]">
@@ -107,25 +119,13 @@
                         </button>
                     </div>
 
-                    <!-- Enhanced Login Button for Google / DELIMa -->
+                    <!-- 3. Enhanced Login Button for Google / DELIMa (Berada di paling kanan) -->
                     <button id="loginBtn" onclick="loginWithGoogle()" class="px-5 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-bold rounded-2xl text-sm transition-all shadow-md flex items-center gap-2 border border-blue-400/30">
                         <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M12.24 10.285V13.4h6.887C18.2 15.614 15.645 18 12.24 18c-3.86 0-7-3.14-7-7s3.14-7 7-7c1.7 0 3.25.61 4.47 1.62l2.367-2.367C17.27 1.54 14.91 1 12.24 1 6.59 1 2 5.59 2 11.24s4.59 10.24 10.24 10.24c5.79 0 10.24-4.11 10.24-10.24 0-.62-.06-1.21-.17-1.78H12.24z"/>
                         </svg>
                         <span>Log Masuk Google / DELIMa</span>
                     </button>
-
-                    <!-- DB Status Badge -->
-                    <div class="flex items-center gap-2.5 bg-white/5 backdrop-blur-md border border-white/10 px-4 py-2.5 rounded-2xl">
-                        <span class="relative flex h-3 w-3">
-                            <span id="pingDot" class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                            <span id="statusDot" class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
-                        </span>
-                        <div class="text-left text-xs">
-                            <p class="text-slate-400 font-medium leading-none">Database</p>
-                            <p id="dbStatus" class="font-bold text-emerald-400 mt-1 leading-none">Menghubung...</p>
-                        </div>
-                    </div>
                 </div>
             </div>
         </header>
@@ -442,27 +442,14 @@
                 // Mendengar perubahan status log masuk
                 auth.onAuthStateChanged(async (user) => {
                     if (!user) {
-                        // Secara automatik cuba log masuk secara anonim supaya boleh membaca data tanpa ralat (Aturan 3)
-                        try {
-                            document.getElementById('dbStatus').innerText = "Menghubung...";
-                            document.getElementById('dbStatus').className = "text-sm font-bold text-amber-400";
-                            await auth.signInAnonymously();
-                        } catch (e) {
-                            console.error("Gagal log masuk secara senyap:", e);
-                            
-                            // Jika Anonymous Auth dinyahaktifkan dalam konsol Firebase
-                            document.getElementById('dbStatus').innerText = "Mod Terhad (Log Masuk Diperlukan)";
-                            document.getElementById('dbStatus').className = "text-sm font-bold text-rose-400";
-                            document.getElementById('statusDot').className = "relative inline-flex rounded-full h-3 w-3 bg-rose-500";
-                            document.getElementById('pingDot').className = "animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75";
-                            
-                            showToast("Sambungan tanpa nama disekat oleh pentadbir. Sila 'Log Masuk Google' untuk mula.", "warning");
-                            
-                            // Fallback kepada data tempatan offline sementara menunggu Log Masuk Google
-                            isReadOnly = true;
-                            toggleInteractiveElements();
-                            syncLocalData();
-                        }
+                        // Reset status UI serta merta apabila pengguna keluar
+                        isReadOnly = true;
+                        toggleInteractiveElements();
+                        
+                        document.getElementById('dbStatus').innerText = "Mod Terhad (Log Masuk Diperlukan)";
+                        document.getElementById('dbStatus').className = "text-sm font-bold text-rose-400";
+                        document.getElementById('statusDot').className = "relative inline-flex rounded-full h-3 w-3 bg-rose-500";
+                        document.getElementById('pingDot').className = "animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75";
                     } else {
                         // Pengguna telah berjaya disahkan masuk (sama ada secara Anonim atau Google Auth)
                         handleUserAuthState(user);
@@ -476,6 +463,20 @@
                         subscribeRealtimeData();
                     }
                 });
+
+                // Hanya cuba mulakan Log Masuk Tanpa Nama (Anonymous) secara perlahan sekiranya tiada sesi aktif
+                // Ini memastikan tiada pertindihan operasi semasa proses daftar keluar/masuk Google berjalan
+                setTimeout(async () => {
+                    if (auth && !auth.currentUser) {
+                        try {
+                            await auth.signInAnonymously();
+                        } catch (e) {
+                            console.warn("Log masuk tanpa nama dihadkan:", e);
+                            showToast("Sila klik butang 'Log Masuk Google' untuk mula memasukkan data.", "warning");
+                            syncLocalData();
+                        }
+                    }
+                }, 1000);
 
             } catch (err) {
                 console.error("Ralat Firebase:", err);
@@ -583,6 +584,16 @@
         function logout() {
             auth.signOut().then(() => {
                 showToast("Anda telah keluar dari akaun rasmi.", "success");
+                // Cuba daftar masuk secara tanpa nama semula selepas 1.5 saat untuk mengekalkan kebolehan live-sync tontonan
+                setTimeout(async () => {
+                    if (auth && !auth.currentUser) {
+                        try {
+                            await auth.signInAnonymously();
+                        } catch (e) {
+                            console.log("Daftar masuk anonim pasca-logout dilangkau.");
+                        }
+                    }
+                }, 1500);
             });
         }
 
