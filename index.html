@@ -93,7 +93,7 @@
                     </p>
                 </div>
                 
-                <!-- Login & Status Badge Area (Disusun Semula: Login/Profil berada di paling kanan) -->
+                <!-- Login & Status Badge Area -->
                 <div class="flex flex-col sm:flex-row items-center gap-4">
                     <!-- 1. DB Status Badge -->
                     <div class="flex items-center gap-2.5 bg-white/5 backdrop-blur-md border border-white/10 px-4 py-2.5 rounded-2xl">
@@ -119,7 +119,7 @@
                         </button>
                     </div>
 
-                    <!-- 3. Enhanced Login Button for Google / DELIMa (Berada di paling kanan) -->
+                    <!-- 3. Enhanced Login Button for Google / DELIMa -->
                     <button id="loginBtn" onclick="loginWithGoogle()" class="px-5 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-bold rounded-2xl text-sm transition-all shadow-md flex items-center gap-2 border border-blue-400/30">
                         <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M12.24 10.285V13.4h6.887C18.2 15.614 15.645 18 12.24 18c-3.86 0-7-3.14-7-7s3.14-7 7-7c1.7 0 3.25.61 4.47 1.62l2.367-2.367C17.27 1.54 14.91 1 12.24 1 6.59 1 2 5.59 2 11.24s4.59 10.24 10.24 10.24c5.79 0 10.24-4.11 10.24-10.24 0-.62-.06-1.21-.17-1.78H12.24z"/>
@@ -324,9 +324,9 @@
                 </div>
             </div>
 
-            <!-- TABS UNTUK SETIAP RUMAH SUKAN DAN ISU SUSUNAN -->
+            <!-- TABS UNTUK SETIAP RUMAH SUKAN DAN BARIS SEHALA -->
             <div class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-100 pb-4">
-                <div id="houseTabsContainer" class="flex flex-wrap gap-2 overflow-x-auto max-w-full">
+                <div id="houseTabsContainer" class="flex flex-nowrap gap-2 overflow-x-auto max-w-full pb-2 scrollbar-thin">
                     <!-- Dinamik Tab Rumah Sukan akan muncul di sini -->
                 </div>
                 
@@ -346,7 +346,7 @@
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                         </svg>
-                        <span>Padam Semua Ahli</span>
+                        <span>Semua Ahli</span>
                     </button>
                 </div>
             </div>
@@ -401,7 +401,7 @@
 
     <script>
         // ==========================================
-        // ⚙️ KONFIGURASI FIREBASE ANDA (KINI AKTIF!)
+        // ⚙️ KONFIGURASI FIREBASE ANDA (AKTIF)
         // ==========================================
         const firebaseConfig = {
             apiKey: "AIzaSyAJ5LrENOSzRkClehZmu3dy3JKrt6QvtcU",
@@ -417,7 +417,7 @@
         let auth;
         let housesRef;
         let studentsRef;
-        let isReadOnly = true; // Sifat asal adalah lihat sahaja sehingga log masuk sah dilakukan
+        let isReadOnly = true; 
 
         // Storan Sandaran Tempatan (Mod Luar Talian)
         let localHouses = JSON.parse(localStorage.getItem('sukantara_houses')) || ['Merah', 'Biru', 'Kuning', 'Hijau'];
@@ -442,11 +442,10 @@
             return 99;
         }
 
-        // Fungsi helper untuk menormalkan string jantina secara komprehensif (L/P, Perempuan, Female, dsb.)
+        // Fungsi helper untuk menormalkan string jantina secara komprehensif
         function normalizeGender(g) {
             if (!g) return "Lelaki";
             const val = g.toString().trim().toUpperCase();
-            // Mana-mana perkataan yang bermula dengan P (Perempuan, P, PR, PRMPN), F (Female, F), atau W (Woman/Wanita) dipetakan ke "Perempuan"
             if (val.startsWith('P') || val.startsWith('F') || val.startsWith('W')) {
                 return "Perempuan";
             }
@@ -503,17 +502,12 @@
                 db = firebase.firestore();
                 auth = firebase.auth();
 
-                // Tentukan path berstruktur (Aturan 1)
                 housesRef = db.collection('artifacts').doc(appId).collection('public').doc('data').collection('houses');
                 studentsRef = db.collection('artifacts').doc(appId).collection('public').doc('data').collection('students');
 
-                // Mendengar perubahan status log masuk
                 auth.onAuthStateChanged(async (user) => {
                     if (!user) {
-                        // Reset status UI serta merta apabila pengguna keluar
                         isReadOnly = true;
-                        
-                        // PEMBETULAN: Set semula UI profil & butang log masuk serta-merta apabila keluar
                         handleUserAuthState(null);
                         
                         document.getElementById('dbStatus').innerText = "Mod Terhad (Log Masuk Diperlukan)";
@@ -521,7 +515,6 @@
                         document.getElementById('statusDot').className = "relative inline-flex rounded-full h-3 w-3 bg-rose-500";
                         document.getElementById('pingDot').className = "animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75";
                     } else {
-                        // Pengguna telah berjaya disahkan masuk (sama ada secara Anonim atau Google Auth)
                         handleUserAuthState(user);
                         
                         document.getElementById('dbStatus').innerText = "Bersambung (Live)";
@@ -529,19 +522,17 @@
                         document.getElementById('statusDot').className = "relative inline-flex rounded-full h-3 w-3 bg-emerald-500";
                         document.getElementById('pingDot').className = "animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75";
 
-                        // Mulakan penstriman data hanya setelah disahkan masuk (Auth Sebelum Query!)
                         subscribeRealtimeData();
                     }
                 });
 
-                // Hanya cuba mulakan Log Masuk Tanpa Nama (Anonymous) secara perlahan sekiranya tiada sesi aktif
                 setTimeout(async () => {
                     if (auth && !auth.currentUser) {
                         try {
                             await auth.signInAnonymously();
                         } catch (e) {
                             console.warn("Log masuk tanpa nama dihadkan:", e);
-                            showToast("Sila klik butang 'Log Masuk Google' untuk mula memasukkan data.", "warning");
+                            showToast("Sila klik 'Log Masuk Google / DELIMa' untuk kemaskini.", "warning");
                             syncLocalData();
                         }
                     }
@@ -552,8 +543,6 @@
                 document.getElementById('dbStatus').innerText = "Ralat Sambungan";
                 document.getElementById('dbStatus').className = "text-sm font-bold text-rose-400";
                 showToast("Gagal menyambung ke pangkalan data awan. Mod Offline diaktifkan.", "danger");
-                
-                // Fallback mod tempatan
                 syncLocalData();
             }
         };
@@ -563,7 +552,6 @@
             const loginBtn = document.getElementById('loginBtn');
             const userProfile = document.getElementById('userProfile');
             
-            // Sekiranya log masuk anonim, anggap sebagai Pelawat/Bukan Guru
             if (user && !user.isAnonymous) {
                 loginBtn.classList.add('hidden');
                 userProfile.classList.remove('hidden');
@@ -576,7 +564,6 @@
                 let role = 'Pelawat (Lihat Sahaja)';
                 isReadOnly = true;
 
-                // Memadankan dengan peraturan kebenaran menulis firestore.rules
                 if (email === 'sekolah-7608@moe-dl.edu.my') {
                     role = 'Admin Utama';
                     isReadOnly = false;
@@ -590,20 +577,18 @@
                 
                 if (isReadOnly) {
                     badge.className = "inline-block mt-0.5 px-2 py-0.5 font-extrabold rounded bg-slate-300 text-slate-800 scale-90 origin-left";
-                    showToast(`Log masuk berjaya. Peranan anda: Pelawat (Akses Tontonan Sahaja).`, 'warning');
+                    showToast(`Log masuk berjaya. Peranan: Pelawat (Akses Tontonan Sahaja).`, 'warning');
                 } else {
                     badge.className = "inline-block mt-0.5 px-2 py-0.5 font-extrabold rounded bg-emerald-500 text-white scale-90 origin-left animate-bounce";
                     showToast(`Selamat Datang ${role}! Akses kemas kini data diaktifkan.`, 'success');
                 }
             } else {
-                // Tiada akaun Google dikesan / Mod Anonymous sahaja
                 loginBtn.classList.remove('hidden');
                 userProfile.classList.add('hidden');
                 userProfile.classList.remove('flex');
                 isReadOnly = true;
             }
 
-            // Kunci atau buka borang secara dinamik mengikut status kebenaran
             toggleInteractiveElements();
         }
 
@@ -633,11 +618,9 @@
                 }
             });
 
-            // Kemaskini jadual lembaran kerja bagi melumpuhkan checkbox/catatan
             renderWorksheet();
         }
 
-        // Panggil Log Masuk Google Pop-up
         function loginWithGoogle() {
             const provider = new firebase.auth.GoogleAuthProvider();
             provider.setCustomParameters({
@@ -649,7 +632,6 @@
             });
         }
 
-        // Log Keluar sistem
         function logout() {
             auth.signOut().then(() => {
                 showToast("Anda telah keluar dari akaun rasmi.", "success");
@@ -695,7 +677,6 @@
                 snapshot.forEach(doc => {
                     let data = doc.data();
                     if (data) {
-                        // Pastikan menyokong kedua-dua nama medan 'gender' dan 'jantina' dalam pangkalan data
                         const rawGen = data.gender || data.jantina || data.Jantina || data.Gender;
                         data.gender = normalizeGender(rawGen);
                         data.studentClass = normalizeClass(data.studentClass);
@@ -712,7 +693,6 @@
         function syncLocalData() {
             houses = localHouses.map((name, i) => ({ id: `local_house_${i}`, name }));
             students = localStudents.map(s => {
-                // Lakukan normalisasi data pada storan tempatan offline juga
                 const rawGen = s.gender || s.jantina || s.Jantina || s.Gender;
                 s.gender = normalizeGender(rawGen);
                 s.studentClass = normalizeClass(s.studentClass);
@@ -738,7 +718,6 @@
         // ==========================================
         // 📥 KEMASUKAN DATA & TINDAKAN
         // ==========================================
-
         document.getElementById('houseForm').addEventListener('submit', function(e) {
             e.preventDefault();
             if (isReadOnly || !auth.currentUser) {
@@ -840,7 +819,7 @@
         function updateStudentActivity(studentId, field, value) {
             if (isReadOnly || !auth.currentUser) {
                 showToast("Akses Terhad: Sila log masuk untuk membuat kemaskini data.", "warning");
-                renderWorksheet(); // Muat semula jadual bagi set semula tanda checkbox
+                renderWorksheet(); 
                 return;
             }
 
@@ -868,13 +847,12 @@
         // ==========================================
         // 🎨 PAPARAN & WORK SHEET RENDERING
         // ==========================================
-
         function getHouseTabStyle(houseName, isActive) {
             const h = houseName.toLowerCase();
             if (isActive) {
                 if (h.includes('merah')) return 'bg-rose-600 text-white shadow-md ring-2 ring-rose-300';
                 if (h.includes('biru')) return 'bg-blue-600 text-white shadow-md ring-2 ring-blue-300';
-                if (h.includes('kuning')) return 'bg-amber-500 text-white shadow-md ring-2 ring-amber-300';
+                if (h.includes('kuning')) return 'bg-amber-50 text-slate-900 shadow-md ring-2 ring-amber-300';
                 if (h.includes('hijau')) return 'bg-emerald-600 text-white shadow-md ring-2 ring-emerald-300';
                 if (h.includes('ungu')) return 'bg-purple-600 text-white shadow-md ring-2 ring-purple-300';
                 if (h.includes('jingga')) return 'bg-orange-500 text-white shadow-md ring-2 ring-orange-300';
@@ -900,7 +878,7 @@
                 const isActive = activeHouseTab === h.name;
                 const buttonStyle = getHouseTabStyle(h.name, isActive);
                 container.innerHTML += `
-                    <button onclick="setTabActive('${h.name}')" class="px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${buttonStyle}">
+                    <button onclick="setTabActive('${h.name}')" class="px-5 py-2.5 rounded-xl text-sm font-bold transition-all flex-shrink-0 whitespace-nowrap ${buttonStyle}">
                         🎯 Rumah ${h.name}
                     </button>
                 `;
@@ -913,6 +891,7 @@
             renderWorksheet();
         }
 
+        // Rendering senarai murid mengikut isihan terpilih
         function renderWorksheet() {
             const tbody = document.getElementById('worksheetBody');
             
@@ -933,7 +912,7 @@
 
             let sortedMembers = [...houseMembers];
 
-            // Melaksanakan sistem susun jadual yang dipilih secara dinamik
+            // Sistem isihan jadual tiga pilihan utama
             if (currentSortOption === 'name_asc') {
                 sortedMembers.sort((a, b) => a.name.localeCompare(b.name, 'ms'));
             } else if (currentSortOption === 'class_asc') {
@@ -1064,6 +1043,7 @@
             });
         }
 
+        // Mengira kedudukan johan rumah sukan berdasarkan pengumpulan jumlah mata sukantara
         function updateLeaderboardAndStats() {
             let scores = {};
             houses.forEach(h => scores[h.name] = 0);
@@ -1116,7 +1096,6 @@
         // ==========================================
         // 📥 IMPORT / EXPORT JSON LOGIC
         // ==========================================
-        
         function triggerJsonImport() {
             if (isReadOnly || !auth.currentUser) {
                 showToast("Akses Terhad: Sila log masuk dengan akaun Guru untuk mengimport data JSON.", "warning");
@@ -1176,7 +1155,6 @@
                             const name = (s.nama || s.Nama || s.name || s.Name || "").trim();
                             if (!name) continue; 
 
-                            // Menormalkan jantina dan kelas secara meluas semasa import dijalankan
                             const rawGender = s.gender || s.Gender || s.jantina || s.Jantina || s.sex || s.Sex || "Lelaki";
                             const gender = normalizeGender(rawGender);
 
