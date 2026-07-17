@@ -311,7 +311,7 @@
     <!-- JAVASCRIPT & DATABASE INTEGRATION -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signOut, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signOut, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, deleteDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         let auth, db;
@@ -323,16 +323,19 @@
         let confirmCallback = null;
         let isFirebaseConnected = false;
 
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'sukantara-sekolah-app';
-        let firebaseConfig = null;
-
-        try {
-            if (typeof __firebase_config !== 'undefined') {
-                firebaseConfig = JSON.parse(__firebase_config);
-            }
-        } catch(e) {
-            console.warn("Konfigurasi Firebase gagal dihuraikan. Menggunakan mod LocalStorage sahaja.", e);
-        }
+        // Menetapkan appId lalai mengikut ID Projek Firebase anda
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'sps-skb-d8256';
+        
+        // Konfigurasi Firebase rasmi anda
+        const firebaseConfig = {
+            apiKey: "AIzaSyAJ5LrENOSzRkClehZmu3dy3JKrt6QvtcU",
+            authDomain: "sps-skb-d8256.firebaseapp.com",
+            databaseURL: "https://sps-skb-d8256-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "sps-skb-d8256",
+            storageBucket: "sps-skb-d8256.firebasestorage.app",
+            messagingSenderId: "322634427088",
+            appId: "1:322634427088:web:db53555239341fb9190cd5"
+        };
 
         // DATABASE INITIALIZATION
         async function initDatabase() {
