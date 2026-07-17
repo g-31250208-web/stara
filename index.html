@@ -322,7 +322,7 @@
                     <h2 class="text-2xl font-extrabold text-navy-950 flex items-center gap-2">
                         <span>📊</span> Borang Aktiviti Rumah Sukan (Lembaran Kerja)
                     </h2>
-                    <p class="text-slate-400 text-xs mt-1">Setiap acara yang ditanda memberikan <strong class="text-blue-600">2 mata</strong> sukantara secara automatik.</p>
+                    <p class="text-slate-400 text-xs mt-1">Setiap acara yang ditanda memberikan <strong class="text-blue-600">1 mata</strong> sukantara secara automatik.</p>
                 </div>
 
                 <!-- Backup & Reset Controls -->
@@ -756,7 +756,7 @@
             });
         }
 
-        // Kemaskini aktiviti & auto-kira mata sukantara (2 mata per acara)
+        // Kemaskini aktiviti & auto-kira mata sukantara (1 mata per acara)
         function updateStudentActivity(studentId, field, value) {
             if (isReadOnly || !auth.currentUser) {
                 showToast("Akses Terhad: Sila log masuk untuk membuat kemaskini data.", "warning");
@@ -770,10 +770,10 @@
             stud[field] = value;
             
             let updatedPoints = 0;
-            if (stud.lompatJauh) updatedPoints += 2;
-            if (stud.lompatTinggi) updatedPoints += 2;
-            if (stud.larian) updatedPoints += 2;
-            if (stud.lontarPeluru) updatedPoints += 2;
+            if (stud.lompatJauh) updatedPoints += 1;
+            if (stud.lompatTinggi) updatedPoints += 1;
+            if (stud.larian) updatedPoints += 1;
+            if (stud.lontarPeluru) updatedPoints += 1;
             
             stud.points = updatedPoints;
 
@@ -1107,10 +1107,10 @@
                             const catatan = s.catatan || s.Catatan || s.nota || s.Nota || "";
 
                             let points = 0;
-                            if (lompatJauh === true || lompatJauh === "true") points += 2;
-                            if (lompatTinggi === true || lompatTinggi === "true") points += 2;
-                            if (larian === true || larian === "true") points += 2;
-                            if (lontarPeluru === true || lontarPeluru === "true") points += 2;
+                            if (lompatJauh === true || lompatJauh === "true") points += 1;
+                            if (lompatTinggi === true || lompatTinggi === "true") points += 1;
+                            if (larian === true || larian === "true") points += 1;
+                            if (lontarPeluru === true || lontarPeluru === "true") points += 1;
 
                             const payload = {
                                 name,
