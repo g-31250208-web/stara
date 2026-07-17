@@ -442,11 +442,12 @@
             return 99;
         }
 
-        // Fungsi helper untuk menormalkan string jantina ("P", "p", "Perempuan" -> "Perempuan")
+        // Fungsi helper untuk menormalkan string jantina secara komprehensif (L/P, Perempuan, Female, dsb.)
         function normalizeGender(g) {
             if (!g) return "Lelaki";
             const val = g.toString().trim().toUpperCase();
-            if (val === 'P' || val.startsWith('PER') || val === 'FEMALE' || val === 'F' || val === 'WOMAN' || val === 'GIRL') {
+            // Mana-mana perkataan yang bermula dengan P (Perempuan, P, PR, PRMPN), F (Female, F), atau W (Woman/Wanita) dipetakan ke "Perempuan"
+            if (val.startsWith('P') || val.startsWith('F') || val.startsWith('W')) {
                 return "Perempuan";
             }
             return "Lelaki";
@@ -693,9 +694,10 @@
                 students = [];
                 snapshot.forEach(doc => {
                     let data = doc.data();
-                    // Lakukan normalisasi data secara automatik dari Firebase untuk mengelakkan isu "P/p" hilang
                     if (data) {
-                        data.gender = normalizeGender(data.gender);
+                        // Pastikan menyokong kedua-dua nama medan 'gender' dan 'jantina' dalam pangkalan data
+                        const rawGen = data.gender || data.jantina || data.Jantina || data.Gender;
+                        data.gender = normalizeGender(rawGen);
                         data.studentClass = normalizeClass(data.studentClass);
                     }
                     students.push({ id: doc.id, ...data });
@@ -711,7 +713,8 @@
             houses = localHouses.map((name, i) => ({ id: `local_house_${i}`, name }));
             students = localStudents.map(s => {
                 // Lakukan normalisasi data pada storan tempatan offline juga
-                s.gender = normalizeGender(s.gender);
+                const rawGen = s.gender || s.jantina || s.Jantina || s.Gender;
+                s.gender = normalizeGender(rawGen);
                 s.studentClass = normalizeClass(s.studentClass);
                 return s;
             });
@@ -1173,8 +1176,8 @@
                             const name = (s.nama || s.Nama || s.name || s.Name || "").trim();
                             if (!name) continue; 
 
-                            // Menormalkan jantina dan kelas semasa import dijalankan
-                            const rawGender = s.jantina || s.Jantina || s.gender || s.Gender || "Lelaki";
+                            // Menormalkan jantina dan kelas secara meluas semasa import dijalankan
+                            const rawGender = s.gender || s.Gender || s.jantina || s.Jantina || s.sex || s.Sex || "Lelaki";
                             const gender = normalizeGender(rawGender);
 
                             const rawClass = s.kelas || s.Kelas || s.studentClass || s.class || s.Class || "Tahun 1";
