@@ -326,34 +326,46 @@
                 </div>
 
                 <!-- Backup & Reset Controls -->
-                <div class="flex flex-wrap gap-2 w-full md:w-auto">
-                    <button id="importJsonBtn" onclick="triggerJsonImport()" class="px-3.5 py-2 bg-blue-50 text-blue-600 border border-blue-100 hover:bg-blue-100 hover:text-blue-700 font-bold rounded-xl text-xs transition-all flex items-center gap-1.5 shadow-sm">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-                        Import JSON
-                    </button>
-                    <input type="file" id="jsonFileInput" accept=".json" class="hidden" onchange="importJSON(event)">
+            <div class="flex flex-wrap gap-2 w-full md:w-auto">
+                <button id="importJsonBtn" onclick="triggerJsonImport()" class="px-3.5 py-2 bg-blue-50 text-blue-600 border border-blue-100 hover:bg-blue-100 hover:text-blue-700 font-bold rounded-xl text-xs transition-all flex items-center gap-1.5 shadow-sm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                    Import JSON
+                </button>
+                <input type="file" id="jsonFileInput" accept=".json" class="hidden" onchange="importJSON(event)">
 
-                    <button id="exportJsonBtn" onclick="exportJSON()" class="px-3.5 py-2 bg-slate-50 text-slate-600 border border-slate-200 hover:bg-slate-100 hover:text-slate-700 font-bold rounded-xl text-xs transition-all flex items-center gap-1.5 shadow-sm">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                        Eksport JSON
-                    </button>
+                <button id="exportJsonBtn" onclick="exportJSON()" class="px-3.5 py-2 bg-slate-50 text-slate-600 border border-slate-200 hover:bg-slate-100 hover:text-slate-700 font-bold rounded-xl text-xs transition-all flex items-center gap-1.5 shadow-sm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                    Eksport JSON
+                </button>
 
-                    <button id="resetAllBtn" onclick="confirmResetData()" class="px-3.5 py-2 bg-rose-50 text-rose-600 border border-rose-100 hover:bg-rose-100 hover:text-rose-700 font-bold rounded-xl text-xs transition-all flex items-center gap-1.5 shadow-sm">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                        Padam Semua Rekod
-                    </button>
-                </div>
+                <button id="resetAllBtn" onclick="confirmResetData()" class="px-3.5 py-2 bg-rose-50 text-rose-600 border border-rose-100 hover:bg-rose-100 hover:text-rose-700 font-bold rounded-xl text-xs transition-all flex items-center gap-1.5 shadow-sm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                    Padam Semua Rekod
+                </button>
             </div>
+        </div>
 
-            <!-- TABS UNTUK SETIAP RUMAH SUKAN -->
-            <div class="mb-6">
-                <div id="houseTabsContainer" class="flex flex-wrap gap-2 border-b border-slate-100 pb-3 overflow-x-auto">
-                    <!-- Dinamik Tab Rumah Sukan akan muncul di sini -->
-                </div>
+        <!-- TABS UNTUK SETIAP RUMAH SUKAN DAN ISU SUSUNAN -->
+        <div class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-100 pb-4">
+            <div id="houseTabsContainer" class="flex flex-wrap gap-2 overflow-x-auto max-w-full">
+                <!-- Dinamik Tab Rumah Sukan akan muncul di sini -->
             </div>
+            
+            <div class="flex items-center gap-2.5 w-full md:w-auto">
+                <label for="sortOption" class="text-xs font-extrabold text-slate-500 uppercase tracking-wider whitespace-nowrap">↕️ Susun Jadual:</label>
+                <select id="sortOption" onchange="changeSorting(this.value)" class="w-full md:w-72 px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-700 cursor-pointer">
+                    <option value="class_asc">🏫 Kelas (Pra-Sek ➡️ Thn 6) ➡️ Jantina (L ➡️ P) ➡️ Nama (A-Z)</option>
+                    <option value="class_desc">🏫 Kelas (Thn 6 ➡️ Pra-Sek) ➡️ Jantina (L ➡️ P) ➡️ Nama (A-Z)</option>
+                    <option value="gender_l_p">🚻 Jantina (Lelaki ➡️ Perempuan) ➡️ Nama (A-Z)</option>
+                    <option value="gender_p_l">🚻 Jantina (Perempuan ➡️ Lelaki) ➡️ Nama (A-Z)</option>
+                    <option value="name_asc">🔤 Nama Pelajar (A ➡️ Z)</option>
+                    <option value="name_desc">🔤 Nama Pelajar (Z ➡️ A)</option>
+                </select>
+            </div>
+        </div>
 
-            <!-- SPREADSHEET TABLE CONTAINER -->
-            <div class="overflow-x-auto rounded-2xl border border-slate-100 shadow-inner">
+        <!-- SPREADSHEET TABLE CONTAINER -->
+        <div class="overflow-x-auto rounded-2xl border border-slate-100 shadow-inner">
                 <table id="worksheetTable" class="w-full text-left border-collapse min-w-[900px]">
                     <thead>
                         <tr class="bg-gradient-to-r from-navy-950 to-blue-950 text-white text-xs font-bold uppercase tracking-wider border-b border-slate-200">
@@ -427,6 +439,13 @@
         let houses = [];
         let students = [];
         let activeHouseTab = '';
+        let currentSortOption = 'class_asc'; // Default sorting option
+
+        // Fungsi menukar pilihan susunan dan me-render semula jadual
+        function changeSorting(optionValue) {
+            currentSortOption = optionValue;
+            renderWorksheet();
+        }
 
         // Inisialisasi Firebase & Pengurusan Log Masuk
         const initApp = async () => {
@@ -851,8 +870,67 @@
                 return;
             }
 
+            // Susun ahli menggunakan hierarki tersuai
+            const classOrder = {
+                "Pra Sekolah": 0,
+                "Tahun 1": 1,
+                "Tahun 2": 2,
+                "Tahun 3": 3,
+                "Tahun 4": 4,
+                "Tahun 5": 5,
+                "Tahun 6": 6
+            };
+
+            let sortedMembers = [...houseMembers];
+
+            if (currentSortOption === 'class_asc') {
+                sortedMembers.sort((a, b) => {
+                    const classA = classOrder[a.studentClass] !== undefined ? classOrder[a.studentClass] : 99;
+                    const classB = classOrder[b.studentClass] !== undefined ? classOrder[b.studentClass] : 99;
+                    if (classA !== classB) return classA - classB; // Urutan kelas menaik
+
+                    // Urutan jantina (Lelaki dahulu, kemudian Perempuan)
+                    if (a.gender !== b.gender) {
+                        return a.gender === 'Lelaki' ? -1 : 1;
+                    }
+
+                    // Urutan nama (A-Z)
+                    return a.name.localeCompare(b.name, 'ms');
+                });
+            } else if (currentSortOption === 'class_desc') {
+                sortedMembers.sort((a, b) => {
+                    const classA = classOrder[a.studentClass] !== undefined ? classOrder[a.studentClass] : 99;
+                    const classB = classOrder[b.studentClass] !== undefined ? classOrder[b.studentClass] : 99;
+                    if (classA !== classB) return classB - classA; // Urutan kelas menurun
+
+                    if (a.gender !== b.gender) {
+                        return a.gender === 'Lelaki' ? -1 : 1;
+                    }
+
+                    return a.name.localeCompare(b.name, 'ms');
+                });
+            } else if (currentSortOption === 'gender_l_p') {
+                sortedMembers.sort((a, b) => {
+                    if (a.gender !== b.gender) {
+                        return a.gender === 'Lelaki' ? -1 : 1;
+                    }
+                    return a.name.localeCompare(b.name, 'ms');
+                });
+            } else if (currentSortOption === 'gender_p_l') {
+                sortedMembers.sort((a, b) => {
+                    if (a.gender !== b.gender) {
+                        return a.gender === 'Perempuan' ? -1 : 1;
+                    }
+                    return a.name.localeCompare(b.name, 'ms');
+                });
+            } else if (currentSortOption === 'name_asc') {
+                sortedMembers.sort((a, b) => a.name.localeCompare(b.name, 'ms'));
+            } else if (currentSortOption === 'name_desc') {
+                sortedMembers.sort((a, b) => b.name.localeCompare(a.name, 'ms'));
+            }
+
             tbody.innerHTML = '';
-            houseMembers.forEach((s, idx) => {
+            sortedMembers.forEach((s, idx) => {
                 const bil = idx + 1;
                 tbody.innerHTML += `
                     <tr class="hover:bg-slate-50/50 transition-colors border-b border-slate-100">
