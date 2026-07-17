@@ -354,12 +354,9 @@
             <div class="flex items-center gap-2.5 w-full md:w-auto">
                 <label for="sortOption" class="text-xs font-extrabold text-slate-500 uppercase tracking-wider whitespace-nowrap">↕️ Susun Jadual:</label>
                 <select id="sortOption" onchange="changeSorting(this.value)" class="w-full md:w-72 px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-700 cursor-pointer">
-                    <option value="class_asc">🏫 Kelas (Pra-Sek ➡️ Thn 6) ➡️ Jantina (L ➡️ P) ➡️ Nama (A-Z)</option>
-                    <option value="class_desc">🏫 Kelas (Thn 6 ➡️ Pra-Sek) ➡️ Jantina (L ➡️ P) ➡️ Nama (A-Z)</option>
-                    <option value="gender_l_p">🚻 Jantina (Lelaki ➡️ Perempuan) ➡️ Nama (A-Z)</option>
-                    <option value="gender_p_l">🚻 Jantina (Perempuan ➡️ Lelaki) ➡️ Nama (A-Z)</option>
                     <option value="name_asc">🔤 Nama Pelajar (A ➡️ Z)</option>
-                    <option value="name_desc">🔤 Nama Pelajar (Z ➡️ A)</option>
+                    <option value="class_asc">🏫 Kelas (Pra-Sekolah ➡️ Tahun 6)</option>
+                    <option value="gender_l_p">🚻 Jantina (Lelaki ➡️ Perempuan)</option>
                 </select>
             </div>
         </div>
@@ -439,7 +436,7 @@
         let houses = [];
         let students = [];
         let activeHouseTab = '';
-        let currentSortOption = 'class_asc'; // Default sorting option
+        let currentSortOption = 'name_asc'; // Default sorting option ditukar kepada A-Z
 
         // Fungsi menukar pilihan susunan dan me-render semula jadual
         function changeSorting(optionValue) {
@@ -883,50 +880,25 @@
 
             let sortedMembers = [...houseMembers];
 
-            if (currentSortOption === 'class_asc') {
+            if (currentSortOption === 'name_asc') {
+                // 1. Susun ikut nama (A-Z)
+                sortedMembers.sort((a, b) => a.name.localeCompare(b.name, 'ms'));
+            } else if (currentSortOption === 'class_asc') {
+                // 2. Susun ikut kelas (Pra-Sekolah ➡️ Tahun 6) dan kemudian susun abjad nama
                 sortedMembers.sort((a, b) => {
                     const classA = classOrder[a.studentClass] !== undefined ? classOrder[a.studentClass] : 99;
                     const classB = classOrder[b.studentClass] !== undefined ? classOrder[b.studentClass] : 99;
-                    if (classA !== classB) return classA - classB; // Urutan kelas menaik
-
-                    // Urutan jantina (Lelaki dahulu, kemudian Perempuan)
-                    if (a.gender !== b.gender) {
-                        return a.gender === 'Lelaki' ? -1 : 1;
-                    }
-
-                    // Urutan nama (A-Z)
-                    return a.name.localeCompare(b.name, 'ms');
-                });
-            } else if (currentSortOption === 'class_desc') {
-                sortedMembers.sort((a, b) => {
-                    const classA = classOrder[a.studentClass] !== undefined ? classOrder[a.studentClass] : 99;
-                    const classB = classOrder[b.studentClass] !== undefined ? classOrder[b.studentClass] : 99;
-                    if (classA !== classB) return classB - classA; // Urutan kelas menurun
-
-                    if (a.gender !== b.gender) {
-                        return a.gender === 'Lelaki' ? -1 : 1;
-                    }
-
+                    if (classA !== classB) return classA - classB; 
                     return a.name.localeCompare(b.name, 'ms');
                 });
             } else if (currentSortOption === 'gender_l_p') {
+                // 3. Susun ikut jantina (Lelaki dahulu ➡️ Perempuan kemudian) dan kemudian susun abjad nama
                 sortedMembers.sort((a, b) => {
                     if (a.gender !== b.gender) {
                         return a.gender === 'Lelaki' ? -1 : 1;
                     }
                     return a.name.localeCompare(b.name, 'ms');
                 });
-            } else if (currentSortOption === 'gender_p_l') {
-                sortedMembers.sort((a, b) => {
-                    if (a.gender !== b.gender) {
-                        return a.gender === 'Perempuan' ? -1 : 1;
-                    }
-                    return a.name.localeCompare(b.name, 'ms');
-                });
-            } else if (currentSortOption === 'name_asc') {
-                sortedMembers.sort((a, b) => a.name.localeCompare(b.name, 'ms'));
-            } else if (currentSortOption === 'name_desc') {
-                sortedMembers.sort((a, b) => b.name.localeCompare(a.name, 'ms'));
             }
 
             tbody.innerHTML = '';
