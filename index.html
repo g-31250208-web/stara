@@ -130,45 +130,6 @@
             </div>
         </header>
 
-        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-            <div class="bg-white/80 backdrop-blur-md p-6 rounded-2xl border border-slate-100 shadow-md flex items-center gap-4 transition duration-300 hover:shadow-lg">
-                <div class="p-3 bg-blue-50 rounded-xl text-blue-600">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-                </div>
-                <div>
-                    <p class="text-xs text-slate-500 font-semibold tracking-wider uppercase">Jumlah Murid</p>
-                    <h3 id="statTotalStudents" class="text-2xl font-bold text-navy-950 mt-1">0</h3>
-                </div>
-            </div>
-            <div class="bg-white/80 backdrop-blur-md p-6 rounded-2xl border border-slate-100 shadow-md flex items-center gap-4 transition duration-300 hover:shadow-lg">
-                <div class="p-3 bg-cyan-50 rounded-xl text-cyan-600">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
-                </div>
-                <div>
-                    <p class="text-xs text-slate-500 font-semibold tracking-wider uppercase">Jumlah Rumah</p>
-                    <h3 id="statTotalHouses" class="text-2xl font-bold text-navy-950 mt-1">0</h3>
-                </div>
-            </div>
-            <div class="bg-white/80 backdrop-blur-md p-6 rounded-2xl border border-slate-100 shadow-md flex items-center gap-4 transition duration-300 hover:shadow-lg">
-                <div class="p-3 bg-emerald-50 rounded-xl text-emerald-600">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path></svg>
-                </div>
-                <div>
-                    <p class="text-xs text-slate-500 font-semibold tracking-wider uppercase">Mata Terkumpul</p>
-                    <h3 id="statTotalPoints" class="text-2xl font-bold text-navy-950 mt-1">0</h3>
-                </div>
-            </div>
-            <div class="bg-gradient-to-br from-indigo-900 to-navy-950 p-6 rounded-2xl border border-indigo-900 text-white shadow-md flex items-center gap-4 transition duration-300 hover:shadow-lg">
-                <div class="p-3 bg-indigo-500/20 rounded-xl text-indigo-300">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5a2 2 0 10-2 2h2zm0 0h4m-4 0H8m0 0v13m0 13t0"></path></svg>
-                </div>
-                <div>
-                    <p class="text-xs text-indigo-300 font-semibold tracking-wider uppercase">Rumah Pendahulu</p>
-                    <h3 id="statLeadingHouse" class="text-xl font-extrabold text-white mt-1">-</h3>
-                </div>
-            </div>
-        </section>
-
         <main class="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-8">
             
             <!-- LEFT PANEL: Kedudukan & Tetapan (5 Columns) -->
@@ -1059,16 +1020,6 @@
             let sortedScores = Object.keys(scores).map(key => {
                 return { house: key, points: scores[key] };
             }).sort((a, b) => b.points - a.points);
-
-            document.getElementById('statTotalStudents').innerText = students.length;
-            document.getElementById('statTotalHouses').innerText = houses.length;
-            document.getElementById('statTotalPoints').innerText = totalPointsRegistered;
-
-            if (sortedScores.length > 0 && sortedScores[0].points > 0) {
-                document.getElementById('statLeadingHouse').innerText = "Rumah " + sortedScores[0].house;
-            } else {
-                document.getElementById('statLeadingHouse').innerText = "-";
-            }
 
             const tbody = document.querySelector('#leaderboardTable tbody');
             if (houses.length === 0) {
