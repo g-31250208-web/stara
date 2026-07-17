@@ -66,15 +66,19 @@
                     </div>
                 </div>
                 
-                <!-- Kawalan Autentikasi Mudah (Guru / Pelawat) -->
+                <!-- Kawalan Autentikasi Google / Delima -->
                 <div class="flex items-center gap-3">
                     <span id="roleBadge" class="px-3 py-1.5 text-xs font-semibold rounded-full bg-slate-100 text-slate-600 border border-slate-200 flex items-center gap-1.5">
                         <span class="w-2 h-2 rounded-full bg-slate-400"></span>
                         Pelawat (Read-Only)
                     </span>
-                    <button id="authBtn" onclick="toggleAuth()" class="px-4 py-2 bg-slate-900 text-white rounded-xl text-xs font-bold hover:bg-slate-800 transition-all duration-200 flex items-center gap-2">
+                    <div id="userInfo" class="hidden md:flex items-center gap-2">
+                        <img id="userAvatar" class="w-8 h-8 rounded-full border border-slate-200 shadow-sm" src="" alt="Avatar">
+                        <span id="userName" class="text-xs font-bold text-slate-700"></span>
+                    </div>
+                    <button id="authBtn" class="px-4 py-2 bg-slate-900 text-white rounded-xl text-xs font-bold hover:bg-slate-800 transition-all duration-200 flex items-center gap-2">
                         <i class="fa-solid fa-right-to-bracket"></i>
-                        <span>Log Masuk Guru</span>
+                        <span id="authBtnText">Log Masuk Guru</span>
                     </button>
                 </div>
             </div>
@@ -141,36 +145,38 @@
             <div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-teal-500 to-emerald-500"></div>
             
             <div class="flex items-center justify-between gap-4 flex-wrap border-b border-slate-100 pb-4">
-                <h2 class="text-lg font-extrabold text-slate-900 flex items-center gap-2">
-                    <i class="fa-solid fa-clipboard-list text-emerald-500"></i>
-                    Borang Aktiviti Rumah Sukan (Lembaran Kerja)
-                </h2>
-                
-                <!-- GEAR TETAPAN DROPDOWN CONTAINER -->
-                <div class="relative inline-block text-left" id="gearDropdownContainer">
-                    <button id="gearBtn" onclick="toggleGearDropdown(event)" class="p-2.5 text-slate-500 hover:text-blue-600 hover:bg-slate-50 border border-slate-200 rounded-xl transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-blue-500/10 flex items-center justify-center" title="Tetapan & Sandaran Sistem">
-                        <i id="gearIcon" class="fa-solid fa-cog text-lg transform transition-transform duration-500"></i>
-                    </button>
-                    <!-- Dropdown Options -->
-                    <div id="gearDropdown" class="hidden absolute right-0 mt-2 w-60 bg-white rounded-2xl shadow-xl border border-slate-100 z-50 animate-fadeIn overflow-hidden">
-                        <div class="p-1.5 space-y-0.5">
-                            <button onclick="triggerJsonImport()" class="w-full text-left px-4 py-3 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-blue-600 rounded-xl transition-colors flex items-center gap-3">
-                                <i class="fa-solid fa-file-import text-blue-500 text-sm"></i>
-                                <span>Import Data JSON</span>
-                            </button>
-                            <button onclick="exportJSON()" class="w-full text-left px-4 py-3 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-blue-600 rounded-xl transition-colors flex items-center gap-3">
-                                <i class="fa-solid fa-file-export text-emerald-500 text-sm"></i>
-                                <span>Eksport Data JSON</span>
-                            </button>
-                            <button onclick="scrollToSettings()" class="w-full text-left px-4 py-3 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-blue-600 rounded-xl transition-colors flex items-center gap-3">
-                                <i class="fa-solid fa-sliders text-indigo-500 text-sm"></i>
-                                <span>Urus Rumah Sukan</span>
-                            </button>
-                            <div class="border-t border-slate-100 my-1"></div>
-                            <button onclick="deleteAllRecords()" class="w-full text-left px-4 py-3 text-xs font-bold text-rose-600 hover:bg-rose-50 rounded-xl transition-colors flex items-center gap-3">
-                                <i class="fa-solid fa-trash-can text-rose-500 text-sm"></i>
-                                <span>Padam Semua Rekod</span>
-                            </button>
+                <div class="flex items-center gap-2 flex-wrap">
+                    <h2 class="text-lg font-extrabold text-slate-900 flex items-center gap-2">
+                        <i class="fa-solid fa-clipboard-list text-emerald-500"></i>
+                        Borang Aktiviti Rumah Sukan (Lembaran Kerja)
+                    </h2>
+                    
+                    <!-- GEAR TETAPAN DROPDOWN CONTAINER -->
+                    <div class="relative inline-block text-left" id="gearDropdownContainer">
+                        <button id="gearBtn" class="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-slate-50 border border-slate-200 rounded-lg transition-all focus:outline-none flex items-center justify-center" title="Tetapan & Sandaran Sistem">
+                            <i id="gearIcon" class="fa-solid fa-cog text-base transform transition-transform duration-500"></i>
+                        </button>
+                        <!-- Dropdown Options -->
+                        <div id="gearDropdown" class="hidden absolute left-0 mt-2 w-60 bg-white rounded-2xl shadow-xl border border-slate-100 z-50 animate-fadeIn overflow-hidden">
+                            <div class="p-1.5 space-y-0.5">
+                                <button id="importBtn" class="w-full text-left px-4 py-3 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-blue-600 rounded-xl transition-colors flex items-center gap-3">
+                                    <i class="fa-solid fa-file-import text-blue-500 text-sm"></i>
+                                    <span>Import Data JSON</span>
+                                </button>
+                                <button id="exportBtn" class="w-full text-left px-4 py-3 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-blue-600 rounded-xl transition-colors flex items-center gap-3">
+                                    <i class="fa-solid fa-file-export text-emerald-500 text-sm"></i>
+                                    <span>Eksport Data JSON</span>
+                                </button>
+                                <button id="settingsLinkBtn" class="w-full text-left px-4 py-3 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-blue-600 rounded-xl transition-colors flex items-center gap-3">
+                                    <i class="fa-solid fa-sliders text-indigo-500 text-sm"></i>
+                                    <span>Urus Rumah Sukan</span>
+                                </button>
+                                <div class="border-t border-slate-100 my-1"></div>
+                                <button id="clearAllBtn" class="w-full text-left px-4 py-3 text-xs font-bold text-rose-600 hover:bg-rose-50 rounded-xl transition-colors flex items-center gap-3">
+                                    <i class="fa-solid fa-trash-can text-rose-500 text-sm"></i>
+                                    <span>Padam Semua Rekod</span>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -178,17 +184,17 @@
 
             <!-- TAB BAR & ACTION CONTROLS IN ONE LINE (NO SLIDER REQUIRED) -->
             <div class="flex flex-col gap-4 mt-6">
-                <!-- Barisan Tab Rumah Sukan Penuh (Kekal Sebaris tanpa slider pada peranti desktop/skrin lebar) -->
+                <!-- Barisan Tab Rumah Sukan Penuh -->
                 <div class="flex flex-wrap items-center gap-2 border-b border-slate-100 pb-2 w-full" id="houseTabsContainer">
                     <!-- Tab Dinamik Dijana di Sini -->
                 </div>
                 
                 <!-- Baris Tindakan Di Bawah Kanan Barisan Tab Rumah Sukan -->
-                <div class="flex flex-wrap items-center justify-end gap-3 w-full">
+                <div class="flex flex-wrap items-center justify-end gap-3 w-full bg-slate-50 p-2 rounded-xl border border-slate-100">
                     <!-- Urutan Susun Jadual Dropdown -->
                     <div class="flex items-center gap-2">
                         <label for="sortDropdown" class="text-xs font-bold text-slate-400 uppercase tracking-wider">Susun Jadual:</label>
-                        <select id="sortDropdown" onchange="changeSorting(this.value)" class="px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 font-bold focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all cursor-pointer">
+                        <select id="sortDropdown" class="px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-700 font-bold focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all cursor-pointer">
                             <option value="name_asc">Urutan Nama (A-Z)</option>
                             <option value="class_asc">Urutan Kelas (Pra ➡️ Tahun 6)</option>
                             <option value="gender_l_p">Urutan Jantina (Lelaki ➡️ Perempuan)</option>
@@ -196,7 +202,7 @@
                     </div>
                     
                     <!-- Butang Padam Semua Ahli untuk Rumah Aktif -->
-                    <button id="deleteHouseMembersBtn" onclick="deleteActiveHouseMembers()" class="px-3.5 py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl text-xs font-bold transition-all flex items-center gap-2 focus:outline-none focus:ring-4 focus:ring-rose-500/10" title="Padam semua ahli bagi rumah sukan yang sedang aktif">
+                    <button id="deleteHouseMembersBtn" class="px-3.5 py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl text-xs font-bold transition-all flex items-center gap-2 focus:outline-none focus:ring-4 focus:ring-rose-500/10" title="Padam semua ahli bagi rumah sukan yang sedang aktif">
                         <i class="fa-solid fa-trash-can text-rose-500"></i>
                         <span>Semua Ahli</span>
                     </button>
@@ -287,61 +293,135 @@
     </footer>
 
     <!-- FILE INPUT UNTUK IMPORT JSON (HIDDEN) -->
-    <input type="file" id="jsonFileInput" accept=".json" onchange="importJSON(event)" class="hidden">
+    <input type="file" id="jsonFileInput" accept=".json" class="hidden">
 
-    <!-- JAVASCRIPT LOGIC -->
-    <script>
-        // Simulasi Firebase Terbina Kalis Segala Ralat Sambungan
-        let db;
+    <!-- JAVASCRIPT & INTEGRASI FIREBASE SECARA LIVE -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Global State & Fallback
+        let auth, db;
         let isReadOnly = true; 
         let houses = [];
         let students = [];
         let activeHouseTab = "";
         let currentSortOption = "name_asc";
         let confirmCallback = null;
+        let isFirebaseConnected = false;
 
-        // INIZIALIZING DATABASE EMULATOR (Menggunakan LocalStorage sebagai sandaran agar Preview sentiasa berfungsi)
-        function initDatabase() {
-            try {
-                // Sediakan storan awal jika kosong bagi tujuan demonstrasi yang kaya dengan data
-                if (!localStorage.getItem('sukantara_houses')) {
-                    const defaultHouses = [
-                        { id: 'h1', name: 'Merah' },
-                        { id: 'h2', name: 'Biru' },
-                        { id: 'h3', name: 'Kuning' },
-                        { id: 'h4', name: 'Hijau' }
-                    ];
-                    localStorage.setItem('sukantara_houses', JSON.stringify(defaultHouses));
-                }
-                if (!localStorage.getItem('sukantara_students')) {
-                    const defaultStudents = [
-                        { id: 's1', name: 'Ahmad bin Ali', gender: 'Lelaki', studentClass: 'T5', house: 'Merah', lompatJauh: true, lompatJauhRecord: '4.20 m', lompatTinggi: false, lompatTinggiRecord: '', larian: true, larianRecord: '13.5 s', lontarPeluru: false, lontarPeluruRecord: '', catatan: 'Larian laju', points: 2 },
-                        { id: 's2', name: 'Siti Aminah binti Md Isa', gender: 'Perempuan', studentClass: 'T6', house: 'Merah', lompatJauh: false, lompatJauhRecord: '', lompatTinggi: true, lompatTinggiRecord: '1.15 m', larian: false, larianRecord: '', lontarPeluru: true, lontarPeluruRecord: '5.80 m', catatan: 'Lontaran kemas', points: 2 },
-                        { id: 's3', name: 'Chong Wei Neng', gender: 'Lelaki', studentClass: 'Pra Sekolah', house: 'Biru', lompatJauh: true, lompatJauhRecord: '2.50 m', lompatTinggi: false, lompatTinggiRecord: '', larian: false, larianRecord: '', lontarPeluru: false, lontarPeluruRecord: '', catatan: '', points: 1 },
-                        { id: 's4', name: 'Fatini binti Hisham', gender: 'Perempuan', studentClass: 'T4', house: 'Kuning', lompatJauh: true, lompatJauhRecord: '3.80 m', lompatTinggi: true, lompatTinggiRecord: '1.10 m', larian: true, larianRecord: '14.8 s', lontarPeluru: true, lontarPeluruRecord: '6.20 m', catatan: 'Skor Penuh!', points: 4 }
-                    ];
-                    localStorage.setItem('sukantara_students', JSON.stringify(defaultStudents));
-                }
-                
-                houses = JSON.parse(localStorage.getItem('sukantara_houses'));
-                students = JSON.parse(localStorage.getItem('sukantara_students'));
-                
-                // Normalisasi semua data jantina & kelas pada permulaan sistem
-                normalizeAllStoredData();
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'sukantara-sekolah-app';
+        let firebaseConfig = null;
 
-                if(houses.length > 0) {
-                    activeHouseTab = houses[0].name;
+        try {
+            if (typeof __firebase_config !== 'undefined') {
+                firebaseConfig = JSON.parse(__firebase_config);
+            }
+        } catch(e) {
+            console.warn("Konfigurasi Firebase gagal dihuraikan. Menggunakan mod LocalStorage.", e);
+        }
+
+        // INIZIALIZING DATABASE EMULATOR / REAL FIREBASE
+        async function initDatabase() {
+            // Sediakan data permulaan sekiranya storan tempatan kosong
+            if (!localStorage.getItem('sukantara_houses')) {
+                const defaultHouses = [
+                    { id: 'h1', name: 'Merah' },
+                    { id: 'h2', name: 'Biru' },
+                    { id: 'h3', name: 'Kuning' },
+                    { id: 'h4', name: 'Hijau' }
+                ];
+                localStorage.setItem('sukantara_houses', JSON.stringify(defaultHouses));
+            }
+            if (!localStorage.getItem('sukantara_students')) {
+                const defaultStudents = [
+                    { id: 's1', name: 'Ahmad bin Ali', gender: 'Lelaki', studentClass: 'T5', house: 'Merah', lompatJauh: true, lompatJauhRecord: '4.20 m', lompatTinggi: false, lompatTinggiRecord: '', larian: true, larianRecord: '13.5 s', lontarPeluru: false, lontarPeluruRecord: '', catatan: 'Larian laju', points: 2 },
+                    { id: 's2', name: 'Siti Aminah binti Md Isa', gender: 'Perempuan', studentClass: 'T6', house: 'Merah', lompatJauh: false, lompatJauhRecord: '', lompatTinggi: true, lompatTinggiRecord: '1.15 m', larian: false, larianRecord: '', lontarPeluru: true, lontarPeluruRecord: '5.80 m', catatan: 'Lontaran kemas', points: 2 },
+                    { id: 's3', name: 'Chong Wei Neng', gender: 'Lelaki', studentClass: 'Pra Sekolah', house: 'Biru', lompatJauh: true, lompatJauhRecord: '2.50 m', lompatTinggi: false, lompatTinggiRecord: '', larian: false, larianRecord: '', lontarPeluru: false, lontarPeluruRecord: '', catatan: '', points: 1 },
+                    { id: 's4', name: 'Fatini binti Hisham', gender: 'Perempuan', studentClass: 'T4', house: 'Kuning', lompatJauh: true, lompatJauhRecord: '3.80 m', lompatTinggi: true, lompatTinggiRecord: '1.10 m', larian: true, larianRecord: '14.8 s', lontarPeluru: true, lontarPeluruRecord: '6.20 m', catatan: 'Skor Penuh!', points: 4 }
+                ];
+                localStorage.setItem('sukantara_students', JSON.stringify(defaultStudents));
+            }
+
+            houses = JSON.parse(localStorage.getItem('sukantara_houses'));
+            students = JSON.parse(localStorage.getItem('sukantara_students'));
+            normalizeAllStoredData();
+
+            if (houses.length > 0) {
+                activeHouseTab = houses[0].name;
+            }
+
+            if (firebaseConfig) {
+                try {
+                    const app = initializeApp(firebaseConfig);
+                    auth = getAuth(app);
+                    db = getFirestore(app);
+                    isFirebaseConnected = true;
+                    
+                    // Cuba log masuk secara senyap/tidak namaan
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                        await signInWithCustomToken(auth, __initial_auth_token);
+                    } else {
+                        await signInAnonymously(auth);
+                    }
+                    
+                    setupFirebaseListeners();
+                } catch(err) {
+                    console.error("Penyambungan Firebase gagal. Berjalan dalam mod luar talian.", err);
+                    isFirebaseConnected = false;
+                }
+            }
+
+            // Jika Firebase tiada, teruskan dengan data tempatan
+            if (!isFirebaseConnected) {
+                syncData();
+            }
+        }
+
+        function setupFirebaseListeners() {
+            // Pasang pemerhati masa-nyata bagi Houses
+            const housesColRef = collection(db, 'artifacts', appId, 'public', 'data', 'houses');
+            onSnapshot(housesColRef, (snapshot) => {
+                const fbHouses = [];
+                snapshot.forEach(doc => {
+                    fbHouses.push({ id: doc.id, ...doc.data() });
+                });
+                if (fbHouses.length > 0) {
+                    houses = fbHouses;
+                    localStorage.setItem('sukantara_houses', JSON.stringify(houses));
+                    if (!activeHouseTab || !houses.some(h => h.name === activeHouseTab)) {
+                        activeHouseTab = houses[0].name;
+                    }
                 }
                 syncData();
-            } catch (err) {
-                console.error("Database initialization error: ", err);
-            }
+            }, (err) => {
+                console.warn("Gagal membaca Houses dari Firestore. Guna data lokal.", err);
+            });
+
+            // Pasang pemerhati masa-nyata bagi Students
+            const studentsColRef = collection(db, 'artifacts', appId, 'public', 'data', 'students');
+            onSnapshot(studentsColRef, (snapshot) => {
+                const fbStudents = [];
+                snapshot.forEach(doc => {
+                    fbStudents.push({ id: doc.id, ...doc.data() });
+                });
+                if (fbStudents.length > 0) {
+                    students = fbStudents;
+                    normalizeAllStoredData();
+                    localStorage.setItem('sukantara_students', JSON.stringify(students));
+                }
+                syncData();
+            }, (err) => {
+                console.warn("Gagal membaca Students dari Firestore. Guna data lokal.", err);
+            });
         }
 
         // Penyelarasan Jantina & Isihan Dinamik
         function normalizeGender(val) {
             if (!val) return "Lelaki";
             const clean = val.toString().trim().toUpperCase();
+            // Kalis Singkatan: Jika bermula dengan P, F, atau W (Wanita/Female/Prmpn/PR) adalah Perempuan
             if (clean.startsWith('P') || clean.startsWith('F') || clean.startsWith('W')) {
                 return "Perempuan";
             }
@@ -366,7 +446,6 @@
                 s.gender = normalizeGender(s.gender);
                 s.studentClass = normalizeClass(s.studentClass);
             });
-            saveToStorage();
         }
 
         function getClassOrder(val) {
@@ -381,9 +460,62 @@
             return 99;
         }
 
-        function saveToStorage() {
-            localStorage.setItem('sukantara_houses', JSON.stringify(houses));
+        async function saveStudentToDb(student) {
             localStorage.setItem('sukantara_students', JSON.stringify(students));
+            if (isFirebaseConnected && auth.currentUser) {
+                try {
+                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'students', student.id);
+                    await setDoc(docRef, student);
+                } catch(e) {
+                    console.error("Gagal simpan murid ke Firebase: ", e);
+                }
+            }
+        }
+
+        async function saveHouseToDb(house) {
+            localStorage.setItem('sukantara_houses', JSON.stringify(houses));
+            if (isFirebaseConnected && auth.currentUser) {
+                try {
+                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'houses', house.id);
+                    await setDoc(docRef, house);
+                } catch(e) {
+                    console.error("Gagal simpan rumah ke Firebase: ", e);
+                }
+            }
+        }
+
+        async function deleteStudentFromDb(studentId) {
+            students = students.filter(s => s.id !== studentId);
+            localStorage.setItem('sukantara_students', JSON.stringify(students));
+            if (isFirebaseConnected && auth.currentUser) {
+                try {
+                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'students', studentId);
+                    await deleteDoc(docRef);
+                } catch(e) {
+                    console.error("Gagal buang murid dari Firebase: ", e);
+                }
+            }
+        }
+
+        async function deleteHouseFromDb(houseId) {
+            const hObj = houses.find(h => h.id === houseId);
+            houses = houses.filter(h => h.id !== houseId);
+            localStorage.setItem('sukantara_houses', JSON.stringify(houses));
+            if (hObj) {
+                // Buang ahli di bawahnya juga
+                const members = students.filter(s => s.house === hObj.name);
+                for (const m of members) {
+                    await deleteStudentFromDb(m.id);
+                }
+            }
+            if (isFirebaseConnected && auth.currentUser) {
+                try {
+                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'houses', houseId);
+                    await deleteDoc(docRef);
+                } catch(e) {
+                    console.error("Gagal buang rumah dari Firebase: ", e);
+                }
+            }
         }
 
         function syncData() {
@@ -410,7 +542,7 @@
                 icon = '<i class="fa-solid fa-circle-xmark text-rose-600"></i>';
             }
 
-            toast.className = `flex items-center gap-3 px-4.5 py-3 rounded-2xl border ${bg} shadow-lg text-xs font-bold animate-fadeIn`;
+            toast.className = `flex items-center gap-3 px-4 py-3 rounded-2xl border ${bg} shadow-lg text-xs font-bold animate-fadeIn`;
             toast.innerHTML = `${icon} <span>${message}</span>`;
             container.appendChild(toast);
             
@@ -436,31 +568,102 @@
             confirmCallback = null;
         }
 
+        window.closeConfirm = closeConfirm;
         document.getElementById('confirmYesBtn').onclick = () => closeConfirm(true);
 
-        // Autentikasi Mudah
-        function toggleAuth() {
-            const badge = document.getElementById('roleBadge');
-            const btn = document.getElementById('authBtn');
-            const btnText = btn.querySelector('span');
-            
-            if (isReadOnly) {
-                isReadOnly = false;
-                badge.className = "px-3 py-1.5 text-xs font-semibold rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1.5";
-                badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Sesi Guru Aktif`;
-                btnText.innerText = "Log Keluar";
-                btn.className = "px-4 py-2 bg-rose-600 text-white rounded-xl text-xs font-bold hover:bg-rose-700 transition-all duration-200 flex items-center gap-2";
-                showToast("Berjaya log masuk sebagai Guru (Mod Suntingan diaktifkan)", "success");
-            } else {
-                isReadOnly = true;
-                badge.className = "px-3 py-1.5 text-xs font-semibold rounded-full bg-slate-100 text-slate-600 border border-slate-200 flex items-center gap-1.5";
-                badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-slate-400"></span> Pelawat (Read-Only)`;
-                btnText.innerText = "Log Masuk Guru";
-                btn.className = "px-4 py-2 bg-slate-900 text-white rounded-xl text-xs font-bold hover:bg-slate-800 transition-all duration-200 flex items-center gap-2";
-                showToast("Log keluar berjaya. Mod paparan diaktifkan.", "info");
+        // Autentikasi Menggunakan Google (Delima Portal moe-dl)
+        async function handleAuthToggle() {
+            if (!isFirebaseConnected) {
+                // Mod Simulasi Tempatan (Sekiranya Firebase tidak disambung)
+                if (isReadOnly) {
+                    isReadOnly = false;
+                    document.getElementById('roleBadge').className = "px-3 py-1.5 text-xs font-semibold rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1.5";
+                    document.getElementById('roleBadge').innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Sesi Guru Aktif (Offline)`;
+                    document.getElementById('authBtnText').innerText = "Log Keluar";
+                    document.getElementById('authBtn').className = "px-4 py-2 bg-rose-600 text-white rounded-xl text-xs font-bold hover:bg-rose-700 transition-all duration-200 flex items-center gap-2";
+                    showToast("Berjaya log masuk sebagai Guru (Mod Suntingan diaktifkan)", "success");
+                } else {
+                    isReadOnly = true;
+                    document.getElementById('roleBadge').className = "px-3 py-1.5 text-xs font-semibold rounded-full bg-slate-100 text-slate-600 border border-slate-200 flex items-center gap-1.5";
+                    document.getElementById('roleBadge').innerHTML = `<span class="w-2 h-2 rounded-full bg-slate-400"></span> Pelawat (Read-Only)`;
+                    document.getElementById('authBtnText').innerText = "Log Masuk Guru";
+                    document.getElementById('authBtn').className = "px-4 py-2 bg-slate-900 text-white rounded-xl text-xs font-bold hover:bg-slate-800 transition-all duration-200 flex items-center gap-2";
+                    showToast("Log keluar berjaya. Mod paparan diaktifkan.", "info");
+                }
+                syncData();
+                return;
             }
-            syncData();
+
+            // Real Firebase Google Sign-In Flow
+            if (auth.currentUser && !auth.currentUser.isAnonymous) {
+                // Log keluar
+                await signOut(auth);
+                await signInAnonymously(auth);
+                showToast("Log keluar berjaya.", "info");
+            } else {
+                const provider = new GoogleAuthProvider();
+                try {
+                    const result = await signInWithPopup(auth, provider);
+                    const user = result.user;
+                    const email = user.email || "";
+
+                    // Semak jika emel Delima / guru sekolah
+                    const isDelima = email.match(/^g-.*@moe-dl\.edu\.my$/) || email.endsWith('@moe-dl.edu.my') || email.endsWith('@moe.edu.my') || email === 'sekolah-7608@moe-dl.edu.my';
+
+                    if (isDelima || email.endsWith('@gmail.com')) {
+                        showToast(`Selamat kembali, Cikgu ${user.displayName}!`, "success");
+                    } else {
+                        showToast("Log masuk berjaya sebagai Pelawat.", "info");
+                    }
+                } catch(e) {
+                    console.error(e);
+                    showToast("Pendaftaran masuk Google/Delima gagal.", "danger");
+                }
+            }
         }
+
+        if (isFirebaseConnected) {
+            onAuthStateChanged(auth, (user) => {
+                const badge = document.getElementById('roleBadge');
+                const btn = document.getElementById('authBtn');
+                const btnText = document.getElementById('authBtnText');
+                const uInfo = document.getElementById('userInfo');
+                const uAvatar = document.getElementById('userAvatar');
+                const uName = document.getElementById('userName');
+
+                if (user && !user.isAnonymous) {
+                    const email = user.email || "";
+                    const isDelima = email.match(/^g-.*@moe-dl\.edu\.my$/) || email.endsWith('@moe-dl.edu.my') || email.endsWith('@moe.edu.my') || email === 'sekolah-7608@moe-dl.edu.my';
+
+                    isReadOnly = !isDelima; // Hanya Guru Delima memiliki hak tulis
+
+                    if (!isReadOnly) {
+                        badge.className = "px-3 py-1.5 text-xs font-semibold rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1.5";
+                        badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Sesi Guru Aktif (Delima)`;
+                    } else {
+                        badge.className = "px-3 py-1.5 text-xs font-semibold rounded-full bg-slate-100 text-slate-600 border border-slate-200 flex items-center gap-1.5";
+                        badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-slate-400"></span> Pelawat (${email})`;
+                    }
+
+                    uAvatar.src = user.photoURL || "https://placehold.co/100x100/1e3a8a/ffffff?text=C";
+                    uName.innerText = user.displayName || email;
+                    uInfo.classList.remove('hidden');
+
+                    btnText.innerText = "Log Keluar";
+                    btn.className = "px-4 py-2 bg-rose-600 text-white rounded-xl text-xs font-bold hover:bg-rose-700 transition-all duration-200 flex items-center gap-2";
+                } else {
+                    isReadOnly = true;
+                    badge.className = "px-3 py-1.5 text-xs font-semibold rounded-full bg-slate-100 text-slate-600 border border-slate-200 flex items-center gap-1.5";
+                    badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-slate-400"></span> Pelawat (Read-Only)`;
+                    uInfo.classList.add('hidden');
+                    btnText.innerText = "Log Masuk Guru";
+                    btn.className = "px-4 py-2 bg-slate-900 text-white rounded-xl text-xs font-bold hover:bg-slate-800 transition-all duration-200 flex items-center gap-2";
+                }
+                syncData();
+            });
+        }
+
+        document.getElementById('authBtn').addEventListener('click', handleAuthToggle);
 
         // Dropdown Menu Gear Tetapan
         function toggleGearDropdown(event) {
@@ -477,6 +680,8 @@
             }
         }
 
+        document.getElementById('gearBtn').addEventListener('click', toggleGearDropdown);
+
         // Tutup dropdown sekiranya klik di luar kawasan
         document.addEventListener('click', function(event) {
             const container = document.getElementById('gearDropdownContainer');
@@ -489,7 +694,7 @@
         });
 
         // Borang Daftar Murid
-        document.getElementById('studentForm').addEventListener('submit', function(e) {
+        document.getElementById('studentForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             if (isReadOnly) {
                 showToast("Akses Terhad: Sila log masuk dengan akaun Guru untuk mendaftar murid.", "warning");
@@ -524,17 +729,16 @@
             };
 
             students.push(payload);
-            saveToStorage();
+            await saveStudentToDb(payload);
             showToast(`Rekod ${name} berjaya didaftarkan ke Rumah ${activeHouseTab}!`, 'success');
             
-            // Set semula kotak teks nama
             document.getElementById('studentName').value = '';
             document.getElementById('studentName').focus();
             syncData();
         });
 
         // Kemaskini aktiviti murid (Checkboxes & Rekod Peribadi)
-        function updateStudentActivity(studentId, field, value) {
+        async function updateStudentActivity(studentId, field, value) {
             if (isReadOnly) {
                 showToast("Akses Terhad: Sila log masuk dengan akaun Guru untuk membuat sebarang kemas kini data.", "warning");
                 renderWorksheet();
@@ -554,19 +758,20 @@
             if (s.lontarPeluru) points++;
             s.points = points;
 
-            saveToStorage();
+            await saveStudentToDb(s);
             
             // Render semula secara senyap tanpa mengganggu tumpuan input
             if (!field.endsWith('Record') && field !== 'catatan') {
                 renderWorksheet();
             } else {
-                // Untuk kotak teks, cuma kemas kini paparan mata secara dinamik jika perlu
                 const pointsBadge = document.getElementById(`points-badge-${studentId}`);
                 if(pointsBadge) {
                     pointsBadge.innerText = `${points} m`;
                 }
             }
         }
+
+        window.updateStudentActivity = updateStudentActivity;
 
         // Penjanaan Tab Rumah Sukan Dinamik
         function renderHouseTabs() {
@@ -581,7 +786,6 @@
             houses.forEach(h => {
                 const isActive = h.name === activeHouseTab;
                 
-                // Konfigurasi warna tab mengikut nama rumah secara semantik
                 let activeStyle = "bg-blue-600 text-white shadow-md shadow-blue-600/10";
                 let hoverStyle = "hover:bg-slate-100 text-slate-600";
                 let badgeColor = "bg-slate-300";
@@ -615,15 +819,14 @@
                 container.appendChild(btn);
             });
 
-            // Set input rujukan pendaftaran murid
             document.getElementById('studentHouse').value = activeHouseTab;
         }
 
         // Penjanaan Jadual Aktiviti (Worksheet)
-        function changeSorting(value) {
-            currentSortOption = value;
+        document.getElementById('sortDropdown').addEventListener('change', function(e) {
+            currentSortOption = e.target.value;
             renderWorksheet();
-        }
+        });
 
         function renderWorksheet() {
             const tbody = document.getElementById('worksheetBody');
@@ -647,14 +850,11 @@
                 return;
             }
 
-            // Salin senarai untuk proses isihan
             let sortedMembers = [...houseMembers];
 
             if (currentSortOption === 'name_asc') {
-                // Isih Nama A-Z
                 sortedMembers.sort((a, b) => a.name.localeCompare(b.name, 'ms'));
             } else if (currentSortOption === 'class_asc') {
-                // Isih Kelas (Pra ➡️ T6), kemudian Nama
                 sortedMembers.sort((a, b) => {
                     const classA = getClassOrder(a.studentClass);
                     const classB = getClassOrder(b.studentClass);
@@ -662,7 +862,6 @@
                     return a.name.localeCompare(b.name, 'ms');
                 });
             } else if (currentSortOption === 'gender_l_p') {
-                // Isih Jantina (Lelaki ➡️ Perempuan), kemudian Nama
                 sortedMembers.sort((a, b) => {
                     const genA = normalizeGender(a.gender);
                     const genB = normalizeGender(b.gender);
@@ -676,8 +875,6 @@
             tbody.innerHTML = '';
             sortedMembers.forEach((s, index) => {
                 const bil = index + 1;
-                
-                // Warnakan label jantina
                 const genderBadgeClass = s.gender === "Perempuan" 
                     ? "bg-rose-50 text-rose-600 border border-rose-100" 
                     : "bg-blue-50 text-blue-600 border border-blue-100";
@@ -783,21 +980,22 @@
         }
 
         // Fungsi Padam Murid Individu
-        function deleteStudent(id, name) {
+        async function deleteStudent(id, name) {
             if (isReadOnly) {
                 showToast("Akses Terhad: Sila log masuk sebagai Guru untuk memadam data.", "warning");
                 return;
             }
-            showConfirm("Padam Rekod Pelajar", `Padam maklumat penyertaan sukantara bagi ${name}?`, () => {
-                students = students.filter(s => s.id !== id);
-                saveToStorage();
+            showConfirm("Padam Rekod Pelajar", `Padam maklumat penyertaan sukantara bagi ${name}?`, async () => {
+                await deleteStudentFromDb(id);
                 showToast(`Rekod ${name} telah dibuang.`, 'success');
                 syncData();
             });
         }
 
+        window.deleteStudent = deleteStudent;
+
         // Fungsi Padam Semua Ahli untuk Rumah Sukan Aktif
-        function deleteActiveHouseMembers() {
+        async function deleteActiveHouseMembers() {
             if (isReadOnly) {
                 showToast("Akses Terhad: Sila log masuk sebagai Guru terlebih dahulu.", "warning");
                 return;
@@ -812,17 +1010,21 @@
             showConfirm(
                 "Padam Semua Ahli", 
                 `Adakah anda pasti untuk membuang semua ${count} ahli dari Rumah ${activeHouseTab}? Tindakan ini tidak boleh diundurkan.`, 
-                () => {
-                    students = students.filter(s => s.house !== activeHouseTab);
-                    saveToStorage();
+                async () => {
+                    const toDelete = students.filter(s => s.house === activeHouseTab);
+                    for (const s of toDelete) {
+                        await deleteStudentFromDb(s.id);
+                    }
                     showToast(`Selesai! Semua ahli bagi Rumah ${activeHouseTab} telah dipadam.`, 'success');
                     syncData();
                 }
             );
         }
 
+        document.getElementById('deleteHouseMembersBtn').addEventListener('click', deleteActiveHouseMembers);
+
         // Pengurusan Rumah Sukan (Settings Panel)
-        document.getElementById('houseForm').addEventListener('submit', function(e) {
+        document.getElementById('houseForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             if (isReadOnly) {
                 showToast("Akses Terhad: Sila log masuk dengan akaun Guru untuk menambah rumah sukan.", "warning");
@@ -832,7 +1034,6 @@
             const name = document.getElementById('newHouseName').value.trim();
             if (!name) return;
 
-            // Pastikan tiada duplikasi nama rumah
             const exists = houses.some(h => h.name.toLowerCase() === name.toLowerCase());
             if (exists) {
                 showToast("Rumah sukan ini sudah wujud!", "warning");
@@ -845,19 +1046,19 @@
             };
 
             houses.push(newHouse);
+            await saveHouseToDb(newHouse);
             
             if (houses.length === 1) {
                 activeHouseTab = name;
             }
 
-            saveToStorage();
             document.getElementById('newHouseName').value = '';
             showToast(`Rumah ${name} berjaya didaftarkan!`, 'success');
             syncData();
         });
 
         // Hapus keseluruhan Rumah Sukan
-        function deleteHouse(houseId, houseName) {
+        async function deleteHouse(houseId, houseName) {
             if (isReadOnly) {
                 showToast("Akses Terhad: Sila log masuk dengan akaun Guru.", "warning");
                 return;
@@ -867,20 +1068,20 @@
             showConfirm(
                 "Padam Rumah Sukan", 
                 `Adakah anda pasti untuk memadam Rumah ${houseName}? Semua ${count} ahli di dalamnya juga akan dipadamkan secara automatik.`, 
-                () => {
-                    houses = houses.filter(h => h.id !== houseId);
-                    students = students.filter(s => s.house !== houseName);
+                async () => {
+                    await deleteHouseFromDb(houseId);
                     
                     if (activeHouseTab === houseName) {
                         activeHouseTab = houses.length > 0 ? houses[0].name : "";
                     }
 
-                    saveToStorage();
                     showToast(`Rumah ${houseName} serta ahlinya berjaya dikeluarkan.`, 'success');
                     syncData();
                 }
             );
         }
+
+        window.deleteHouse = deleteHouse;
 
         function renderSettingsHouses() {
             const container = document.getElementById('settingsHousesList');
@@ -910,17 +1111,17 @@
             if (panel) {
                 panel.scrollIntoView({ behavior: 'smooth' });
                 
-                // Tutup dropdown gear selepas klik
                 document.getElementById('gearDropdown').classList.add('hidden');
                 document.getElementById('gearIcon').classList.remove('rotate-90');
                 
-                // Tambah kesan fokus nyalaan seketika
                 panel.classList.add('ring-4', 'ring-blue-500/20', 'border-blue-300');
                 setTimeout(() => {
                     panel.classList.remove('ring-4', 'ring-blue-500/20', 'border-blue-300');
                 }, 2000);
             }
         }
+
+        document.getElementById('settingsLinkBtn').addEventListener('click', scrollToSettings);
 
         // Integrasi Eksport & Import Data JSON
         function triggerJsonImport() {
@@ -930,6 +1131,8 @@
             }
             document.getElementById('jsonFileInput').click();
         }
+
+        document.getElementById('importBtn').addEventListener('click', triggerJsonImport);
 
         async function importJSON(event) {
             const file = event.target.files[0];
@@ -960,22 +1163,24 @@
 
                     // Import Rumah Sukan Dahulu
                     if (importedHouses.length > 0) {
-                        importedHouses.forEach(h => {
+                        for (const h of importedHouses) {
                             const name = (typeof h === 'string' ? h : (h.name || h.nama || '')).trim();
-                            if (!name) return;
+                            if (!name) continue;
                             const exists = houses.some(existingHouse => existingHouse.name.toLowerCase() === name.toLowerCase());
                             if (!exists) {
-                                houses.push({ id: 'h_' + Date.now() + Math.random().toString(36).substr(2, 4), name });
+                                const newH = { id: 'h_' + Date.now() + Math.random().toString(36).substr(2, 4), name };
+                                houses.push(newH);
+                                await saveHouseToDb(newH);
                                 importedHousesCount++;
                             }
-                        });
+                        }
                     }
 
                     // Import Murid
                     if (importedStudents.length > 0) {
-                        importedStudents.forEach(s => {
+                        for (const s of importedStudents) {
                             const name = (s.nama || s.Nama || s.name || s.Name || "").trim();
-                            if (!name) return;
+                            if (!name) continue;
 
                             const rawGender = s.gender || s.Gender || s.jantina || s.Jantina || "Lelaki";
                             const gender = normalizeGender(rawGender);
@@ -991,7 +1196,9 @@
                             // Pastikan rumah sukan murid yang diimport wujud dalam database
                             const houseExists = houses.some(existingHouse => existingHouse.name.toLowerCase() === house.toLowerCase());
                             if (!houseExists && house) {
-                                houses.push({ id: 'h_' + Date.now() + Math.random().toString(36).substr(2, 4), name: house });
+                                const newH = { id: 'h_' + Date.now() + Math.random().toString(36).substr(2, 4), name: house };
+                                houses.push(newH);
+                                await saveHouseToDb(newH);
                                 importedHousesCount++;
                             }
 
@@ -1013,7 +1220,7 @@
                             if (larian) points++;
                             if (lontarPeluru) points++;
 
-                            students.push({
+                            const newStudent = {
                                 id: 's_' + Date.now() + Math.random().toString(36).substr(2, 4),
                                 name,
                                 studentClass,
@@ -1029,16 +1236,18 @@
                                 lontarPeluruRecord,
                                 catatan,
                                 points
-                            });
+                            };
+
+                            students.push(newStudent);
+                            await saveStudentToDb(newStudent);
                             importedStudentsCount++;
-                        });
+                        }
                     }
 
                     if (houses.length > 0 && !activeHouseTab) {
                         activeHouseTab = houses[0].name;
                     }
 
-                    saveToStorage();
                     showToast(`Selesai! Berjaya mengimport ${importedHousesCount} Rumah & ${importedStudentsCount} Pelajar!`, "success");
                     syncData();
                 } catch (err) {
@@ -1049,6 +1258,8 @@
             reader.readAsText(file);
             event.target.value = ''; // Reset input
         }
+
+        document.getElementById('jsonFileInput').addEventListener('change', importJSON);
 
         function exportJSON() {
             const exportData = {
@@ -1082,6 +1293,8 @@
             showToast("Backup lembaran kerja berjaya dieksport!", "success");
         }
 
+        document.getElementById('exportBtn').addEventListener('click', exportJSON);
+
         // Hapus keseluruhan pengkalan data di pelayan local
         function deleteAllRecords() {
             if (isReadOnly) {
@@ -1091,16 +1304,27 @@
             showConfirm(
                 "Padam Keseluruhan Rekod", 
                 "TINDAKAN SANGAT BERBAHAYA: Adakah anda pasti untuk memadam semua rekod pelajar dan rumah sukan? Tindakan ini tidak boleh dikembalikan.", 
-                () => {
+                async () => {
+                    const backupStudents = [...students];
+                    const backupHouses = [...houses];
+
+                    for (const s of backupStudents) {
+                        await deleteStudentFromDb(s.id);
+                    }
+                    for (const h of backupHouses) {
+                        await deleteHouseFromDb(h.id);
+                    }
+
                     houses = [];
                     students = [];
                     activeHouseTab = "";
-                    saveToStorage();
                     showToast("Keseluruhan pengkalan data telah dikosongkan dengan bersih.", "success");
                     syncData();
                 }
             );
         }
+
+        document.getElementById('clearAllBtn').addEventListener('click', deleteAllRecords);
 
         // Jalankan permulaan sistem
         window.onload = function() {
