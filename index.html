@@ -428,6 +428,44 @@
         let activeHouseTab = '';
         let currentSortOption = 'name_asc'; 
 
+        // Fungsi helper untuk menormalkan data kelas secara fleksibel
+        function getClassOrder(className) {
+            if (!className) return 99;
+            const normalized = className.toLowerCase().trim().replace(/[\s-]/g, '');
+            if (normalized.includes('pra')) return 0;
+            if (normalized.includes('t1') || normalized.includes('tahun1') || normalized === '1') return 1;
+            if (normalized.includes('t2') || normalized.includes('tahun2') || normalized === '2') return 2;
+            if (normalized.includes('t3') || normalized.includes('tahun3') || normalized === '3') return 3;
+            if (normalized.includes('t4') || normalized.includes('tahun4') || normalized === '4') return 4;
+            if (normalized.includes('t5') || normalized.includes('tahun5') || normalized === '5') return 5;
+            if (normalized.includes('t6') || normalized.includes('tahun6') || normalized === '6') return 6;
+            return 99;
+        }
+
+        // Fungsi helper untuk menormalkan string jantina ("P", "p", "Perempuan" -> "Perempuan")
+        function normalizeGender(g) {
+            if (!g) return "Lelaki";
+            const val = g.trim().toUpperCase();
+            if (val === 'P' || val.startsWith('PER') || val === 'FEMALE' || val === 'F') {
+                return "Perempuan";
+            }
+            return "Lelaki";
+        }
+
+        // Fungsi helper untuk memastikan format nama kelas seragam pada database
+        function normalizeClass(c) {
+            if (!c) return "Tahun 1";
+            const normalized = c.toLowerCase().trim().replace(/[\s-]/g, '');
+            if (normalized.includes('pra')) return "Pra Sekolah";
+            if (normalized.includes('t1') || normalized.includes('tahun1') || normalized === '1') return "Tahun 1";
+            if (normalized.includes('t2') || normalized.includes('tahun2') || normalized === '2') return "Tahun 2";
+            if (normalized.includes('t3') || normalized.includes('tahun3') || normalized === '3') return "Tahun 3";
+            if (normalized.includes('t4') || normalized.includes('tahun4') || normalized === '4') return "Tahun 4";
+            if (normalized.includes('t5') || normalized.includes('tahun5') || normalized === '5') return "Tahun 5";
+            if (normalized.includes('t6') || normalized.includes('tahun6') || normalized === '6') return "Tahun 6";
+            return c;
+        }
+
         // Fungsi menukar pilihan susunan dan me-render semula jadual
         function changeSorting(optionValue) {
             currentSortOption = optionValue;
@@ -879,16 +917,6 @@
                 return;
             }
 
-            const classOrder = {
-                "Pra Sekolah": 0,
-                "Tahun 1": 1,
-                "Tahun 2": 2,
-                "Tahun 3": 3,
-                "Tahun 4": 4,
-                "Tahun 5": 5,
-                "Tahun 6": 6
-            };
-
             let sortedMembers = [...houseMembers];
 
             // Melaksanakan sistem susun jadual yang dipilih secara dinamik
@@ -896,15 +924,17 @@
                 sortedMembers.sort((a, b) => a.name.localeCompare(b.name, 'ms'));
             } else if (currentSortOption === 'class_asc') {
                 sortedMembers.sort((a, b) => {
-                    const classA = classOrder[a.studentClass] !== undefined ? classOrder[a.studentClass] : 99;
-                    const classB = classOrder[b.studentClass] !== undefined ? classOrder[b.studentClass] : 99;
+                    const classA = getClassOrder(a.studentClass);
+                    const classB = getClassOrder(b.studentClass);
                     if (classA !== classB) return classA - classB; 
                     return a.name.localeCompare(b.name, 'ms');
                 });
             } else if (currentSortOption === 'gender_l_p') {
                 sortedMembers.sort((a, b) => {
-                    if (a.gender !== b.gender) {
-                        return a.gender === 'Lelaki' ? -1 : 1;
+                    const genderA = a.gender || "Lelaki";
+                    const genderB = b.gender || "Lelaki";
+                    if (genderA !== genderB) {
+                        return genderA === 'Lelaki' ? -1 : 1;
                     }
                     return a.name.localeCompare(b.name, 'ms');
                 });
@@ -1132,8 +1162,12 @@
                             const name = (s.nama || s.Nama || s.name || s.Name || "").trim();
                             if (!name) continue; 
 
-                            const gender = (s.jantina || s.Jantina || s.gender || s.Gender || "Lelaki").trim();
-                            const studentClass = (s.kelas || s.Kelas || s.studentClass || s.class || s.Class || "Tahun 1").trim();
+                            // Menormalkan jantina dan kelas semasa import dijalankan
+                            const rawGender = s.jantina || s.Jantina || s.gender || s.Gender || "Lelaki";
+                            const gender = normalizeGender(rawGender);
+
+                            const rawClass = s.kelas || s.Kelas || s.studentClass || s.class || s.Class || "Tahun 1";
+                            const studentClass = normalizeClass(rawClass);
                             
                             let house = (s.house || s.House || s.rumah || s.Rumah || "").trim();
                             if (!house) {
