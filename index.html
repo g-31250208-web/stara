@@ -444,7 +444,9 @@
                     if (!user) {
                         // Reset status UI serta merta apabila pengguna keluar
                         isReadOnly = true;
-                        toggleInteractiveElements();
+                        
+                        // PEMBETULAN: Set semula UI profil & butang log masuk serta-merta apabila keluar
+                        handleUserAuthState(null);
                         
                         document.getElementById('dbStatus').innerText = "Mod Terhad (Log Masuk Diperlukan)";
                         document.getElementById('dbStatus').className = "text-sm font-bold text-rose-400";
