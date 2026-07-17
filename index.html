@@ -445,8 +445,8 @@
         // Fungsi helper untuk menormalkan string jantina ("P", "p", "Perempuan" -> "Perempuan")
         function normalizeGender(g) {
             if (!g) return "Lelaki";
-            const val = g.trim().toUpperCase();
-            if (val === 'P' || val.startsWith('PER') || val === 'FEMALE' || val === 'F') {
+            const val = g.toString().trim().toUpperCase();
+            if (val === 'P' || val.startsWith('PER') || val === 'FEMALE' || val === 'F' || val === 'WOMAN' || val === 'GIRL') {
                 return "Perempuan";
             }
             return "Lelaki";
@@ -692,7 +692,13 @@
             studentsRef.onSnapshot(snapshot => {
                 students = [];
                 snapshot.forEach(doc => {
-                    students.push({ id: doc.id, ...doc.data() });
+                    let data = doc.data();
+                    // Lakukan normalisasi data secara automatik dari Firebase untuk mengelakkan isu "P/p" hilang
+                    if (data) {
+                        data.gender = normalizeGender(data.gender);
+                        data.studentClass = normalizeClass(data.studentClass);
+                    }
+                    students.push({ id: doc.id, ...data });
                 });
                 renderWorksheet();
                 updateLeaderboardAndStats();
@@ -703,7 +709,12 @@
 
         function syncLocalData() {
             houses = localHouses.map((name, i) => ({ id: `local_house_${i}`, name }));
-            students = localStudents;
+            students = localStudents.map(s => {
+                // Lakukan normalisasi data pada storan tempatan offline juga
+                s.gender = normalizeGender(s.gender);
+                s.studentClass = normalizeClass(s.studentClass);
+                return s;
+            });
             if (houses.length > 0 && !activeHouseTab) {
                 activeHouseTab = houses[0].name;
             }
