@@ -492,7 +492,7 @@
                 s.highJump = parseFloat(s.highJump) || 0;
                 s.running = parseFloat(s.running) || 0;
                 s.shotPut = parseFloat(s.shotPut) || 0;
-                s.totalPoints = s.longJump + s.highJump + s.running + s.shotPut;
+                s.totalPoints = (s.longJump || 0) + (s.highJump || 0) + (s.running || 0) + (s.shotPut || 0);
                 s.notes = s.notes || "";
             });
         }
@@ -651,6 +651,9 @@
             confirmCallback = null;
         }
 
+        document.getElementById('confirmYesBtn').addEventListener('click', () => closeConfirm(true));
+        document.getElementById('confirmNoBtn').addEventListener('click', () => closeConfirm(false));
+
         function renderHouseTabs() {
             const container = document.getElementById('houseTabsContainer');
             container.innerHTML = "";
@@ -704,8 +707,12 @@
             houseFiltered.forEach(s => {
                 totalPoints += (s.longJump || 0) + (s.highJump || 0) + (s.running || 0) + (s.shotPut || 0);
             });
-            document.getElementById('houseTotalMembers').innerText = houseFiltered.length;
-            document.getElementById('houseTotalPoints').innerText = totalPoints;
+            
+            // Selesaikan Isu Dom ralat: Pastikan stats wujud sebelum menetapkan innerText
+            const totalMembersEl = document.getElementById('houseTotalMembers');
+            const totalPointsEl = document.getElementById('houseTotalPoints');
+            if (totalMembersEl) totalMembersEl.innerText = houseFiltered.length;
+            if (totalPointsEl) totalPointsEl.innerText = totalPoints;
 
             if (houseFiltered.length === 0) {
                 tbody.innerHTML = `
@@ -925,8 +932,8 @@
             if (user) {
                 // Keadaan Editor Guru (Online Auth)
                 roleBadge.className = "px-2.5 py-1 text-[10px] font-semibold rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200 flex items-center gap-1";
-                roleIndicator.className = "w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse";
-                roleText.innerText = "Guru (Pengawal Sukan)";
+                if (roleIndicator) roleIndicator.className = "w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse";
+                if (roleText) roleText.innerText = "Guru (Pengawal Sukan)";
 
                 userName.innerText = user.displayName || user.email;
                 userAvatar.src = user.photoURL || 'https://placehold.co/100x100/1e3a8a/ffffff?text=G';
@@ -943,8 +950,8 @@
             } else {
                 // Keadaan Read-Only (Pelawat)
                 roleBadge.className = "px-2.5 py-1 text-[10px] font-semibold rounded-full bg-slate-100 text-slate-600 border border-slate-200 flex items-center gap-1";
-                roleIndicator.className = "w-1.5 h-1.5 rounded-full bg-slate-400";
-                roleText.innerText = "Pelawat (Pemerhati)";
+                if (roleIndicator) roleIndicator.className = "w-1.5 h-1.5 rounded-full bg-slate-400";
+                if (roleText) roleText.innerText = "Pelawat (Pemerhati)";
 
                 userInfo.classList.add('hidden');
                 authBtnText.innerText = "Log Masuk Google / DELIMa";
@@ -992,9 +999,7 @@
             }
         });
 
-        // Close Modal Handlers
-        document.getElementById('confirmYesBtn').addEventListener('click', () => closeConfirm(true));
-        document.getElementById('confirmNoBtn').addEventListener('click', () => closeConfirm(false));
+        // Close Modal Handlers via safe addEventListeners
         document.getElementById('closePopupBlockBtn').addEventListener('click', () => {
             document.getElementById('popupBlockedModal').classList.add('hidden');
         });
