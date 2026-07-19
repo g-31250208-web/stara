@@ -294,7 +294,7 @@
             <p id="confirmMessage" class="text-[10px] text-slate-500 leading-normal mb-3">Adakah anda pasti?</p>
             <div class="flex justify-end gap-1.5">
                 <button id="confirmNoBtn" class="px-2.5 py-1.5 text-[10px] font-bold text-slate-500 hover:bg-slate-100 rounded-lg transition-colors">Batal</button>
-                <button id="confirmYesBtn" class="px-2.5 py-1.5 text-[10px] font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-lg transition-colors shadow-md">Ya, Padam</button>
+                <button id="confirmYesBtn" class="px-2.5 py-1.5 text-[10px] font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-lg transition-colors shadow-md">Ya, Teruskan</button>
             </div>
         </div>
     </div>
@@ -421,7 +421,7 @@
                     db = getFirestore(app);
                     isFirebaseConnected = true;
                     
-                    // RULE 3: Autentikasi sebelum kueri
+                    // Autentikasi sebelum kueri
                     let user = null;
                     const initialToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
                     if (initialToken) {
@@ -465,7 +465,7 @@
         function normalizeGender(val) {
             if (!val) return "L";
             const clean = val.toString().trim().toUpperCase();
-            if (clean === 'P' || clean === 'PR' || clean === 'PRMPN' || clean.startsWith('P') || clean.startsWith('F') || clean.startsWith('W')) {
+            if (clean === 'P' || clean === 'PR' || clean === 'PRMPN' || clean.startsWith('P') || clean.startsWith('F') || clean.startsWith('W') || clean === 'PEREMPUAN') {
                 return "P";
             }
             return "L";
@@ -475,12 +475,20 @@
             if (!val) return "T1";
             const clean = val.toString().trim().toUpperCase();
             if (clean.includes("PRA") || clean.includes("KIND")) return "Pra Sekolah";
-            if (clean.includes("T1") || clean.includes("1")) return "T1";
-            if (clean.includes("T2") || clean.includes("2")) return "T2";
-            if (clean.includes("T3") || clean.includes("3")) return "T3";
-            if (clean.includes("T4") || clean.includes("4")) return "T4";
-            if (clean.includes("T5") || clean.includes("5")) return "T5";
-            if (clean.includes("T6") || clean.includes("6")) return "T6";
+            if (clean.includes("T1") || clean.startsWith("T1") || clean.includes("TAHUN 1") || clean.includes("1")) return "T1";
+            if (clean.includes("T2") || clean.startsWith("T2") || clean.includes("TAHUN 2") || clean.includes("2")) return "T2";
+            if (clean.includes("T3") || clean.startsWith("T3") || clean.includes("TAHUN 3") || clean.includes("3")) return "T3";
+            if (clean.includes("T4") || clean.startsWith("T4") || clean.includes("TAHUN 4") || clean.includes("4")) return "T4";
+            if (clean.includes("T5") || clean.startsWith("T5") || clean.includes("TAHUN 5") || clean.includes("5")) return "T5";
+            if (clean.includes("T6") || clean.startsWith("T6") || clean.includes("TAHUN 6") || clean.includes("6")) return "T6";
+            
+            // Fallback digit ringkas
+            if (clean.startsWith("1")) return "T1";
+            if (clean.startsWith("2")) return "T2";
+            if (clean.startsWith("3")) return "T3";
+            if (clean.startsWith("4")) return "T4";
+            if (clean.startsWith("5")) return "T5";
+            if (clean.startsWith("6")) return "T6";
             return "T1";
         }
 
@@ -510,7 +518,6 @@
         }
 
         function setupFirebaseListeners() {
-            // RULE 1: Laluan Ketat
             const housesColRef = collection(db, 'artifacts', appId, 'public', 'data', 'houses');
             onSnapshot(housesColRef, (snapshot) => {
                 const fbHouses = [];
@@ -698,7 +705,10 @@
             const tbody = document.getElementById('worksheetBody');
             tbody.innerHTML = "";
 
-            document.getElementById('studentHouse').value = activeHouseTab;
+            const studentHouseInput = document.getElementById('studentHouse');
+            if (studentHouseInput) {
+                studentHouseInput.value = activeHouseTab;
+            }
 
             const houseFiltered = students.filter(s => s.house === activeHouseTab);
 
@@ -708,7 +718,6 @@
                 totalPoints += (s.longJump || 0) + (s.highJump || 0) + (s.running || 0) + (s.shotPut || 0);
             });
             
-            // Selesaikan Isu Dom ralat: Pastikan stats wujud sebelum menetapkan innerText
             const totalMembersEl = document.getElementById('houseTotalMembers');
             const totalPointsEl = document.getElementById('houseTotalPoints');
             if (totalMembersEl) totalMembersEl.innerText = houseFiltered.length;
@@ -937,7 +946,7 @@
 
                 userName.innerText = user.displayName || user.email;
                 userAvatar.src = user.photoURL || 'https://placehold.co/100x100/1e3a8a/ffffff?text=G';
-                userInfo.classList.remove('hidden');
+                if (userInfo) userInfo.classList.remove('hidden');
                 
                 authBtnText.innerText = "Log Keluar";
 
@@ -953,7 +962,7 @@
                 if (roleIndicator) roleIndicator.className = "w-1.5 h-1.5 rounded-full bg-slate-400";
                 if (roleText) roleText.innerText = "Pelawat (Pemerhati)";
 
-                userInfo.classList.add('hidden');
+                if (userInfo) userInfo.classList.add('hidden');
                 authBtnText.innerText = "Log Masuk Google / DELIMa";
 
                 registrationPanel.classList.add('hidden');
@@ -988,7 +997,6 @@
                     if (errorCode === "auth/popup-blocked" || errorCode === "auth/cancelled-popup-request" || errStr.includes("popup-blocked")) {
                         document.getElementById('popupBlockedModal').classList.remove('hidden');
                     } else if (errorCode === "auth/unauthorized-domain" || errStr.includes("unauthorized-domain")) {
-                        // Grab the exact domain where the browser is rendering this iframe preview
                         const domainVal = window.location.hostname || "Domain pratinjau anda";
                         document.getElementById('unauthorizedDomainVal').value = domainVal;
                         document.getElementById('unauthorizedDomainModal').classList.remove('hidden');
@@ -1012,7 +1020,6 @@
         document.getElementById('copyDomainBtn').addEventListener('click', () => {
             const domainVal = document.getElementById('unauthorizedDomainVal').value;
             
-            // Menggunakan kaedah sandaran khas untuk iframe bagi menyalin teks
             const tempTextArea = document.createElement("textarea");
             tempTextArea.value = domainVal;
             document.body.appendChild(tempTextArea);
@@ -1049,7 +1056,7 @@
 
             const newStudent = {
                 id: `stud_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
-                name: name,
+                name: name.toUpperCase(),
                 gender: genderInput.value,
                 studentClass: classInput.value,
                 house: activeHouseTab,
@@ -1204,8 +1211,10 @@
             reader.onload = async function(evt) {
                 try {
                     const parsed = JSON.parse(evt.target.result);
+                    
+                    // KES 1: Fail Import Format Standard Backup System (Mempunyai "houses" dan "students")
                     if (parsed && Array.isArray(parsed.houses) && Array.isArray(parsed.students)) {
-                        showConfirm("Import Data JSON", "Tindakan ini akan menggantikan rekod semasa dengan data yang diimport. Teruskan?", async () => {
+                        showConfirm("Import Data JSON Sandaran", "Tindakan ini akan menggantikan seluruh rekod semasa dengan data sandaran baru. Teruskan?", async () => {
                             for (const s of students) {
                                 await deleteStudentFromDb(s.id);
                             }
@@ -1224,15 +1233,57 @@
                                 await saveStudentToDb(s);
                             }
 
-                            showToast("Data berjaya diimport daripada JSON!", "success");
+                            showToast("Seluruh data sistem berjaya dipulihkan dari fail sandaran!", "success");
                             if (houses.length > 0) activeHouseTab = houses[0].name;
                             syncData();
                         });
+                    } 
+                    // KES 2: Pengecam Pintar (Smart Parser) bagi import fail senarai mentah murid (Array rata)
+                    else if (Array.isArray(parsed)) {
+                        if (houses.length === 0) {
+                            showToast("Sila daftarkan sekurang-kurangnya satu Rumah Sukan terlebih dahulu!", "warning");
+                            return;
+                        }
+                        
+                        showConfirm(
+                            "Import Senarai Murid Baru", 
+                            `Sistem mengesan fail senarai rata murid mengandungi ${parsed.length} orang ahli. Adakah anda bersetuju mendaftarkan kesemua mereka secara automatik ke dalam Rumah Sukan "${activeHouseTab}"?`, 
+                            async () => {
+                                let importedCount = 0;
+                                for (const item of parsed) {
+                                    const rawName = item.nama || item.name || "";
+                                    if (!rawName.trim()) continue;
+
+                                    const rawGender = item.singkatan_jantina || item.jantina || item.gender || "L";
+                                    const rawClass = item.kelas || item.studentClass || "T1";
+
+                                    const newStudent = {
+                                        id: `stud_${Date.now()}_${Math.random().toString(36).substr(2, 5)}_${importedCount}`,
+                                        name: rawName.trim().toUpperCase(),
+                                        gender: normalizeGender(rawGender),
+                                        studentClass: normalizeClass(rawClass),
+                                        house: activeHouseTab,
+                                        longJump: 0,
+                                        highJump: 0,
+                                        running: 0,
+                                        shotPut: 0,
+                                        totalPoints: 0,
+                                        notes: ""
+                                    };
+
+                                    students.push(newStudent);
+                                    await saveStudentToDb(newStudent);
+                                    importedCount++;
+                                }
+                                showToast(`Pintar: Berjaya mengimport ${importedCount} orang murid ke Rumah Sukan ${activeHouseTab}!`, "success");
+                                syncData();
+                            }
+                        );
                     } else {
-                        showToast("Format fail JSON tidak sah!", "danger");
+                        showToast("Format fail JSON tidak sah atau tidak dikenali!", "danger");
                     }
                 } catch(err) {
-                    showToast("Ralat membaca fail JSON!", "danger");
+                    showToast("Ralat membaca fail JSON! Sila pastikan fail bersih dari ralat sintaks.", "danger");
                 }
             };
             reader.readAsText(file);
