@@ -869,7 +869,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         // Firebase Configuration (Standard Production)
         const firebaseConfig = {
@@ -1016,6 +1016,32 @@
         document.getElementById('conflictIgnoreBtn').addEventListener('click', () => {
             if (onConflictResolved) onConflictResolved('ignore');
         });
+
+        // Batch save to Firebase Firestore helper to prevent overwrite desync
+        async function saveAllStudentsToFirestore(studentList) {
+            if (!currentUser) return;
+            const appId = "sukantara-sekolah-2026";
+            try {
+                // Limit of 500 write operations per batch in Firestore
+                const chunks = [];
+                for (let i = 0; i < studentList.length; i += 500) {
+                    chunks.push(studentList.slice(i, i + 500));
+                }
+                
+                for (const chunk of chunks) {
+                    const batch = writeBatch(db);
+                    chunk.forEach(student => {
+                        const studentRef = doc(db, "artifacts", appId, "public", "data", "students", student.id);
+                        batch.set(studentRef, student);
+                    });
+                    await batch.commit();
+                }
+                console.log("Successfully committed batch update to Firestore");
+            } catch (err) {
+                console.error("Error batch saving students to Firestore:", err);
+                showToast("Gagal menyelaraskan sebahagian data murid ke awan Firestore.", "danger");
+            }
+        }
 
         // Update UI Threshold Inputs for L & P
         function updateThresholdInputsUI() {
@@ -1671,9 +1697,13 @@
                         students = sheetsData.students;
                         normalizeAllStoredData();
                         localStorage.setItem('sukantara_students', JSON.stringify(students));
+                        
+                        // CRITICAL FIX: Instantly write batch of Google Sheets students to Firestore to keep Firestore updated
+                        showToast("Menyelaraskan data murid ke Firebase Firestore...", "info");
+                        await saveAllStudentsToFirestore(students);
                     }
                     syncData();
-                    showToast("Data Google Sheets berjaya dikemaskini!", "success");
+                    showToast("Data Google Sheets berjaya diselaraskan secara kekal ke Firestore!", "success");
                 } else {
                     showToast("Gagal memuat turun data dari Google Sheets.", "danger");
                 }
@@ -1847,6 +1877,9 @@
                                     for (const h of houses) {
                                         await sendToGoogleSheets("saveHouse", h);
                                     }
+                                    
+                                    // CRITICAL FIX: Also write full JSON backup recovery into Cloud Firestore
+                                    await saveAllStudentsToFirestore(students);
 
                                     if (houses.length > 0) {
                                         activeHouseTab = houses[0].name;
