@@ -138,7 +138,7 @@
                                     <i class="fa-solid fa-file-import text-blue-500"></i>
                                     <span>Import Data JSON</span>
                                 </button>
-                                <button id="exportBtn" class="w-full text-left px-3 py-2 text-[10px] font-semibold text-slate-700 hover:bg-slate-50 hover:text-emerald-600 rounded-lg transition-colors flex items-center gap-2 active:bg-slate-50">
+                                <button id="exportBtn" class="w-full text-left px-3 py-2 text-[10px] font-semibold text-slate-700 hover:bg-slate-50 hover:text-emerald-600 rounded-lg transition-colors flex items-center gap-2 active:bg-emerald-50">
                                     <i class="fa-solid fa-file-export text-emerald-500"></i>
                                     <span>Eksport Data JSON</span>
                                 </button>
@@ -793,43 +793,6 @@
             populateHouseFilter();
         }
 
-        function renderSettingsHouses() {
-            const container = document.getElementById('settingsHousesList');
-            if (!container) return;
-            container.innerHTML = "";
-            
-            if (houses.length === 0) {
-                container.innerHTML = `<span class="text-[9px] text-slate-400 font-semibold">Tiada rumah sukan berdaftar.</span>`;
-                return;
-            }
-
-            houses.forEach(h => {
-                const pill = document.createElement('div');
-                pill.className = "flex items-center gap-1 bg-slate-50 border border-slate-200 pl-2 pr-1 py-1 rounded-lg text-[9px] font-bold text-slate-700 shadow-sm";
-                pill.innerHTML = `
-                    <span>${h.name}</span>
-                    <button class="p-0.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded transition-colors delete-house-btn active:scale-95" data-id="${h.id}">
-                        <i class="fa-solid fa-circle-xmark text-sm"></i>
-                    </button>
-                `;
-                
-                pill.querySelector('.delete-house-btn').addEventListener('click', () => {
-                    showConfirm(
-                        "Padam Rumah Sukan",
-                        `Adakah anda pasti mahu memadam Rumah ${h.name}? Ini juga memadam SEMUA ahli di bawahnya!`,
-                        true,
-                        "Ya, Padam",
-                        () => {
-                            deleteHouseFromDb(h.id);
-                            showToast(`Rumah ${h.name} berjaya dipadam secara lokal. Menyelaras...`, "success");
-                        }
-                    );
-                });
-
-                container.appendChild(pill);
-            });
-        }
-
         function showToast(message, type = "info") {
             const container = document.getElementById('toastContainer');
             if (!container) return;
@@ -1000,8 +963,6 @@
                                 s[`${field}Eligible`] = (parsedVal >= threshold);
                             }
                         }
-                    } else {
-                        // Keep manual checkboxes if text input is empty
                     }
                 });
 
@@ -1202,6 +1163,60 @@
             });
         }
 
+        function renderSettingsHouses() {
+            const container = document.getElementById('settingsHousesList');
+            if (!container) return;
+            container.innerHTML = "";
+            
+            if (houses.length === 0) {
+                container.innerHTML = `<span class="text-[9px] text-slate-400 font-semibold">Tiada rumah sukan berdaftar.</span>`;
+                return;
+            }
+
+            houses.forEach(h => {
+                const pill = document.createElement('div');
+                pill.className = "flex items-center gap-1 bg-slate-50 border border-slate-200 pl-2 pr-1 py-1 rounded-lg text-[9px] font-bold text-slate-700 shadow-sm";
+                pill.innerHTML = `
+                    <span>${h.name}</span>
+                    <button class="p-0.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded transition-colors delete-house-btn active:scale-95" data-id="${h.id}">
+                        <i class="fa-solid fa-circle-xmark text-sm"></i>
+                    </button>
+                `;
+                
+                pill.querySelector('.delete-house-btn').addEventListener('click', () => {
+                    showConfirm(
+                        "Padam Rumah Sukan",
+                        `Adakah anda pasti mahu memadam Rumah ${h.name}? Ini juga memadam SEMUA ahli di bawahnya!`,
+                        true,
+                        "Ya, Padam",
+                        () => {
+                            deleteHouseFromDb(h.id);
+                            showToast(`Rumah ${h.name} berjaya dipadam secara lokal. Menyelaras...`, "success");
+                        }
+                    );
+                });
+
+                container.appendChild(pill);
+            });
+        }
+
+        function populateHouseFilter() {
+            const filter = document.getElementById('wakilHouseFilter');
+            if (!filter) return;
+
+            const prevVal = filter.value;
+            filter.innerHTML = `<option value="ALL">Semua Rumah Sukan</option>`;
+
+            houses.forEach(h => {
+                const opt = document.createElement('option');
+                opt.value = h.name;
+                opt.innerText = `Rumah ${h.name}`;
+                filter.appendChild(opt);
+            });
+
+            filter.value = prevVal || "ALL";
+        }
+
         function printReport() {
             const printWindow = window.open('', '_blank');
             const houseMembers = students.filter(s => s.house === activeHouseTab);
@@ -1255,7 +1270,7 @@
                             </td>
                             <td>
                                 <div class="school-title">Laporan Analisis Kejohanan Sukantara Tahunan</div>
-                                <div style="font-weight: 600; color: #555;">Kementerian Pendidikan Malaysia</div>
+                                <div style="font-weight: 600; color: #555;">Sekolah Kebangsaan Bikang</div>
                                 <div class="report-title">PRESTASI DAN KELAYAKAN AHLI - RUMAH SUKAN: ${activeHouseTab.toUpperCase()}</div>
                             </td>
                         </tr>
@@ -1500,13 +1515,6 @@
             printWindow.document.close();
         }
 
-        function getNumericRecord(recordStr) {
-            if (!recordStr) return null;
-            const clean = recordStr.toString().replace(/[^0-9.]/g, '');
-            const val = parseFloat(clean);
-            return isNaN(val) ? null : val;
-        }
-
         function renderRepresentativeView() {
             const houseFilter = document.getElementById('wakilHouseFilter').value;
             const container = document.getElementById('wakilResultsContainer');
@@ -1588,23 +1596,6 @@
 
                 container.appendChild(card);
             });
-        }
-
-        function populateHouseFilter() {
-            const filter = document.getElementById('wakilHouseFilter');
-            if (!filter) return;
-
-            const prevVal = filter.value;
-            filter.innerHTML = `<option value="ALL">Semua Rumah Sukan</option>`;
-
-            houses.forEach(h => {
-                const opt = document.createElement('option');
-                opt.value = h.name;
-                opt.innerText = `Rumah ${h.name}`;
-                filter.appendChild(opt);
-            });
-
-            filter.value = prevVal || "ALL";
         }
 
         async function sendToGoogleSheets(action, data) {
@@ -1699,40 +1690,6 @@
                                  (s.runningEligible ? 1 : 0) + 
                                  (s.shotPutEligible ? 1 : 0);
             });
-        }
-
-        function normalizeGender(g) {
-            if (!g) return "L";
-            const clean = g.toString().trim().toUpperCase();
-            if (clean === "P" || clean === "PEREMPUAN" || clean === "FEMALE" || clean === "F") {
-                return "P";
-            }
-            return "L";
-        }
-
-        function normalizeClass(c) {
-            if (!c) return "T1";
-            const clean = c.toString().trim().toUpperCase();
-            if (clean.includes("PRA") || clean.includes("PRE")) return "Pra Sekolah";
-            if (clean.includes("T1") || clean.includes("1") || clean === "TAHUN 1") return "T1";
-            if (clean.includes("T2") || clean.includes("2") || clean === "TAHUN 2") return "T2";
-            if (clean.includes("T3") || clean.includes("3") || clean === "TAHUN 3") return "T3";
-            if (clean.includes("T4") || clean.includes("4") || clean === "TAHUN 4") return "T4";
-            if (clean.includes("T5") || clean.includes("5") || clean === "TAHUN 5") return "T5";
-            if (clean.includes("T6") || clean.includes("6") || clean === "TAHUN 6") return "T6";
-            return "T1";
-        }
-
-        function getClassOrder(c) {
-            if (!c) return 99;
-            if (c === "Pra Sekolah") return 0;
-            if (c === "T1") return 1;
-            if (c === "T2") return 2;
-            if (c === "T3") return 3;
-            if (c === "T4") return 4;
-            if (c === "T5") return 5;
-            if (c === "T6") return 6;
-            return 99;
         }
 
         const toggleHeaderThresholds = document.getElementById('toggleHeaderThresholds');
@@ -2288,7 +2245,7 @@
 
                                     await sendToGoogleSheets("bulkImport", newImportedStudents);
                                     localStorage.setItem('sukantara_students', JSON.stringify(students));
-                                    showToast(`Berjaya membawa masuk ${importCount} ahli baharu!`, "success");
+                                    showToast("Berjaya membawa masuk ahli baharu!", "success");
                                     syncData();
                                 }
                             );
