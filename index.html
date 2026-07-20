@@ -806,6 +806,37 @@
         </div>
     </div>
 
+    <!-- CONFLICT RESOLUTION MODAL -->
+    <div id="conflictModal" class="hidden fixed inset-0 z-50 bg-slate-950/45 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-5 shadow-xl border border-slate-100 transform scale-95 transition-all text-center relative overflow-hidden">
+            <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 to-yellow-500"></div>
+            <div class="w-12 h-12 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center text-lg mx-auto mb-3">
+                <i class="fa-solid fa-user-gear"></i>
+            </div>
+            <h3 class="text-xs font-black text-slate-900 mb-1">Pertindihan Nama Diperkesan</h3>
+            <p class="text-[10px] text-slate-500 mb-4 leading-normal">
+                Nama pelajar <span id="conflictStudentName" class="font-black text-slate-800">Nama Pelajar</span> sudah wujud dalam senarai pangkalan data. Sila pilih tindakan:
+            </p>
+            <div class="flex flex-col gap-2">
+                <!-- Overwrite -->
+                <button id="conflictOverwriteBtn" class="w-full py-2 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-lg text-[10px] transition-colors shadow-sm flex items-center justify-center gap-1.5 active:scale-95">
+                    <i class="fa-solid fa-arrows-rotate text-xs"></i>
+                    <span>Tulis Ganti Rekod Sedia Ada</span>
+                </button>
+                <!-- Keep both / Allow Duplicate -->
+                <button id="conflictDuplicateBtn" class="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg text-[10px] transition-colors shadow-sm flex items-center justify-center gap-1.5 active:scale-95">
+                    <i class="fa-solid fa-user-plus text-xs"></i>
+                    <span>Simpan Kedua-dua (Benarkan Pendua)</span>
+                </button>
+                <!-- Ignore -->
+                <button id="conflictIgnoreBtn" class="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-lg text-[10px] transition-colors flex items-center justify-center gap-1.5 active:scale-95">
+                    <i class="fa-solid fa-ban text-xs"></i>
+                    <span>Abaikan (Kekalkan Rekod Sedia Ada)</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- CONFIRM DIALOG -->
     <div id="confirmModal" class="hidden fixed inset-0 z-50 bg-slate-950/45 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn">
         <div class="bg-white rounded-2xl max-w-xs w-full p-4 shadow-xl border border-slate-100 transform scale-95 transition-all">
@@ -915,6 +946,76 @@
                 inactiveBadge: "bg-slate-100 text-slate-800"
             }
         };
+
+        // STATE CONFLICT RESOLUTION
+        let conflictQueue = [];
+        let onConflictResolved = null;
+
+        // Smart conflict handler function
+        function resolveNextConflict() {
+            if (conflictQueue.length === 0) {
+                // All items processed successfully!
+                syncData();
+                return;
+            }
+            
+            const nextItem = conflictQueue[0];
+            const nameToTest = nextItem.name.toUpperCase();
+            
+            // Search if a student with the exact same name already exists
+            const existingIndex = students.findIndex(s => s.name.toUpperCase() === nameToTest);
+            
+            if (existingIndex !== -1) {
+                // Duplicate found! Open the custom resolver modal
+                document.getElementById('conflictStudentName').textContent = nextItem.name;
+                document.getElementById('conflictModal').classList.remove('hidden');
+                
+                // Keep callback in memory
+                onConflictResolved = (action) => {
+                    document.getElementById('conflictModal').classList.add('hidden');
+                    const processedItem = conflictQueue.shift(); // remove processed
+                    
+                    if (action === 'overwrite') {
+                        // Replace the details of the existing student with the newly registered one
+                        const originalId = students[existingIndex].id;
+                        students[existingIndex] = {
+                            ...processedItem,
+                            id: originalId // Preserve original unique key database
+                        };
+                        saveStudentToDb(students[existingIndex]);
+                        showToast(`Rekod ahli '${processedItem.name}' berjaya ditulistulis ganti.`, "success");
+                    } else if (action === 'duplicate') {
+                        // Keep both. Add as a secondary independent student
+                        students.push(processedItem);
+                        saveStudentToDb(processedItem);
+                        showToast(`Ahli '${processedItem.name}' berjaya ditambah sebagai rekod pendua baharu.`, "success");
+                    } else if (action === 'ignore') {
+                        // Skip/Ignore
+                        showToast(`Pendaftaran ahli bertindih '${processedItem.name}' diabaikan.`, "info");
+                    }
+                    
+                    // Loop to evaluate next conflict item
+                    resolveNextConflict();
+                };
+            } else {
+                // Clean add. No duplicate found.
+                const cleanItem = conflictQueue.shift();
+                students.push(cleanItem);
+                saveStudentToDb(cleanItem);
+                resolveNextConflict();
+            }
+        }
+
+        // Setup event listeners for conflict resolution modal buttons
+        document.getElementById('conflictOverwriteBtn').addEventListener('click', () => {
+            if (onConflictResolved) onConflictResolved('overwrite');
+        });
+        document.getElementById('conflictDuplicateBtn').addEventListener('click', () => {
+            if (onConflictResolved) onConflictResolved('duplicate');
+        });
+        document.getElementById('conflictIgnoreBtn').addEventListener('click', () => {
+            if (onConflictResolved) onConflictResolved('ignore');
+        });
 
         // Update UI Threshold Inputs for L & P
         function updateThresholdInputsUI() {
@@ -1517,12 +1618,11 @@
                     notes: ""
                 };
 
-                students.push(newStudent);
-                saveStudentToDb(newStudent);
-                showToast(`Murid '${name}' didaftarkan ke Rumah ${newStudent.house}!`, "success");
-                
                 closeRegModal();
-                syncData();
+                
+                // Queue the single student registration to resolve duplicate conflict dynamically
+                conflictQueue = [newStudent];
+                resolveNextConflict();
             });
         }
 
@@ -1689,7 +1789,7 @@
                                 "Ya, Teruskan",
                                 async () => {
                                     let importCount = 0;
-                                    const newImportedStudents = [];
+                                    const listToProcess = [];
                                     
                                     parsed.forEach(item => {
                                         const rawName = item.nama || item.name || item.nama_pelajar;
@@ -1719,15 +1819,13 @@
                                             notes: ""
                                         };
 
-                                        students.push(newStud);
-                                        newImportedStudents.push(newStud);
+                                        listToProcess.push(newStud);
                                         importCount++;
                                     });
 
-                                    await sendToGoogleSheets("bulkImport", newImportedStudents);
-                                    localStorage.setItem('sukantara_students', JSON.stringify(students));
-                                    showToast("Berjaya membawa masuk ahli baharu!", "success");
-                                    syncData();
+                                    // Send the raw imported list into our conflict queue
+                                    conflictQueue = listToProcess;
+                                    resolveNextConflict();
                                 }
                             );
 
@@ -1881,7 +1979,6 @@
             }
         }
 
-        // Realtime sync changes to interface
         function syncData() {
             // Save to localStorage
             localStorage.setItem('sukantara_students', JSON.stringify(students));
