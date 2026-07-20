@@ -823,6 +823,27 @@
             return "T1";
         }
 
+        // Fungsi Memulakan Sesi Simulasi Tempatan (Bypass Ralat Domain Sandbox)
+        function simulateUserSignIn(email, name) {
+            const mockUser = {
+                uid: `mock_user_${Date.now()}`,
+                displayName: name,
+                email: email,
+                photoURL: `https://placehold.co/40x40/1e3b8a/ffffff?text=${name.charAt(0)}`
+            };
+            localStorage.setItem('sukantara_simulated_user', JSON.stringify(mockUser));
+            userId = mockUser.uid;
+            firebaseActive = true;
+            isAdmin = (email.toLowerCase() === ADMIN_EMAIL.toLowerCase());
+            
+            updateAuthUI(mockUser);
+            updateDbStatus(false, "Sesi Simulasi Aktif", "warning");
+            
+            // Muatkan data
+            loadLocalData();
+            showToast(`Sesi simulasi aktif sebagai ${name}!`, "success");
+        }
+
         async function initFirebase() {
             try {
                 updateDbStatus(true, "Menghubungi Firebase...");
@@ -833,8 +854,23 @@
                 db = getFirestore(app);
                 auth = getAuth(app);
 
+                // Semak jika ada sesi simulasi aktif terlebih dahulu
+                const savedSim = localStorage.getItem('sukantara_simulated_user');
+                if (savedSim) {
+                    const parsed = JSON.parse(savedSim);
+                    userId = parsed.uid;
+                    firebaseActive = true;
+                    updateAuthUI(parsed);
+                    updateDbStatus(false, "Sesi Simulasi Aktif", "warning");
+                    setupFirestoreListeners();
+                    return;
+                }
+
                 // Mendengar status pengesahan pengguna secara dinamik
                 onAuthStateChanged(auth, (user) => {
+                    const sim = localStorage.getItem('sukantara_simulated_user');
+                    if (sim) return; // Skip if simulated session is overriding
+
                     updateAuthUI(user);
                     if (user) {
                         userId = user.uid;
@@ -852,9 +888,21 @@
             } catch (error) {
                 console.error("Firebase gagal diaktifkan. Berpindah ke Mod Lokal:", error);
                 firebaseActive = false;
-                updateDbStatus(false, "Mod Lokal (Tanpa Awan)", "warning");
-                updateAuthUI(null);
-                loadLocalData();
+                
+                // Semak jika ada sesi simulasi tempatan walaupun Firebase gagal dimuatkan
+                const savedSim = localStorage.getItem('sukantara_simulated_user');
+                if (savedSim) {
+                    const parsed = JSON.parse(savedSim);
+                    userId = parsed.uid;
+                    firebaseActive = true;
+                    updateAuthUI(parsed);
+                    updateDbStatus(false, "Sesi Simulasi Aktif", "warning");
+                    loadLocalData();
+                } else {
+                    updateDbStatus(false, "Mod Lokal (Tanpa Awan)", "warning");
+                    updateAuthUI(null);
+                    loadLocalData();
+                }
             }
         }
 
@@ -1016,14 +1064,48 @@
                 showToast("Log masuk berjaya! Menyandarkan data awan...", "success");
             } catch (error) {
                 console.error("Gagal log masuk Google:", error);
-                showToast("Log masuk dibatalkan atau menghadapi ralat.", "danger");
+                
+                // Mengesan ralat sekatan Domain Firebase (auth/unauthorized-domain)
+                if (error.code === 'auth/unauthorized-domain') {
+                    const currentHost = window.location.hostname;
+                    
+                    // Salin domain secara automatik ke dalam clipboard untuk memudahkan Whitelist
+                    try {
+                        const tempEl = document.createElement('textarea');
+                        tempEl.value = currentHost;
+                        document.body.appendChild(tempEl);
+                        tempEl.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(tempEl);
+                        showToast(`Domain ${currentHost} disalin ke clipboard!`, "success");
+                    } catch(e) {}
+
+                    showConfirm(
+                        "Ralat Domain Pratonton Disekat",
+                        `Firebase menyekat log masuk kerana domain ini (${currentHost}) tidak tersenarai di Firebase Console projek anda.\n\nSila tambah domain ini ke dalam senarai 'Authorized Domains' di Firebase Authentication Settings.\n\nAdakah anda mahu mulakan 'Sesi Simulasi' sebagai Admin Utama (sekolah-7608@moe-dl.edu.my) untuk menguji sistem di tetingkap ini?`,
+                        false,
+                        "Simulasikan Sesi Admin Utama",
+                        () => {
+                            simulateUserSignIn("sekolah-7608@moe-dl.edu.my", "Admin Utama (Simulasi)");
+                        }
+                    );
+                } else {
+                    showToast("Log masuk dibatalkan atau menghadapi ralat.", "danger");
+                }
                 updateDbStatus(false, "Sila Log Masuk", "warning");
             }
         }
 
         // Fungsi mengurus Log Keluar
         async function handleLogout() {
-            if (!auth) return;
+            if (!auth) {
+                // Logout daripada sesi simulasi
+                localStorage.removeItem('sukantara_simulated_user');
+                updateAuthUI(null);
+                loadLocalData();
+                showToast("Sesi simulasi ditutup.", "info");
+                return;
+            }
             showConfirm(
                 "Log Keluar Sesi",
                 "Adakah anda pasti mahu log keluar daripada akaun Google/DELIMa anda?",
@@ -1031,6 +1113,7 @@
                 "Log Keluar",
                 async () => {
                     try {
+                        localStorage.removeItem('sukantara_simulated_user');
                         await signOut(auth);
                         showToast("Anda telah berjaya log keluar.", "info");
                     } catch (error) {
