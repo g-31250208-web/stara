@@ -77,19 +77,6 @@
                 <p class="text-[10px] text-slate-400 mt-1">Platform Analisis Prestasi & Penyelarasan Masa Nyata (Live)</p>
             </div>
 
-            <!-- Warning Banner for Sandbox Preview -->
-            <div id="sandboxNotice" class="hidden mb-4 bg-amber-500/10 border border-amber-500/30 rounded-2xl p-3 text-left text-amber-300">
-                <div class="flex gap-2 items-start">
-                    <i class="fa-solid fa-triangle-exclamation text-xs mt-0.5"></i>
-                    <div class="space-y-1">
-                        <span class="text-[9px] font-bold uppercase tracking-wider block">Sekatan Persekitaran Pratonton</span>
-                        <p class="text-[8px] text-amber-400 leading-normal">
-                            Sistem mengesan anda berada di dalam tetingkap *sandbox/iframe* yang menyekat Google Pop-up Auth. Sila gunakan butang **Bypass Mod Simulasi** di bawah jika log masuk Google gagal dibuka.
-                        </p>
-                    </div>
-                </div>
-            </div>
-
             <!-- LOGIN ACTIONS CARD -->
             <div class="space-y-3 bg-slate-950/55 p-4 rounded-2xl border border-slate-800/80 mb-5 text-left">
                 <h3 class="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-3 text-center">Sila Pilih Kaedah Log Masuk</h3>
@@ -125,12 +112,6 @@
                         </div>
                     </div>
                     <i class="fa-solid fa-chevron-right text-xs text-slate-400"></i>
-                </button>
-
-                <!-- BUTTON 3: SIMULATE ADMIN (BYPASS FOR IFRAME) -->
-                <button id="bypassLoginBtn" class="w-full py-2 px-4 bg-amber-600/20 hover:bg-amber-600/30 border border-amber-500/30 text-amber-300 font-bold rounded-xl transition-all flex items-center justify-center gap-2 active:scale-95 text-[10px]">
-                    <i class="fa-solid fa-user-shield"></i>
-                    <span>Bypass Mod Simulasi (Syor Pratonton)</span>
                 </button>
             </div>
 
@@ -851,11 +832,6 @@
             localStorage.setItem('sukantara_students', JSON.stringify(students));
         }
 
-        // Detect iframe sandbox issues
-        if (window.self !== window.top || window.location.protocol === 'blob:') {
-            document.getElementById('sandboxNotice').classList.remove('hidden');
-        }
-
         // DELIMa & Google Auth Popup Sign-In
         async function loginWithGoogle() {
             try {
@@ -863,29 +839,12 @@
                 showToast(`Log masuk berjaya! Selamat kembali, ${result.user.displayName}`, "success");
             } catch (error) {
                 console.error("Auth Error:", error);
-                if (error.code === 'auth/operation-not-supported-in-this-environment' || window.location.protocol === 'blob:') {
-                    showToast("Sekatan pelayar dikesan! Melancarkan Mod Bypass secara automatik...", "warning");
-                    triggerBypassAdmin();
-                } else {
-                    showToast(`Log masuk gagal: ${error.message}`, "danger");
-                }
+                showToast(`Log masuk gagal: ${error.message}`, "danger");
             }
-        }
-
-        function triggerBypassAdmin() {
-            currentUser = {
-                email: "sekolah-7608@moe-dl.edu.my",
-                displayName: "Admin Utama (Simulasi Sandbox)",
-                photoURL: ""
-            };
-            document.getElementById('loginScreen').classList.add('hidden');
-            showToast("Bypass Berjaya! Anda telah dilog masuk sebagai Admin Utama.", "success");
-            initDatabase();
         }
 
         document.getElementById('delimaLoginBtn').addEventListener('click', loginWithGoogle);
         document.getElementById('googlePersonalLoginBtn').addEventListener('click', loginWithGoogle);
-        document.getElementById('bypassLoginBtn').addEventListener('click', triggerBypassAdmin);
 
         async function initDatabase() {
             const savedUrl = localStorage.getItem('sukantara_gscript_url');
