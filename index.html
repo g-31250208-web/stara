@@ -951,137 +951,56 @@
         let conflictQueue = [];
         let onConflictResolved = null;
 
-        // Smart conflict handler function
-        function resolveNextConflict() {
-            if (conflictQueue.length === 0) {
-                // All items processed successfully!
-                syncData();
-                return;
-            }
-            
-            const nextItem = conflictQueue[0];
-            const nameToTest = nextItem.name.toUpperCase();
-            
-            // Search if a student with the exact same name already exists
-            const existingIndex = students.findIndex(s => s.name.toUpperCase() === nameToTest);
-            
-            if (existingIndex !== -1) {
-                // Duplicate found! Open the custom resolver modal
-                document.getElementById('conflictStudentName').textContent = nextItem.name;
-                document.getElementById('conflictModal').classList.remove('hidden');
-                
-                // Keep callback in memory
-                onConflictResolved = (action) => {
-                    document.getElementById('conflictModal').classList.add('hidden');
-                    const processedItem = conflictQueue.shift(); // remove processed
-                    
-                    if (action === 'overwrite') {
-                        // Replace the details of the existing student with the newly registered one
-                        const originalId = students[existingIndex].id;
-                        students[existingIndex] = {
-                            ...processedItem,
-                            id: originalId // Preserve original unique key database
-                        };
-                        saveStudentToDb(students[existingIndex]);
-                        showToast(`Rekod ahli '${processedItem.name}' berjaya ditulistulis ganti.`, "success");
-                    } else if (action === 'duplicate') {
-                        // Keep both. Add as a secondary independent student
-                        students.push(processedItem);
-                        saveStudentToDb(processedItem);
-                        showToast(`Ahli '${processedItem.name}' berjaya ditambah sebagai rekod pendua baharu.`, "success");
-                    } else if (action === 'ignore') {
-                        // Skip/Ignore
-                        showToast(`Pendaftaran ahli bertindih '${processedItem.name}' diabaikan.`, "info");
-                    }
-                    
-                    // Loop to evaluate next conflict item
-                    resolveNextConflict();
-                };
-            } else {
-                // Clean add. No duplicate found.
-                const cleanItem = conflictQueue.shift();
-                students.push(cleanItem);
-                saveStudentToDb(cleanItem);
-                resolveNextConflict();
-            }
+        function getCategory(studentClass) {
+            const cls = (studentClass || "").toString().toUpperCase().trim();
+            if (cls.includes("PRA") || cls.includes("PRE")) return "pra";
+            if (cls.includes("T1") || cls.includes("T2") || cls.includes("T3") || cls.includes("TAHUN 1") || cls.includes("TAHUN 2") || cls.includes("TAHUN 3")) return "tahap1";
+            if (cls.includes("T4") || cls.includes("T5") || cls.includes("T6") || cls.includes("TAHUN 4") || cls.includes("TAHUN 5") || cls.includes("TAHUN 6")) return "tahap2";
+            return "tahap1"; // Default fallback
         }
 
-        // Setup event listeners for conflict resolution modal buttons
-        document.getElementById('conflictOverwriteBtn').addEventListener('click', () => {
-            if (onConflictResolved) onConflictResolved('overwrite');
-        });
-        document.getElementById('conflictDuplicateBtn').addEventListener('click', () => {
-            if (onConflictResolved) onConflictResolved('duplicate');
-        });
-        document.getElementById('conflictIgnoreBtn').addEventListener('click', () => {
-            if (onConflictResolved) onConflictResolved('ignore');
-        });
-
-        // Batch save to Firebase Firestore helper to prevent overwrite desync
-        async function saveAllStudentsToFirestore(studentList) {
-            if (!currentUser) return;
-            const appId = "sukantara-sekolah-2026";
-            try {
-                // Limit of 500 write operations per batch in Firestore
-                const chunks = [];
-                for (let i = 0; i < studentList.length; i += 500) {
-                    chunks.push(studentList.slice(i, i + 500));
-                }
-                
-                for (const chunk of chunks) {
-                    const batch = writeBatch(db);
-                    chunk.forEach(student => {
-                        const studentRef = doc(db, "artifacts", appId, "public", "data", "students", student.id);
-                        batch.set(studentRef, student);
-                    });
-                    await batch.commit();
-                }
-                console.log("Successfully committed batch update to Firestore");
-            } catch (err) {
-                console.error("Error batch saving students to Firestore:", err);
-                showToast("Gagal menyelaraskan sebahagian data murid ke awan Firestore.", "danger");
-            }
-        }
-
-        // Update UI Threshold Inputs for L & P
         function updateThresholdInputsUI() {
-            ['pra', 'tahap1', 'tahap2'].forEach(category => {
-                ['L', 'P'].forEach(gender => {
-                    ['longJump', 'highJump', 'running', 'shotPut'].forEach(field => {
+            const categories = ['pra', 'tahap1', 'tahap2'];
+            const genders = ['L', 'P'];
+            const fields = ['longJump', 'highJump', 'running', 'shotPut'];
+
+            categories.forEach(category => {
+                genders.forEach(gender => {
+                    fields.forEach(field => {
                         const headerInput = document.getElementById(`threshold_${category}_${field}_${gender}`);
                         if (headerInput) {
-                            headerInput.value = thresholds[category][gender][field];
+                            headerInput.value = thresholds[category][gender][field] || "";
                         }
                         const modalInput = document.getElementById(`modal_threshold_${category}_${field}_${gender}`);
                         if (modalInput) {
-                            modalInput.value = thresholds[category][gender][field];
+                            modalInput.value = thresholds[category][gender][field] || "";
                         }
                     });
                 });
             });
         }
 
-        function getCategory(studentClass) {
-            if (studentClass === "Pra Sekolah") return "pra";
-            if (["T1", "T2", "T3"].includes(studentClass)) return "tahap1";
-            return "tahap2";
-        }
-
-        // Re-evaluate all students using gender-specific L/P thresholds
+        // Re-evaluate all students using gender-specific L/P thresholds (with support for 0, TH, DQ)
         function reEvaluateAllStudents() {
             students.forEach(student => {
                 const cat = getCategory(student.studentClass);
                 const gender = student.gender === 'P' ? 'P' : 'L';
                 
                 ['longJump', 'highJump', 'running', 'shotPut'].forEach(field => {
-                    const recordStr = student[`${field}Record`] || "";
-                    const numericVal = parseFloat(recordStr);
-                    if (!isNaN(numericVal)) {
-                        const thresholdVal = parseFloat(thresholds[cat][gender][field]);
-                        if (field === 'running') {
-                            student[`${field}Eligible`] = numericVal <= thresholdVal;
+                    const recordStr = (student[`${field}Record`] || "").toString().trim().toUpperCase();
+                    if (recordStr === "0" || recordStr === "TH" || recordStr === "DQ") {
+                        student[`${field}Eligible`] = false;
+                    } else {
+                        const numericVal = parseFloat(recordStr.replace(/[^\d.-]/g, ''));
+                        if (!isNaN(numericVal)) {
+                            const thresholdVal = parseFloat(thresholds[cat][gender][field]);
+                            if (field === 'running') {
+                                student[`${field}Eligible`] = numericVal <= thresholdVal;
+                            } else {
+                                student[`${field}Eligible`] = numericVal >= thresholdVal;
+                            }
                         } else {
-                            student[`${field}Eligible`] = numericVal >= thresholdVal;
+                            student[`${field}Eligible`] = false;
                         }
                     }
                 });
@@ -2170,33 +2089,45 @@
                     </td>
                 `;
 
-                // Realtime Auto-Tick Evaluation on Record Change based on L/P thresholds
+                // Realtime Auto-Tick Evaluation on Record Change based on L/P thresholds with TH, DQ, 0 handling
                 const recordInputs = tr.querySelectorAll('.event-record-input');
                 recordInputs.forEach(inp => {
                     inp.addEventListener('change', (e) => {
                         const field = e.target.dataset.field;
-                        let rawVal = e.target.value.trim();
+                        let rawVal = e.target.value.trim().toUpperCase();
                         
-                        // Strip trailing letters (m, s)
-                        let numericStr = rawVal.replace(/[^\d.-]/g, '');
-                        let numericVal = parseFloat(numericStr);
-                        
-                        if (!isNaN(numericVal)) {
-                            // Format neatly back to input box
-                            const unit = (field === 'running') ? 's' : 'm';
-                            student[`${field}Record`] = numericVal.toFixed(2) + unit;
-                            e.target.value = student[`${field}Record`];
+                        if (rawVal === "0" || rawVal === "TH" || rawVal === "DQ") {
+                            // Set special status (Absent, Disqualified, or Did Not Attempt)
+                            student[`${field}Record`] = rawVal;
+                            student[`${field}Eligible`] = false;
+                            e.target.value = rawVal;
                             
-                            // Check eligibility thresholds against L/P gender values
-                            const thresholdVal = parseFloat(thresholds[cat][gender][field]);
-                            const isEligible = (field === 'running') ? (numericVal <= thresholdVal) : (numericVal >= thresholdVal);
-                            
-                            student[`${field}Eligible`] = isEligible;
                             const chk = tr.querySelector(`.event-checkbox[data-field="${field}"]`);
-                            if (chk) chk.checked = isEligible;
+                            if (chk) chk.checked = false;
                         } else {
-                            student[`${field}Record`] = "";
-                            e.target.value = "";
+                            // Standard numeric processing
+                            let numericStr = rawVal.replace(/[^\d.-]/g, '');
+                            let numericVal = parseFloat(numericStr);
+                            
+                            if (!isNaN(numericVal)) {
+                                const unit = (field === 'running') ? 's' : 'm';
+                                student[`${field}Record`] = numericVal.toFixed(2) + unit;
+                                e.target.value = student[`${field}Record`];
+                                
+                                const thresholdVal = parseFloat(thresholds[cat][gender][field]);
+                                const isEligible = (field === 'running') ? (numericVal <= thresholdVal) : (numericVal >= thresholdVal);
+                                
+                                student[`${field}Eligible`] = isEligible;
+                                const chk = tr.querySelector(`.event-checkbox[data-field="${field}"]`);
+                                if (chk) chk.checked = isEligible;
+                            } else {
+                                // Clear invalid values
+                                student[`${field}Record`] = "";
+                                student[`${field}Eligible`] = false;
+                                e.target.value = "";
+                                const chk = tr.querySelector(`.event-checkbox[data-field="${field}"]`);
+                                if (chk) chk.checked = false;
+                            }
                         }
                         
                         updateTotalPoints(student, tr);
