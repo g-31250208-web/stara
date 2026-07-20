@@ -880,13 +880,27 @@
                     ? '<span class="px-1.5 py-0.5 bg-blue-50 text-blue-700 rounded text-[9px] font-bold"><i class="fa-solid fa-mars"></i> L</span>'
                     : '<span class="px-1.5 py-0.5 bg-pink-50 text-pink-700 rounded text-[9px] font-bold"><i class="fa-solid fa-venus"></i> P</span>';
 
-                // Input fields
+                // Input fields (Checkbox on left, Text Input expanding on right)
                 const inputsHtml = ['longJump', 'highJump', 'running', 'shotPut'].map(field => {
+                    const isChecked = stud[`${field}Eligible`] ? 'checked' : '';
+                    const recordVal = stud[`${field}Record`] || '';
+                    
+                    // Dynamic guide placeholder based on sport event
+                    let placeholderText = "-";
+                    if (field === 'longJump' || field === 'shotPut') placeholderText = "0.00m";
+                    if (field === 'highJump') placeholderText = "0.00m";
+                    if (field === 'running') placeholderText = "00.0s";
+
                     return `
-                        <td class="py-1 px-0.5 text-center border-r border-slate-100">
-                            <input type="number" step="1" min="0" max="999" value="${stud[field] || 0}" 
-                                class="w-14 px-1 py-0.5 bg-slate-50 hover:bg-slate-100/70 focus:bg-white text-center font-bold text-slate-800 rounded-lg outline-none transition-all focus:ring-1 focus:ring-blue-500/20 focus:border-blue-500 border border-transparent student-score-input"
-                                data-id="${stud.id}" data-field="${field}" ${isReadOnly ? 'disabled' : ''}>
+                        <td class="py-1 px-1.5 border-r border-slate-100">
+                            <div class="flex items-center justify-start gap-1.5 w-full">
+                                <input type="checkbox" ${isChecked} 
+                                    class="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500 accent-blue-600 cursor-pointer student-score-checkbox flex-shrink-0"
+                                    data-id="${stud.id}" data-field="${field}" ${isReadOnly ? 'disabled' : ''}>
+                                <input type="text" placeholder="${placeholderText}" value="${recordVal}" 
+                                    class="w-full px-1.5 py-0.5 bg-slate-50 hover:bg-slate-100/50 focus:bg-white text-left font-semibold text-slate-800 rounded border border-slate-200/60 focus:border-blue-300 outline-none transition-all student-record-input"
+                                    data-id="${stud.id}" data-field="${field}" ${isReadOnly ? 'disabled' : ''}>
+                            </div>
                         </td>
                     `;
                 }).join('');
