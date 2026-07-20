@@ -264,8 +264,11 @@
                             <label for="sortDropdown" class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Susun:</label>
                             <select id="sortDropdown" class="px-2 py-1 bg-white border border-slate-200 rounded-lg text-[9px] text-slate-700 font-bold focus:ring-1 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all cursor-pointer">
                                 <option value="name_asc">Nama (A-Z)</option>
+                                <option value="name_desc">Nama (Z-A)</option>
                                 <option value="class_asc">Kelas (Pra ➡️ T6)</option>
+                                <option value="class_desc">Kelas (T6 ➡️ Pra)</option>
                                 <option value="gender_l_p">Jantina (L ➡️ P)</option>
+                                <option value="gender_p_l">Jantina (P ➡️ L)</option>
                             </select>
                         </div>
 
@@ -2138,13 +2141,23 @@
             document.getElementById('houseTotalMembers').textContent = totalMembersHouse;
             document.getElementById('houseTotalPoints').textContent = totalPointsHouse;
 
+            const classOrder = {
+                "Pra Sekolah": 0, "T1": 1, "T2": 2, "T3": 3, "T4": 4, "T5": 5, "T6": 6
+            };
+
             // Sorting
             if (currentSortOption === "name_asc") {
                 filtered.sort((a, b) => a.name.localeCompare(b.name));
+            } else if (currentSortOption === "name_desc") {
+                filtered.sort((a, b) => b.name.localeCompare(a.name));
             } else if (currentSortOption === "class_asc") {
-                filtered.sort((a, b) => a.studentClass.localeCompare(b.studentClass));
+                filtered.sort((a, b) => (classOrder[a.studentClass] ?? 9) - (classOrder[b.studentClass] ?? 9));
+            } else if (currentSortOption === "class_desc") {
+                filtered.sort((a, b) => (classOrder[b.studentClass] ?? 9) - (classOrder[a.studentClass] ?? 9));
             } else if (currentSortOption === "gender_l_p") {
                 filtered.sort((a, b) => a.gender.localeCompare(b.gender));
+            } else if (currentSortOption === "gender_p_l") {
+                filtered.sort((a, b) => b.gender.localeCompare(a.gender));
             }
 
             if (filtered.length === 0) {
@@ -2602,12 +2615,22 @@
 
             let filtered = students.filter(s => s.house === activeHouseTab);
             
+            const classOrder = {
+                "Pra Sekolah": 0, "T1": 1, "T2": 2, "T3": 3, "T4": 4, "T5": 5, "T6": 6
+            };
+
             if (currentSortOption === "name_asc") {
                 filtered.sort((a, b) => a.name.localeCompare(b.name));
+            } else if (currentSortOption === "name_desc") {
+                filtered.sort((a, b) => b.name.localeCompare(a.name));
             } else if (currentSortOption === "class_asc") {
-                filtered.sort((a, b) => a.studentClass.localeCompare(b.studentClass));
+                filtered.sort((a, b) => (classOrder[a.studentClass] ?? 9) - (classOrder[b.studentClass] ?? 9));
+            } else if (currentSortOption === "class_desc") {
+                filtered.sort((a, b) => (classOrder[b.studentClass] ?? 9) - (classOrder[a.studentClass] ?? 9));
             } else if (currentSortOption === "gender_l_p") {
                 filtered.sort((a, b) => a.gender.localeCompare(b.gender));
+            } else if (currentSortOption === "gender_p_l") {
+                filtered.sort((a, b) => b.gender.localeCompare(a.gender));
             }
 
             let rowsHtml = "";
