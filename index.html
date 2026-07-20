@@ -32,7 +32,6 @@
         }
     </script>
     <style>
-        /* Sembunyikan bar skrol tetapi kekalkan fungsi tatalan */
         .no-scrollbar::-webkit-scrollbar {
             display: none;
         }
@@ -40,7 +39,6 @@
             -ms-overflow-style: none;
             scrollbar-width: none;
         }
-        /* Animasi pudar masuk */
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(-4px); }
             to { opacity: 1; transform: translateY(0); }
@@ -52,7 +50,6 @@
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen font-sans flex flex-col antialiased selection:bg-blue-500 selection:text-white text-xs">
 
-    <!-- NAVIGATION BAR -->
     <nav class="bg-white border-b border-slate-100 sticky top-0 z-40 shadow-sm backdrop-blur-md bg-white/90">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-14 items-center">
@@ -69,40 +66,35 @@
                     </div>
                 </div>
                 
-                <!-- Kawalan Autentikasi Google / Delima -->
                 <div class="flex items-center gap-3">
-                    <span id="roleBadge" class="px-2.5 py-1 text-[10px] font-semibold rounded-full bg-slate-100 text-slate-600 border border-slate-200 flex items-center gap-1">
-                        <span id="roleIndicator" class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
-                        <span id="roleText">Pelawat (Read-Only)</span>
+                    <!-- Status Sambungan Google Sheets -->
+                    <span id="dbStatusBadge" class="px-2.5 py-1 text-[10px] font-semibold rounded-full bg-amber-50 text-amber-700 border border-amber-200 flex items-center gap-1.5 shadow-sm transition-all duration-300">
+                        <span id="dbStatusIndicator" class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
+                        <span id="dbStatusText">Menyambung Database...</span>
                     </span>
-                    <div id="userInfo" class="hidden md:flex items-center gap-2">
-                        <img id="userAvatar" class="w-6 h-6 rounded-full border border-slate-200 shadow-sm" src="https://placehold.co/100x100/1e3a8a/ffffff?text=U" onerror="this.src='https://placehold.co/100x100/1e3a8a/ffffff?text=U'" alt="Avatar">
-                        <span id="userName" class="text-[11px] font-bold text-slate-700"></span>
-                    </div>
-                    <button id="authBtn" class="px-3 py-1.5 bg-slate-900 text-white rounded-lg text-[10px] font-bold hover:bg-slate-800 transition-all duration-200 flex items-center gap-1.5 shadow-sm">
-                        <i class="fa-brands fa-google text-[10px]"></i>
-                        <span id="authBtnText">Log Masuk Google / DELIMa</span>
-                    </button>
+
+                    <span id="roleBadge" class="px-2.5 py-1 text-[10px] font-semibold rounded-full bg-slate-100 text-slate-600 border border-slate-200 flex items-center gap-1">
+                        <span id="roleIndicator" class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <span id="roleText">Pentadbir (Google Sheets Mode)</span>
+                    </span>
                 </div>
             </div>
         </div>
     </nav>
 
-    <!-- MAIN CONTAINER -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex-1 w-full space-y-4">
         
         <!-- CORE ACTIVITIES & SPREADSHEET PANEL -->
         <section class="bg-white rounded-xl border border-slate-100 shadow-sm p-3 relative overflow-hidden">
-            <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-teal-500 to-emerald-500"></div>
+            <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-indigo-500"></div>
             
             <div class="flex items-center justify-between gap-4 flex-wrap border-b border-slate-100 pb-1.5">
                 <div class="flex items-center gap-2 flex-wrap">
                     <h2 class="text-xs font-extrabold text-slate-900 flex items-center gap-1.5">
-                        <i class="fa-solid fa-clipboard-list text-emerald-500"></i>
+                        <i class="fa-solid fa-clipboard-list text-blue-600"></i>
                         Borang Aktiviti Rumah Sukan (Lembaran Kerja)
                     </h2>
                     
-                    <!-- GEAR SETTINGS DROPDOWN CONTAINER -->
                     <div class="relative inline-block text-left" id="gearDropdownContainer">
                         <button id="gearBtn" class="p-1 text-slate-400 hover:text-blue-600 hover:bg-slate-50 border border-slate-200 rounded-lg transition-all focus:outline-none flex items-center justify-center" title="Tetapan & Sandaran Sistem">
                             <i id="gearIcon" class="fa-solid fa-cog text-xs transform transition-transform duration-500"></i>
@@ -114,6 +106,10 @@
                                     <i class="fa-solid fa-user-plus text-blue-500"></i>
                                     <span>Daftar Murid Baru</span>
                                 </button>
+                                <button id="dbConfigLinkBtn" class="w-full text-left px-3 py-1.5 text-[10px] font-semibold text-slate-700 hover:bg-slate-50 hover:text-blue-600 rounded-lg transition-colors flex items-center gap-2">
+                                    <i class="fa-solid fa-database text-indigo-500"></i>
+                                    <span>Urus Rumah & Google Sheets</span>
+                                </button>
                                 <button id="importBtn" class="w-full text-left px-3 py-1.5 text-[10px] font-semibold text-slate-700 hover:bg-slate-50 hover:text-blue-600 rounded-lg transition-colors flex items-center gap-2">
                                     <i class="fa-solid fa-file-import text-blue-500"></i>
                                     <span>Import Data JSON</span>
@@ -122,9 +118,9 @@
                                     <i class="fa-solid fa-file-export text-emerald-500"></i>
                                     <span>Eksport Data JSON</span>
                                 </button>
-                                <button id="settingsLinkBtn" class="w-full text-left px-3 py-1.5 text-[10px] font-semibold text-slate-700 hover:bg-slate-50 hover:text-blue-600 rounded-lg transition-colors flex items-center gap-2">
-                                    <i class="fa-solid fa-sliders text-indigo-500"></i>
-                                    <span>Urus Rumah Sukan</span>
+                                <button id="syncManualBtn" class="w-full text-left px-3 py-1.5 text-[10px] font-bold text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors flex items-center gap-2">
+                                    <i class="fa-solid fa-arrows-rotate text-emerald-500 animate-spin"></i>
+                                    <span>Muat Semula Google Sheets</span>
                                 </button>
                                 <div class="border-t border-slate-100 my-1"></div>
                                 <button id="clearAllBtn" class="w-full text-left px-3 py-1.5 text-[10px] font-bold text-rose-600 hover:bg-rose-50 rounded-lg transition-colors flex items-center gap-2">
@@ -137,19 +133,26 @@
                 </div>
             </div>
 
-            <!-- TAB BAR & ACTION CONTROLS -->
             <div class="flex flex-col gap-1.5 mt-2">
                 <div class="flex flex-wrap items-center gap-1 border-b border-slate-100 pb-1 w-full" id="houseTabsContainer">
-                    <!-- Dynamic Tabs Rendered Here -->
+                    <!-- Dynamic Tabs Rendered Here with Theme Outlines -->
                 </div>
                 
-                <!-- Baris Susun Atur Bawah Kanan -->
+                <!-- LEGEND INSTRUCTION BAR -->
+                <div class="bg-blue-50/50 border border-blue-100/50 rounded-lg px-2.5 py-1.5 flex items-center gap-2 text-[10px] font-medium text-blue-700 shadow-inner">
+                    <i class="fa-solid fa-circle-info text-blue-500 animate-pulse text-xs"></i>
+                    <div>
+                        <strong class="font-bold">💡 Petunjuk Sistem Kelayakan Pintar:</strong> 
+                        Tanda <strong class="text-blue-900">(✓) = Layak (1 Mata)</strong>. Tulis digit pencapaian di kotak teks kanan. Jika digit melepasi had kelayakan minima, sistem akan <strong class="text-blue-900">auto-tick</strong>. Jika tiada digit (atau tidak melepasi tetapi mahu dilayakkan secara khas), anda boleh menanda checkbox secara manual.
+                    </div>
+                </div>
+                
                 <div class="flex flex-wrap items-center justify-between gap-2 w-full bg-slate-50 p-1 rounded-lg border border-slate-100">
                     <!-- Ringkasan Statistik Rumah Sukan Aktif -->
                     <div id="houseStats" class="flex items-center gap-3 px-1.5 text-[10px] font-semibold text-slate-500">
                         <span>Jumlah Ahli: <strong id="houseTotalMembers" class="text-slate-800">0</strong> orang</span>
                         <span class="w-1 h-1 bg-slate-300 rounded-full"></span>
-                        <span>Jumlah Mata: <strong id="houseTotalPoints" class="text-emerald-600">0</strong></span>
+                        <span>Jumlah Mata Kelayakan: <strong id="houseTotalPoints" class="text-emerald-600">0</strong></span>
                     </div>
                     
                     <div class="flex items-center gap-2 flex-wrap">
@@ -171,29 +174,62 @@
                 </div>
             </div>
 
-            <!-- SPREADSHEET TABLE -->
             <div class="mt-2 border border-slate-100 rounded-xl overflow-x-auto shadow-inner w-full">
-                <table id="worksheetTable" class="w-full text-left border-collapse text-[10px] min-w-[800px]">
+                <table id="worksheetTable" class="w-full text-left border-collapse text-[10px] min-w-[950px]">
                     <thead>
+                        <!-- Header Row 1: Event Titles -->
                         <tr class="bg-gradient-to-r from-navy-900 to-slate-900 text-white font-extrabold uppercase tracking-wider border-b border-slate-200">
-                            <th class="py-1.5 px-1 text-center w-[4%]">Bil</th>
-                            <th class="py-1.5 px-1.5 w-[24%]">Nama Pelajar</th>
-                            <th class="py-1.5 px-0.5 text-center w-[6%]">Jantina</th>
-                            <th class="py-1.5 px-0.5 text-center w-[8%]">Kelas</th>
-                            <th class="py-1.5 px-0.5 text-center w-[12%] bg-blue-950 text-blue-300 border-r border-slate-800">L. Jauh (Mata)</th>
-                            <th class="py-1.5 px-0.5 text-center w-[12%] bg-teal-950 text-teal-300 border-r border-slate-800">L. Tinggi (Mata)</th>
-                            <th class="py-1.5 px-0.5 text-center w-[12%] bg-indigo-950 text-indigo-300 border-r border-slate-800">Larian (Mata)</th>
-                            <th class="py-1.5 px-0.5 text-center w-[12%] bg-purple-950 text-purple-300 border-r border-slate-800">L. Peluru (Mata)</th>
-                            <th class="py-1.5 px-0.5 text-center w-[6%]">Jumlah</th>
-                            <th class="py-1.5 px-1 w-[8%]">Catatan</th>
-                            <th id="actionColumnHeader" class="py-1.5 px-0.5 text-center w-[3%]"></th>
+                            <th class="py-2 px-1 text-center w-[4%]">Bil</th>
+                            <th class="py-2 px-1.5 w-[20%]">Nama Pelajar</th>
+                            <th class="py-2 px-0.5 text-center w-[6%]">Jantina</th>
+                            <th class="py-2 px-0.5 text-center w-[6%]">Kelas</th>
+                            <th class="py-2 px-0.5 text-center w-[13%] bg-blue-950 text-blue-300 border-r border-slate-800">L. Jauh (Mata)</th>
+                            <th class="py-2 px-0.5 text-center w-[13%] bg-teal-950 text-teal-300 border-r border-slate-800">L. Tinggi (Mata)</th>
+                            <th class="py-2 px-0.5 text-center w-[13%] bg-indigo-950 text-indigo-300 border-r border-slate-800">Larian (Mata)</th>
+                            <th class="py-2 px-0.5 text-center w-[13%] bg-purple-950 text-purple-300 border-r border-slate-800">L. Peluru (Mata)</th>
+                            <th class="py-2 px-0.5 text-center w-[5%]">Jumlah</th>
+                            <th class="py-2 px-1 w-[7%]">Catatan</th>
+                            <th id="actionColumnHeader" class="py-2 px-0.5 text-center w-[3%]"></th>
+                        </tr>
+                        <!-- Header Row 2: Threshold Configurations -->
+                        <tr class="bg-slate-800 text-white font-semibold text-[9px] border-b border-slate-700 shadow-sm">
+                            <th colspan="4" class="py-1 px-2 text-right text-slate-300 uppercase tracking-wider">Had Kelayakan Minima:</th>
+                            <th class="py-1 px-1 bg-blue-900/90 border-r border-slate-700 text-left">
+                                <div class="flex items-center gap-1 justify-start pl-2">
+                                    <span class="text-blue-200 font-bold">Min >=</span>
+                                    <input type="text" id="threshold_longJump" class="w-12 px-1 py-0.5 bg-slate-950 text-white text-center font-bold border border-slate-700 rounded text-[9px]" placeholder="3.00">
+                                    <span class="text-blue-200 font-bold">m</span>
+                                </div>
+                            </th>
+                            <th class="py-1 px-1 bg-teal-900/90 border-r border-slate-700 text-left">
+                                <div class="flex items-center gap-1 justify-start pl-2">
+                                    <span class="text-teal-200 font-bold">Min >=</span>
+                                    <input type="text" id="threshold_highJump" class="w-12 px-1 py-0.5 bg-slate-950 text-white text-center font-bold border border-slate-700 rounded text-[9px]" placeholder="1.00">
+                                    <span class="text-teal-200 font-bold">m</span>
+                                </div>
+                            </th>
+                            <th class="py-1 px-1 bg-indigo-900/90 border-r border-slate-700 text-left">
+                                <div class="flex items-center gap-1 justify-start pl-2">
+                                    <span class="text-indigo-200 font-bold">Laju <=</span>
+                                    <input type="text" id="threshold_running" class="w-12 px-1 py-0.5 bg-slate-950 text-white text-center font-bold border border-slate-700 rounded text-[9px]" placeholder="12.0">
+                                    <span class="text-indigo-200 font-bold">s</span>
+                                </div>
+                            </th>
+                            <th class="py-1 px-1 bg-purple-900/90 border-r border-slate-700 text-left">
+                                <div class="flex items-center gap-1 justify-start pl-2">
+                                    <span class="text-purple-200 font-bold">Min >=</span>
+                                    <input type="text" id="threshold_shotPut" class="w-12 px-1 py-0.5 bg-slate-950 text-white text-center font-bold border border-slate-700 rounded text-[9px]" placeholder="5.00">
+                                    <span class="text-purple-200 font-bold">m</span>
+                                </div>
+                            </th>
+                            <th colspan="3" class="bg-slate-800"></th>
                         </tr>
                     </thead>
                     <tbody id="worksheetBody" class="divide-y divide-slate-100 text-slate-700 bg-white">
                         <tr>
                             <td colspan="11" class="py-4 text-center text-slate-400 font-medium">
                                 <i class="fa-solid fa-spinner animate-spin text-xs text-blue-500 mb-1 block"></i>
-                                Memuatkan data murid...
+                                Memuatkan data murid dari Google Sheets...
                             </td>
                         </tr>
                     </tbody>
@@ -202,7 +238,6 @@
         </section>
     </div>
 
-    <!-- REGISTRATION STUDENT MODAL -->
     <div id="registrationModal" class="hidden fixed inset-0 z-50 bg-slate-950/45 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-sm w-full p-4 shadow-xl border border-slate-100 transform scale-95 transition-all relative overflow-hidden animate-fadeIn">
             <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-indigo-500"></div>
@@ -262,15 +297,14 @@
         </div>
     </div>
 
-    <!-- MANAGE HOUSES MODAL (COMPACT SLIDE-UP) -->
     <div id="houseSettingsModal" class="hidden fixed inset-0 z-50 bg-slate-950/45 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn">
         <div class="bg-white rounded-2xl max-w-md w-full p-4 shadow-xl border border-slate-100 relative overflow-hidden">
             <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 to-purple-500"></div>
             
             <div class="flex items-center justify-between mb-3 border-b border-slate-100 pb-2">
                 <h2 class="text-xs font-bold text-slate-900 flex items-center gap-1.5">
-                    <i class="fa-solid fa-house-chimney text-indigo-600"></i>
-                    Urus Tetapan Rumah Sukan
+                    <i class="fa-solid fa-database text-indigo-600"></i>
+                    Urus Rumah & Integrasi Google Sheets
                 </h2>
                 <button id="closeHouseSettingsBtn" class="p-1 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-50 transition-colors">
                     <i class="fa-solid fa-xmark text-xs"></i>
@@ -278,6 +312,21 @@
             </div>
 
             <div class="space-y-4">
+                <!-- INTEGRASI GOOGLE SHEETS API URL -->
+                <div class="space-y-1.5 bg-indigo-50/50 p-2.5 rounded-xl border border-indigo-100">
+                    <h3 class="text-[9px] font-extrabold text-indigo-900 uppercase tracking-wider flex items-center gap-1">
+                        <i class="fa-brands fa-google text-indigo-600"></i>
+                        URL Pangkalan Data Google Apps Script
+                    </h3>
+                    <div class="flex gap-1.5">
+                        <input type="text" id="gscriptUrlInput" placeholder="Masukkan Google Apps Script Web App URL..." class="flex-1 px-2 py-1.5 bg-white border border-indigo-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/10 rounded-lg text-[10px] font-semibold outline-none transition-all placeholder:text-slate-400">
+                        <button id="saveGscriptUrlBtn" class="px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-[10px] font-bold transition-all shadow-sm">
+                            Simpan
+                        </button>
+                    </div>
+                    <p class="text-[8px] text-indigo-500 font-medium">Sambungan ini mengawal penyelarasan data ke helaian Google Sheets secara masa nyata.</p>
+                </div>
+
                 <!-- Tambah Rumah Sukan Baru -->
                 <div class="space-y-1.5" id="settingsAddHouseContainer">
                     <h3 class="text-[9px] font-extrabold text-slate-400 uppercase tracking-wider">Daftar Rumah Sukan Baru</h3>
@@ -316,62 +365,13 @@
         </div>
     </div>
 
-    <!-- POP-UP BLOCKED EXPLANATION MODAL -->
-    <div id="popupBlockedModal" class="hidden fixed inset-0 z-50 bg-slate-950/45 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn">
-        <div class="bg-white rounded-2xl max-w-xs w-full p-4 shadow-xl border border-slate-100 transform scale-95 transition-all">
-            <div class="w-8 h-8 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center text-sm mb-2.5">
-                <i class="fa-solid fa-window-restore"></i>
-            </div>
-            <h3 class="text-[11px] font-extrabold text-slate-900 mb-1">Pop-up Disekat</h3>
-            <p class="text-[10px] text-slate-500 leading-normal mb-3">Pelayar web menyekat tetingkap log masuk Google. Sila benarkan tetingkap timbul (pop-up) di tetapan pelayar anda.</p>
-            <div class="flex justify-end gap-1.5">
-                <button id="closePopupBlockedBtn" class="px-2.5 py-1.5 text-[10px] font-bold text-slate-500 hover:bg-slate-100 rounded-lg transition-colors w-full">Faham</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- UNAUTHORIZED DOMAIN / IFRAME HELPER WIZARD -->
-    <div id="unauthorizedDomainModal" class="hidden fixed inset-0 z-50 bg-slate-950/45 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn">
-        <div class="bg-white rounded-2xl max-w-sm w-full p-4 shadow-xl border border-slate-100 transform scale-95 transition-all relative overflow-hidden">
-            <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-rose-500 to-amber-500"></div>
-            
-            <div class="flex items-center gap-2 mb-2 text-rose-600">
-                <i class="fa-solid fa-shield-halved text-base"></i>
-                <h3 class="text-[11px] font-extrabold text-slate-900">Domain Belum Dibenarkan (Authorized Domain)</h3>
-            </div>
-            
-            <p class="text-[10px] text-slate-500 leading-normal mb-3">
-                Firebase menyekat log masuk daripada domain pratinjau ini. Sila daftarkan domain berikut ke dalam Firebase Console anda untuk membolehkan Log Masuk DELIMa/Google:
-            </p>
-            
-            <div class="bg-slate-50 border border-slate-200 rounded-lg p-2 flex items-center justify-between gap-2 mb-3">
-                <code id="detectedDomainString" class="text-[10px] font-mono text-slate-700 select-all break-all pr-2">mengira_domain...</code>
-                <button id="copyDomainBtn" class="px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-[9px] font-bold whitespace-nowrap transition-all flex items-center gap-1">
-                    <i class="fa-solid fa-copy"></i>
-                    <span>Salin</span>
-                </button>
-            </div>
-            
-            <div class="space-y-1 text-[9px] text-slate-500 leading-relaxed mb-4 list-decimal pl-4">
-                <div>1. Log masuk ke <a href="https://console.firebase.google.com/" target="_blank" class="text-blue-600 font-bold underline">Firebase Console</a>.</div>
-                <div>2. Pilih projek <strong class="text-slate-800">sps-skb-d8256</strong>.</div>
-                <div>3. Buka menu <strong class="text-slate-800">Authentication</strong> -> tab <strong class="text-slate-800">Settings</strong> -> <strong class="text-slate-800">Authorized domains</strong>.</div>
-                <div>4. Klik <strong class="text-slate-800">Add domain</strong>, tampal domain di atas dan klik Simpan.</div>
-            </div>
-            
-            <div class="flex justify-end gap-1.5">
-                <button id="closeAuthHelperBtn" class="px-2.5 py-1.5 text-[10px] font-bold text-slate-500 hover:bg-slate-100 rounded-lg transition-colors w-full">Faham & Tutup</button>
-            </div>
-        </div>
-    </div>
-
     <!-- TOASTS CONTAINER -->
     <div id="toastContainer" class="fixed bottom-4 right-4 z-50 flex flex-col gap-1.5"></div>
 
     <!-- FOOTER -->
     <footer class="bg-white border-t border-slate-100 py-3 mt-4">
         <div class="max-w-7xl mx-auto px-4 text-center">
-            <p class="text-[9px] text-slate-400 font-medium">&copy; 2026 Sistem Sukantara Sekolah. Hak Cipta Terpelihara.</p>
+            <p class="text-[9px] text-slate-400 font-medium">&copy; 2026 Sistem Sukantara Sekolah. Pangkalan Data Bersepadu Google Sheets.</p>
         </div>
     </footer>
 
@@ -380,74 +380,76 @@
 
     <!-- JAVASCRIPT & DATABASE INTEGRATION -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signOut, onAuthStateChanged, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, deleteDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        // Tetapan Pangkalan Data Google Apps Script Lalai daripada Pengguna
+        let googleScriptUrl = "https://script.google.com/macros/s/AKfycbzbolOQP6QjsQrOdAkomAFVBL5iZAuCPp_KlxWKui4QsgoGwvcqRMdbgL-jpWCw1_DARw/exec";
 
-        let auth, db;
-        let isReadOnly = true; 
         let houses = [];
         let students = [];
         let activeHouseTab = "";
         let currentSortOption = "name_asc";
         let confirmCallback = null;
-        let isFirebaseConnected = false;
+        let isSyncing = false;
 
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'sps-skb-d8256';
-        
-        // PETA WARNA RUMAH SUKAN UNTUK PRESET TEMA TAILWIND
+        // Had kelayakan lalai
+        let thresholds = {
+            longJump: "3.00",
+            highJump: "1.00",
+            running: "12.0",
+            shotPut: "5.00"
+        };
+
         const houseColorMap = {
             rose: {
                 activeBtn: "bg-rose-600 text-white border-rose-600 shadow-md shadow-rose-500/20",
                 activeBadge: "bg-rose-800 text-rose-100",
-                inactiveBtn: "bg-white text-rose-600 hover:bg-rose-50 border-rose-200 hover:border-rose-300",
-                inactiveBadge: "bg-rose-50 text-rose-600 border border-rose-100"
+                inactiveBtn: "bg-white text-rose-700 hover:bg-rose-50 border-rose-400 hover:border-rose-600",
+                inactiveBadge: "bg-rose-50 text-rose-700 border border-rose-200"
             },
             blue: {
                 activeBtn: "bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-500/20",
                 activeBadge: "bg-blue-800 text-blue-100",
-                inactiveBtn: "bg-white text-blue-600 hover:bg-blue-50 border-blue-200 hover:border-blue-300",
-                inactiveBadge: "bg-blue-50 text-blue-600 border border-blue-100"
+                inactiveBtn: "bg-white text-blue-700 hover:bg-blue-50 border-blue-400 hover:border-blue-600",
+                inactiveBadge: "bg-blue-50 text-blue-700 border border-blue-200"
             },
             amber: {
                 activeBtn: "bg-amber-500 text-slate-900 border-amber-500 shadow-md shadow-amber-500/20",
                 activeBadge: "bg-amber-600 text-amber-950",
-                inactiveBtn: "bg-white text-amber-600 hover:bg-amber-50 border-amber-200 hover:border-amber-300",
-                inactiveBadge: "bg-amber-50 text-amber-600 border border-amber-100"
+                inactiveBtn: "bg-white text-amber-700 hover:bg-amber-50 border-amber-400 hover:border-amber-600",
+                inactiveBadge: "bg-amber-50 text-amber-700 border border-amber-200"
             },
             emerald: {
                 activeBtn: "bg-emerald-600 text-white border-emerald-600 shadow-md shadow-emerald-500/20",
                 activeBadge: "bg-emerald-800 text-emerald-100",
-                inactiveBtn: "bg-white text-emerald-600 hover:bg-emerald-50 border-emerald-200 hover:border-emerald-300",
-                inactiveBadge: "bg-emerald-50 text-emerald-600 border border-emerald-100"
+                inactiveBtn: "bg-white text-emerald-700 hover:bg-emerald-50 border-emerald-400 hover:border-emerald-600",
+                inactiveBadge: "bg-emerald-50 text-emerald-700 border border-emerald-200"
             },
             purple: {
                 activeBtn: "bg-purple-600 text-white border-purple-600 shadow-md shadow-purple-500/20",
                 activeBadge: "bg-purple-800 text-purple-100",
-                inactiveBtn: "bg-white text-purple-600 hover:bg-purple-50 border-purple-200 hover:border-purple-300",
-                inactiveBadge: "bg-purple-50 text-purple-600 border border-purple-100"
+                inactiveBtn: "bg-white text-purple-700 hover:bg-purple-50 border-purple-400 hover:border-purple-600",
+                inactiveBadge: "bg-purple-50 text-purple-700 border border-purple-200"
             },
             orange: {
                 activeBtn: "bg-orange-600 text-white border-orange-600 shadow-md shadow-orange-500/20",
                 activeBadge: "bg-orange-800 text-orange-100",
-                inactiveBtn: "bg-white text-orange-600 hover:bg-orange-50 border-orange-200 hover:border-orange-300",
-                inactiveBadge: "bg-orange-50 text-orange-600 border border-orange-100"
+                inactiveBtn: "bg-white text-orange-700 hover:bg-orange-50 border-orange-400 hover:border-orange-600",
+                inactiveBadge: "bg-orange-50 text-orange-700 border border-orange-200"
             },
             pink: {
                 activeBtn: "bg-pink-600 text-white border-pink-600 shadow-md shadow-pink-500/20",
                 activeBadge: "bg-pink-800 text-pink-100",
-                inactiveBtn: "bg-white text-pink-600 hover:bg-pink-50 border-pink-200 hover:border-pink-300",
-                inactiveBadge: "bg-pink-50 text-pink-600 border border-pink-100"
+                inactiveBtn: "bg-white text-pink-700 hover:bg-pink-50 border-pink-400 hover:border-pink-600",
+                inactiveBadge: "bg-pink-50 text-pink-700 border border-pink-200"
             },
             slate: {
                 activeBtn: "bg-slate-700 text-white border-slate-700 shadow-md shadow-slate-500/20",
                 activeBadge: "bg-slate-800 text-slate-100",
-                inactiveBtn: "bg-white text-slate-600 hover:bg-slate-50 border-slate-200 hover:border-slate-300",
+                inactiveBtn: "bg-white text-slate-600 hover:bg-slate-50 border-slate-300 hover:border-slate-500",
                 inactiveBadge: "bg-slate-100 text-slate-500 border border-slate-200"
             }
         };
 
-        // PENGESAN KATA KUNCI WARNA DARI NAMA RUMAH SUKAN
+        // Mengecam warna berdasarkan nama rumah sukan secara dinamik
         function getHouseColorTheme(houseName) {
             const name = (houseName || "").toLowerCase().trim();
             if (name.includes("merah") || name.includes("red")) return "rose";
@@ -460,18 +462,6 @@
             return "slate";
         }
 
-        // Konfigurasi Firebase Projek sps-skb-d8256
-        const firebaseConfig = {
-            apiKey: "AIzaSyAJ5LrENOSzRkClehZmu3dy3JKrt6QvtcU",
-            authDomain: "sps-skb-d8256.firebaseapp.com",
-            databaseURL: "https://sps-skb-d8256-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "sps-skb-d8256",
-            storageBucket: "sps-skb-d8256.firebasestorage.app",
-            messagingSenderId: "322634427088",
-            appId: "1:322634427088:web:db53555239341fb9190cd5"
-        };
-
-        // DOM Elements
         const registrationModal = document.getElementById('registrationModal');
         const registerStudentLinkBtn = document.getElementById('registerStudentLinkBtn');
         const closeRegistrationModalBtn = document.getElementById('closeRegistrationModalBtn');
@@ -479,10 +469,16 @@
         const studentForm = document.getElementById('studentForm');
 
         const houseSettingsModal = document.getElementById('houseSettingsModal');
-        const settingsLinkBtn = document.getElementById('settingsLinkBtn');
+        const dbConfigLinkBtn = document.getElementById('dbConfigLinkBtn');
         const closeHouseSettingsBtn = document.getElementById('closeHouseSettingsBtn');
         const houseForm = document.getElementById('houseForm');
         const settingsHousesList = document.getElementById('settingsHousesList');
+
+        const gscriptUrlInput = document.getElementById('gscriptUrlInput');
+        const saveGscriptUrlBtn = document.getElementById('saveGscriptUrlBtn');
+        const dbStatusBadge = document.getElementById('dbStatusBadge');
+        const dbStatusIndicator = document.getElementById('dbStatusIndicator');
+        const dbStatusText = document.getElementById('dbStatusText');
 
         const confirmModal = document.getElementById('confirmModal');
         const confirmTitle = document.getElementById('confirmTitle');
@@ -492,23 +488,6 @@
         const confirmIcon = document.getElementById('confirmIcon');
         const confirmIconContainer = document.getElementById('confirmIconContainer');
 
-        const popupBlockedModal = document.getElementById('popupBlockedModal');
-        const closePopupBlockedBtn = document.getElementById('closePopupBlockedBtn');
-
-        const unauthorizedDomainModal = document.getElementById('unauthorizedDomainModal');
-        const detectedDomainString = document.getElementById('detectedDomainString');
-        const copyDomainBtn = document.getElementById('copyDomainBtn');
-        const closeAuthHelperBtn = document.getElementById('closeAuthHelperBtn');
-
-        const authBtn = document.getElementById('authBtn');
-        const authBtnText = document.getElementById('authBtnText');
-        const roleBadge = document.getElementById('roleBadge');
-        const roleIndicator = document.getElementById('roleIndicator');
-        const roleText = document.getElementById('roleText');
-        const userInfo = document.getElementById('userInfo');
-        const userName = document.getElementById('userName');
-        const userAvatar = document.getElementById('userAvatar');
-
         const gearBtn = document.getElementById('gearBtn');
         const gearDropdown = document.getElementById('gearDropdown');
         const gearIcon = document.getElementById('gearIcon');
@@ -516,6 +495,7 @@
         const clearAllBtn = document.getElementById('clearAllBtn');
         const importBtn = document.getElementById('importBtn');
         const exportBtn = document.getElementById('exportBtn');
+        const syncManualBtn = document.getElementById('syncManualBtn');
         const jsonFileInput = document.getElementById('jsonFileInput');
         const sortDropdown = document.getElementById('sortDropdown');
 
@@ -525,8 +505,96 @@
         const houseTotalMembers = document.getElementById('houseTotalMembers');
         const houseTotalPoints = document.getElementById('houseTotalPoints');
 
+        // Melakukan penarikan data dari Google Sheets (GET)
+        async function fetchFromGoogleSheets() {
+            if (!googleScriptUrl) {
+                updateConnectionStatus(false, "Tiada URL Database");
+                return null;
+            }
+            isSyncing = true;
+            updateConnectionStatus(true, "Menghubungi Google Sheets...", "animate-pulse bg-amber-400");
+            try {
+                // Gunakan mode cors. Web App script google mesti diletakkan 'Anyone'
+                const response = await fetch(googleScriptUrl);
+                const data = await response.json();
+                isSyncing = false;
+                if (data && data.success) {
+                    updateConnectionStatus(true, "Google Sheets Aktif", "bg-emerald-500");
+                    return data;
+                } else {
+                    updateConnectionStatus(false, "Fail Sambungan");
+                    return null;
+                }
+            } catch(e) {
+                console.warn("Ralat fetch dari Google Sheets, menggunakan mod LocalStorage.", e);
+                isSyncing = false;
+                updateConnectionStatus(false, "Luar Talian / Mod Lokal");
+                return null;
+            }
+        }
+
+        // Melakukan penghantaran tindakan/data ke Google Sheets (POST)
+        async function sendToGoogleSheets(action, payloadData) {
+            if (!googleScriptUrl) return false;
+            updateConnectionStatus(true, "Menyimpan ke Sheets...", "animate-pulse bg-indigo-500");
+            
+            const payload = {
+                action: action
+            };
+            if (action === "saveStudent" || action === "saveHouse") {
+                payload.data = payloadData;
+            } else if (action === "deleteStudent" || action === "deleteHouse") {
+                payload.id = payloadData;
+            } else if (action === "bulkImport") {
+                payload.students = payloadData;
+            }
+
+            try {
+                // Hantar jenis text/plain bagi mengelakkan ralat CORS preflight
+                const response = await fetch(googleScriptUrl, {
+                    method: "POST",
+                    mode: "cors",
+                    headers: {
+                        "Content-Type": "text/plain"
+                    },
+                    body: JSON.stringify(payload)
+                });
+                const resData = await response.json();
+                if (resData && resData.success) {
+                    updateConnectionStatus(true, "Google Sheets Aktif", "bg-emerald-500");
+                    return true;
+                }
+                updateConnectionStatus(false, "Sheets Ralat Simpan");
+                return false;
+            } catch(e) {
+                console.error("Gagal melakukan post ke Google Sheets:", e);
+                updateConnectionStatus(false, "Luar Talian / Gagal Simpan");
+                return false;
+            }
+        }
+
+        // Kemaskini Lencana Sambungan
+        function updateConnectionStatus(isConnected, text, indicatorClass = "bg-amber-400") {
+            if (isConnected) {
+                dbStatusBadge.className = "px-2.5 py-1 text-[10px] font-semibold rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1.5 shadow-sm transition-all duration-300";
+                dbStatusIndicator.className = `w-1.5 h-1.5 rounded-full ${indicatorClass}`;
+                dbStatusText.innerText = text;
+            } else {
+                dbStatusBadge.className = "px-2.5 py-1 text-[10px] font-semibold rounded-full bg-amber-50 text-amber-700 border border-amber-200 flex items-center gap-1.5 shadow-sm transition-all duration-300";
+                dbStatusIndicator.className = "w-1.5 h-1.5 rounded-full bg-amber-400";
+                dbStatusText.innerText = text;
+            }
+        }
+
         async function initDatabase() {
-            // Pasang rumah sukan sedia ada sekiranya tiada data di LocalStorage
+            // Set URL daripada LocalStorage jika wujud
+            const storedUrl = localStorage.getItem('sukantara_gscript_url');
+            if (storedUrl) {
+                googleScriptUrl = storedUrl;
+            }
+            gscriptUrlInput.value = googleScriptUrl;
+
+            // Pastikan data asas wujud secara tempatan
             if (!localStorage.getItem('sukantara_houses')) {
                 const defaultHouses = [
                     { id: 'h1', name: 'Merah' },
@@ -539,34 +607,45 @@
             if (!localStorage.getItem('sukantara_students')) {
                 localStorage.setItem('sukantara_students', JSON.stringify([]));
             }
+            if (!localStorage.getItem('sukantara_thresholds')) {
+                localStorage.setItem('sukantara_thresholds', JSON.stringify(thresholds));
+            }
 
             houses = JSON.parse(localStorage.getItem('sukantara_houses'));
             students = JSON.parse(localStorage.getItem('sukantara_students'));
+            thresholds = JSON.parse(localStorage.getItem('sukantara_thresholds'));
+
             normalizeAllStoredData();
+            updateThresholdInputsUI();
 
             if (houses.length > 0) {
                 activeHouseTab = houses[0].name;
             }
 
-            if (firebaseConfig) {
-                try {
-                    const app = initializeApp(firebaseConfig);
-                    auth = getAuth(app);
-                    db = getFirestore(app);
-                    isFirebaseConnected = true;
-                    
-                    setupFirebaseListeners();
-                    setupAuthObserver();
-                } catch(err) {
-                    console.error("Penyambungan Firebase gagal sepenuhnya. Berjalan dalam mod luar talian.", err);
-                    isFirebaseConnected = false;
-                    syncUIState();
-                    syncData();
+            syncData();
+
+            // Tarik data daripada Google Sheets (jika bersambung)
+            const sheetsData = await fetchFromGoogleSheets();
+            if (sheetsData) {
+                if (sheetsData.houses && sheetsData.houses.length > 0) {
+                    houses = sheetsData.houses;
+                    localStorage.setItem('sukantara_houses', JSON.stringify(houses));
                 }
-            } else {
-                syncUIState();
+                if (sheetsData.students) {
+                    students = sheetsData.students;
+                    normalizeAllStoredData();
+                    localStorage.setItem('sukantara_students', JSON.stringify(students));
+                }
+                if (houses.length > 0 && (!activeHouseTab || !houses.some(h => h.name === activeHouseTab))) {
+                    activeHouseTab = houses[0].name;
+                }
+                showToast("Data berjaya dimuat turun dari Google Sheets!", "success");
                 syncData();
+            } else {
+                showToast("Mod Lokal: Berjalan tanpa pangkalan data Google Sheets.", "warning");
             }
+            
+            setupThresholdListeners();
         }
 
         function normalizeGender(val) {
@@ -595,6 +674,31 @@
             students.forEach(s => {
                 s.gender = normalizeGender(s.gender || s.janti || s.jantina);
                 s.studentClass = normalizeClass(s.studentClass || s.kelas);
+                
+                ['longJump', 'highJump', 'running', 'shotPut'].forEach(field => {
+                    if (s[`${field}Eligible`] === undefined) {
+                        const legacyValue = s[field];
+                        if (typeof legacyValue === 'number' && legacyValue > 0) {
+                            s[`${field}Eligible`] = true;
+                            s[`${field}Record`] = legacyValue.toString();
+                        } else if (typeof legacyValue === 'string' && legacyValue.trim() !== "" && legacyValue !== "0") {
+                            s[`${field}Eligible`] = true;
+                            s[`${field}Record`] = legacyValue;
+                        } else {
+                            s[`${field}Eligible`] = false;
+                            s[`${field}Record`] = "";
+                        }
+                    }
+                    if (s[`${field}Record`] === undefined) {
+                        s[`${field}Record`] = "";
+                    }
+                });
+
+                // Kira semula jumlah mata secara langsung berdasarkan kelayakan checkbox sahaja (0 - 4)
+                s.totalPoints = (s.longJumpEligible ? 1 : 0) + 
+                                 (s.highJumpEligible ? 1 : 0) + 
+                                 (s.runningEligible ? 1 : 0) + 
+                                 (s.shotPutEligible ? 1 : 0);
             });
         }
 
@@ -610,94 +714,20 @@
             return 99;
         }
 
-        // LISTENERS & SYNCERS
-        function setupFirebaseListeners() {
-            const housesColRef = collection(db, 'artifacts', appId, 'public', 'data', 'houses');
-            onSnapshot(housesColRef, (snapshot) => {
-                const fbHouses = [];
-                snapshot.forEach(doc => {
-                    fbHouses.push({ id: doc.id, ...doc.data() });
-                });
-                if (fbHouses.length > 0) {
-                    houses = fbHouses;
-                    localStorage.setItem('sukantara_houses', JSON.stringify(houses));
-                    if (!activeHouseTab || !houses.some(h => h.name === activeHouseTab)) {
-                        activeHouseTab = houses[0].name;
-                    }
-                }
-                syncData();
-            }, (err) => {
-                console.warn("Gagal membaca Rumah dari Firestore. Menggunakan storan lokal.", err);
-            });
-
-            const studentsColRef = collection(db, 'artifacts', appId, 'public', 'data', 'students');
-            onSnapshot(studentsColRef, (snapshot) => {
-                const fbStudents = [];
-                snapshot.forEach(doc => {
-                    fbStudents.push({ id: doc.id, ...doc.data() });
-                });
-                students = fbStudents;
-                normalizeAllStoredData();
-                localStorage.setItem('sukantara_students', JSON.stringify(students));
-                syncData();
-            }, (err) => {
-                console.warn("Gagal membaca Murid dari Firestore. Menggunakan storan lokal.", err);
-            });
-        }
-
-        function setupAuthObserver() {
-            onAuthStateChanged(auth, (user) => {
-                if (user) {
-                    isReadOnly = false;
-                    userName.innerText = user.displayName || user.email;
-                    userAvatar.src = user.photoURL || "https://placehold.co/100x100/1e3a8a/ffffff?text=" + (user.displayName ? user.displayName.charAt(0) : 'U');
-                    userInfo.classList.remove('hidden');
-                    authBtnText.innerText = "Keluar Log Masuk";
-                } else {
-                    isReadOnly = true;
-                    userInfo.classList.add('hidden');
-                    authBtnText.innerText = "Log Masuk Google / DELIMa";
-                }
-                syncUIState();
-                syncData();
-            });
-        }
-
         async function saveStudentToDb(student) {
             localStorage.setItem('sukantara_students', JSON.stringify(students));
-            if (isFirebaseConnected && auth && auth.currentUser && !isReadOnly) {
-                try {
-                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'students', student.id);
-                    await setDoc(docRef, student);
-                } catch(e) {
-                    console.error("Gagal simpan murid ke Firebase: ", e);
-                }
-            }
+            await sendToGoogleSheets("saveStudent", student);
         }
 
         async function saveHouseToDb(house) {
             localStorage.setItem('sukantara_houses', JSON.stringify(houses));
-            if (isFirebaseConnected && auth && auth.currentUser && !isReadOnly) {
-                try {
-                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'houses', house.id);
-                    await setDoc(docRef, house);
-                } catch(e) {
-                    console.error("Gagal simpan rumah ke Firebase: ", e);
-                }
-            }
+            await sendToGoogleSheets("saveHouse", house);
         }
 
         async function deleteStudentFromDb(studentId) {
             students = students.filter(s => s.id !== studentId);
             localStorage.setItem('sukantara_students', JSON.stringify(students));
-            if (isFirebaseConnected && auth && auth.currentUser && !isReadOnly) {
-                try {
-                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'students', studentId);
-                    await deleteDoc(docRef);
-                } catch(e) {
-                    console.error("Gagal buang murid dari Firebase: ", e);
-                }
-            }
+            await sendToGoogleSheets("deleteStudent", studentId);
         }
 
         async function deleteHouseFromDb(houseId) {
@@ -707,17 +737,11 @@
             if (hObj) {
                 const members = students.filter(s => s.house === hObj.name);
                 for (const m of members) {
-                    await deleteStudentFromDb(m.id);
+                    students = students.filter(st => st.id !== m.id);
                 }
+                localStorage.setItem('sukantara_students', JSON.stringify(students));
             }
-            if (isFirebaseConnected && auth && auth.currentUser && !isReadOnly) {
-                try {
-                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'houses', houseId);
-                    await deleteDoc(docRef);
-                } catch(e) {
-                    console.error("Gagal buang rumah dari Firebase: ", e);
-                }
-            }
+            await sendToGoogleSheets("deleteHouse", houseId);
         }
 
         function syncData() {
@@ -753,12 +777,10 @@
             }, 3000);
         }
 
-        // Custom Confirmation dialog supporting customized button styles and values
         function showConfirm(title, message, isDestructive, buttonText, onYes) {
             confirmTitle.innerText = title;
             confirmMessage.innerText = message;
             
-            // Adjust styles depending on destructiveness
             if (isDestructive) {
                 confirmIconContainer.className = "w-8 h-8 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center text-sm mb-2.5";
                 confirmIcon.className = "fa-solid fa-circle-exclamation";
@@ -782,15 +804,13 @@
             confirmCallback = null;
         }
 
-        // Wire confirmation modal buttons
         confirmYesBtn.addEventListener('click', () => closeConfirm(true));
         confirmCancelBtn.addEventListener('click', () => closeConfirm(false));
 
-        // RENDER LOGICS
         function renderHouseTabs() {
             houseTabsContainer.innerHTML = "";
             if (houses.length === 0) {
-                houseTabsContainer.innerHTML = `<span class="text-[10px] text-slate-400 py-1">Tiada Rumah Sukan. Sila daftar di menu Urus Rumah Sukan.</span>`;
+                houseTabsContainer.innerHTML = `<span class="text-[10px] text-slate-400 py-1">Tiada Rumah Sukan. Sila daftar di menu Urus Rumah & Google Sheets.</span>`;
                 return;
             }
 
@@ -799,11 +819,10 @@
                 const tab = document.createElement('button');
                 const isActive = activeHouseTab === h.name;
                 
-                // Dapatkan tema warna berdasarkan nama rumah sukan
                 const themeKey = getHouseColorTheme(h.name);
-                const theme = houseColorMap[themeKey];
+                const theme = houseColorMap[themeKey] || houseColorMap["slate"];
                 
-                tab.className = `px-3 py-1 text-[10px] font-bold rounded-lg border transition-all duration-200 flex items-center gap-1.5 ${
+                tab.className = `px-3 py-1.5 text-[10px] font-bold rounded-lg border transition-all duration-200 flex items-center gap-1.5 ${
                     isActive ? theme.activeBtn : theme.inactiveBtn
                 }`;
                 
@@ -823,17 +842,64 @@
             });
         }
 
+        function updateThresholdInputsUI() {
+            ['longJump', 'highJump', 'running', 'shotPut'].forEach(field => {
+                const el = document.getElementById(`threshold_${field}`);
+                if (el) {
+                    el.value = thresholds[field] || "";
+                }
+            });
+        }
+
+        function setupThresholdListeners() {
+            ['longJump', 'highJump', 'running', 'shotPut'].forEach(field => {
+                const input = document.getElementById(`threshold_${field}`);
+                input.addEventListener('change', async (e) => {
+                    thresholds[field] = e.target.value.trim();
+                    localStorage.setItem('sukantara_thresholds', JSON.stringify(thresholds));
+                    
+                    showToast("Had kelayakan minima berjaya dikemaskini!", "success");
+                    reEvaluateAllStudents();
+                    syncData();
+                });
+            });
+        }
+
+        function reEvaluateAllStudents() {
+            students.forEach(s => {
+                ['longJump', 'highJump', 'running', 'shotPut'].forEach(field => {
+                    const recordVal = s[`${field}Record`] || "";
+                    const parsedVal = parseFloat(recordVal.replace(/[^0-9.]/g, ''));
+                    if (recordVal !== "" && !isNaN(parsedVal)) {
+                        const threshold = parseFloat(thresholds[field]);
+                        if (!isNaN(threshold) && threshold > 0) {
+                            if (field === 'running') {
+                                s[`${field}Eligible`] = (parsedVal <= threshold);
+                            } else {
+                                s[`${field}Eligible`] = (parsedVal >= threshold);
+                            }
+                        }
+                    }
+                });
+                s.totalPoints = (s.longJumpEligible ? 1 : 0) + 
+                                 (s.highJumpEligible ? 1 : 0) + 
+                                 (s.runningEligible ? 1 : 0) + 
+                                 (s.shotPutEligible ? 1 : 0);
+            });
+            localStorage.setItem('sukantara_students', JSON.stringify(students));
+            // Hantar data murid yang dinilai semula ke Google Sheets secara berkelompok (pukal)
+            sendToGoogleSheets("bulkImport", students);
+        }
+
         function renderWorksheet() {
             worksheetBody.innerHTML = "";
             const filtered = students.filter(s => s.house === activeHouseTab);
 
-            // Calculate active house statistics
             const count = filtered.length;
             const totalScore = filtered.reduce((acc, s) => acc + (s.totalPoints || 0), 0);
             houseTotalMembers.innerText = count;
             houseTotalPoints.innerText = totalScore;
 
-            // Sort students based on choice
             if (currentSortOption === "name_asc") {
                 filtered.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
             } else if (currentSortOption === "class_asc") {
@@ -848,14 +914,6 @@
                     if (diff !== 0) return diff;
                     return (a.name || "").localeCompare(b.name || "");
                 });
-            }
-
-            // Adjust header based on permission
-            const actionHeader = document.getElementById('actionColumnHeader');
-            if (isReadOnly) {
-                if (actionHeader) actionHeader.classList.add('hidden');
-            } else {
-                if (actionHeader) actionHeader.classList.remove('hidden');
             }
 
             if (filtered.length === 0) {
@@ -880,26 +938,23 @@
                     ? '<span class="px-1.5 py-0.5 bg-blue-50 text-blue-700 rounded text-[9px] font-bold"><i class="fa-solid fa-mars"></i> L</span>'
                     : '<span class="px-1.5 py-0.5 bg-pink-50 text-pink-700 rounded text-[9px] font-bold"><i class="fa-solid fa-venus"></i> P</span>';
 
-                // Input fields (Checkbox on left, Text Input expanding on right)
+                // Rekabentuk grid sel dengan Checkbox paling kiri, baki ruang kanan adalah Kotak Rekod
                 const inputsHtml = ['longJump', 'highJump', 'running', 'shotPut'].map(field => {
                     const isChecked = stud[`${field}Eligible`] ? 'checked' : '';
                     const recordVal = stud[`${field}Record`] || '';
                     
-                    // Dynamic guide placeholder based on sport event
-                    let placeholderText = "-";
-                    if (field === 'longJump' || field === 'shotPut') placeholderText = "0.00m";
-                    if (field === 'highJump') placeholderText = "0.00m";
+                    let placeholderText = "0.00m";
                     if (field === 'running') placeholderText = "00.0s";
 
                     return `
-                        <td class="py-1 px-1.5 border-r border-slate-100">
+                        <td class="py-1 px-1.5 border-r border-slate-100 text-left">
                             <div class="flex items-center justify-start gap-1.5 w-full">
                                 <input type="checkbox" ${isChecked} 
                                     class="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500 accent-blue-600 cursor-pointer student-score-checkbox flex-shrink-0"
-                                    data-id="${stud.id}" data-field="${field}" ${isReadOnly ? 'disabled' : ''}>
+                                    data-id="${stud.id}" data-field="${field}">
                                 <input type="text" placeholder="${placeholderText}" value="${recordVal}" 
                                     class="w-full px-1.5 py-0.5 bg-slate-50 hover:bg-slate-100/50 focus:bg-white text-left font-semibold text-slate-800 rounded border border-slate-200/60 focus:border-blue-300 outline-none transition-all student-record-input"
-                                    data-id="${stud.id}" data-field="${field}" ${isReadOnly ? 'disabled' : ''}>
+                                    data-id="${stud.id}" data-field="${field}">
                             </div>
                         </td>
                     `;
@@ -915,34 +970,72 @@
                     <td class="py-1 px-1">
                         <input type="text" placeholder="-" value="${stud.notes || ''}" 
                             class="w-full px-1.5 py-0.5 bg-transparent hover:bg-slate-50/80 focus:bg-white text-slate-600 rounded-lg outline-none transition-all focus:ring-1 focus:ring-blue-500/20 border border-transparent student-note-input"
-                            data-id="${stud.id}" ${isReadOnly ? 'disabled' : ''}>
+                            data-id="${stud.id}">
                     </td>
-                    <td class="py-1 px-0.5 text-center student-action-cell ${isReadOnly ? 'hidden' : ''}">
+                    <td class="py-1 px-0.5 text-center student-action-cell">
                         <button class="p-1 text-slate-300 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors delete-student-btn" data-id="${stud.id}">
                             <i class="fa-solid fa-trash text-[10px]"></i>
                         </button>
                     </td>
                 `;
 
-                // Event listener assignments inside module
-                // Score updates
-                tr.querySelectorAll('.student-score-input').forEach(input => {
-                    input.addEventListener('change', async (e) => {
+                // Listener untuk menukar status kelayakan secara manual
+                tr.querySelectorAll('.student-score-checkbox').forEach(chk => {
+                    chk.addEventListener('change', async (e) => {
                         const sId = e.target.getAttribute('data-id');
                         const field = e.target.getAttribute('data-field');
-                        const val = Math.max(0, parseInt(e.target.value) || 0);
+                        const isChecked = e.target.checked;
                         
                         const current = students.find(s => s.id === sId);
                         if (current) {
-                            current[field] = val;
-                            current.totalPoints = (current.longJump || 0) + (current.highJump || 0) + (current.running || 0) + (current.shotPut || 0);
+                            current[`${field}Eligible`] = isChecked;
+                            current.totalPoints = (current.longJumpEligible ? 1 : 0) + 
+                                                   (current.highJumpEligible ? 1 : 0) + 
+                                                   (current.runningEligible ? 1 : 0) + 
+                                                   (current.shotPutEligible ? 1 : 0);
                             await saveStudentToDb(current);
                             syncData();
                         }
                     });
                 });
 
-                // Notes updates
+                // Listener untuk mengisi rekod dan auto-tick berdasarkan had minima kelayakan
+                tr.querySelectorAll('.student-record-input').forEach(input => {
+                    input.addEventListener('change', async (e) => {
+                        const sId = e.target.getAttribute('data-id');
+                        const field = e.target.getAttribute('data-field');
+                        const valText = e.target.value.trim();
+                        
+                        const current = students.find(s => s.id === sId);
+                        if (current) {
+                            current[`${field}Record`] = valText;
+                            
+                            // Logik Auto-Ticking Pintar
+                            const parsedVal = parseFloat(valText.replace(/[^0-9.]/g, ''));
+                            if (valText === "") {
+                                // Biarkan checkbox manual, tiada perubahan auto
+                            } else if (!isNaN(parsedVal)) {
+                                const threshold = parseFloat(thresholds[field]);
+                                if (!isNaN(threshold) && threshold > 0) {
+                                    if (field === 'running') {
+                                        current[`${field}Eligible`] = (parsedVal <= threshold);
+                                    } else {
+                                        current[`${field}Eligible`] = (parsedVal >= threshold);
+                                    }
+                                }
+                            }
+                            
+                            current.totalPoints = (current.longJumpEligible ? 1 : 0) + 
+                                                   (current.highJumpEligible ? 1 : 0) + 
+                                                   (current.runningEligible ? 1 : 0) + 
+                                                   (current.shotPutEligible ? 1 : 0);
+                            await saveStudentToDb(current);
+                            syncData();
+                        }
+                    });
+                });
+
+                // Catatan kemas kini
                 const noteInput = tr.querySelector('.student-note-input');
                 noteInput.addEventListener('change', async (e) => {
                     const sId = e.target.getAttribute('data-id');
@@ -954,7 +1047,7 @@
                     }
                 });
 
-                // Delete Student Row
+                // Padam Murid secara individu
                 const deleteBtn = tr.querySelector('.delete-student-btn');
                 if (deleteBtn) {
                     deleteBtn.addEventListener('click', () => {
@@ -994,7 +1087,7 @@
                 
                 item.innerHTML = `
                     <span>Rumah ${h.name} (${count} murid)</span>
-                    <button class="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors delete-house-btn ${isReadOnly ? 'hidden' : ''}" data-id="${h.id}">
+                    <button class="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors delete-house-btn" data-id="${h.id}">
                         <i class="fa-solid fa-xmark text-[9px]"></i>
                     </button>
                 `;
@@ -1024,33 +1117,7 @@
             });
         }
 
-        function syncUIState() {
-            if (isReadOnly) {
-                if (deleteHouseMembersBtn) deleteHouseMembersBtn.classList.add('hidden');
-                if (settingsLinkBtn) settingsLinkBtn.classList.add('hidden');
-                if (clearAllBtn) clearAllBtn.classList.add('hidden');
-                if (importBtn) importBtn.classList.add('hidden');
-                if (registerStudentLinkBtn) registerStudentLinkBtn.classList.add('hidden');
-                
-                document.getElementById('settingsAddHouseContainer').classList.add('hidden');
-                
-                roleIndicator.className = "w-1.5 h-1.5 rounded-full bg-slate-400";
-                roleText.innerText = "Pelawat (Read-Only)";
-            } else {
-                if (deleteHouseMembersBtn) deleteHouseMembersBtn.classList.remove('hidden');
-                if (settingsLinkBtn) settingsLinkBtn.classList.remove('hidden');
-                if (clearAllBtn) clearAllBtn.classList.remove('hidden');
-                if (importBtn) importBtn.classList.remove('hidden');
-                if (registerStudentLinkBtn) registerStudentLinkBtn.classList.remove('hidden');
-                
-                document.getElementById('settingsAddHouseContainer').classList.remove('hidden');
-                
-                roleIndicator.className = "w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse";
-                roleText.innerText = "Pentadbir (Editor)";
-            }
-        }
-
-        // TRIGGER DIALOGS & DROPDOWNS
+        // Menguruskan interaksi butang dropdown Gear Tetapan
         gearBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             gearDropdown.classList.toggle('hidden');
@@ -1062,19 +1129,49 @@
             gearIcon.classList.remove('rotate-90');
         });
 
-        // MODAL HANDLERS
-        // Open Settings Modal
-        settingsLinkBtn.addEventListener('click', () => {
+        // Menyimpan pautan URL Google Apps Script baharu
+        saveGscriptUrlBtn.addEventListener('click', async () => {
+            const newUrl = gscriptUrlInput.value.trim();
+            if (newUrl) {
+                googleScriptUrl = newUrl;
+                localStorage.setItem('sukantara_gscript_url', googleScriptUrl);
+                showToast("Pautan Google Apps Script berjaya disimpan!", "success");
+                
+                // Muat semula data secara automatik menggunakan pautan baharu
+                const sheetsData = await fetchFromGoogleSheets();
+                if (sheetsData) {
+                    if (sheetsData.houses && sheetsData.houses.length > 0) {
+                        houses = sheetsData.houses;
+                        localStorage.setItem('sukantara_houses', JSON.stringify(houses));
+                    }
+                    if (sheetsData.students) {
+                        students = sheetsData.students;
+                        normalizeAllStoredData();
+                        localStorage.setItem('sukantara_students', JSON.stringify(students));
+                    }
+                    syncData();
+                    showToast("Database diselaraskan dengan sambungan baharu!", "success");
+                }
+            } else {
+                googleScriptUrl = "";
+                localStorage.removeItem('sukantara_gscript_url');
+                showToast("URL dibersihkan. Aplikasi akan berjalan di dalam mod lokal sahaja.", "warning");
+                updateConnectionStatus(false, "Mod Lokal");
+            }
+        });
+
+        // Membuka modal pendaftaran murid
+        registerStudentLinkBtn.addEventListener('click', () => {
+            registrationModal.classList.remove('hidden');
+            document.getElementById('studentHouse').value = activeHouseTab;
+        });
+
+        // Membuka modal tetapan
+        dbConfigLinkBtn.addEventListener('click', () => {
             houseSettingsModal.classList.remove('hidden');
         });
         closeHouseSettingsBtn.addEventListener('click', () => {
             houseSettingsModal.classList.add('hidden');
-        });
-
-        // Open Registration Student Modal
-        registerStudentLinkBtn.addEventListener('click', () => {
-            registrationModal.classList.remove('hidden');
-            document.getElementById('studentHouse').value = activeHouseTab;
         });
 
         const closeRegModal = () => {
@@ -1085,14 +1182,8 @@
         closeRegistrationModalBtn.addEventListener('click', closeRegModal);
         cancelRegistrationBtn.addEventListener('click', closeRegModal);
 
-        // FORM SUBMISSIONS
-        // New Student Submit
         studentForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            if (isReadOnly) {
-                showToast("Sila log masuk terlebih dahulu untuk menambah ahli.", "warning");
-                return;
-            }
 
             const nameInput = document.getElementById('studentName');
             const genderInput = document.getElementById('studentGender');
@@ -1108,10 +1199,14 @@
                 gender: genderInput.value,
                 studentClass: classInput.value,
                 house: houseInput.value || activeHouseTab,
-                longJump: 0,
-                highJump: 0,
-                running: 0,
-                shotPut: 0,
+                longJumpEligible: false,
+                longJumpRecord: "",
+                highJumpEligible: false,
+                highJumpRecord: "",
+                runningEligible: false,
+                runningRecord: "",
+                shotPutEligible: false,
+                shotPutRecord: "",
                 totalPoints: 0,
                 notes: ""
             };
@@ -1124,19 +1219,14 @@
             syncData();
         });
 
-        // New House Submit
+        // Menambah Rumah Sukan Baru
         houseForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            if (isReadOnly) {
-                showToast("Sila log masuk terlebih dahulu.", "warning");
-                return;
-            }
 
             const input = document.getElementById('newHouseName');
             const name = input.value.trim();
             if (!name) return;
 
-            // Check duplicate
             if (houses.some(h => h.name.toUpperCase() === name.toUpperCase())) {
                 showToast("Rumah sukan ini sudah berdaftar.", "warning");
                 return;
@@ -1154,13 +1244,31 @@
             syncData();
         });
 
-        // SORT CONTROL
         sortDropdown.addEventListener('change', (e) => {
             currentSortOption = e.target.value;
             syncData();
         });
 
-        // DELETE ALL MEMBERS OF ACTIVE HOUSE
+        syncManualBtn.addEventListener('click', async () => {
+            showToast("Memulakan penarikan data dari Google Sheets...", "info");
+            const sheetsData = await fetchFromGoogleSheets();
+            if (sheetsData) {
+                if (sheetsData.houses && sheetsData.houses.length > 0) {
+                    houses = sheetsData.houses;
+                    localStorage.setItem('sukantara_houses', JSON.stringify(houses));
+                }
+                if (sheetsData.students) {
+                    students = sheetsData.students;
+                    normalizeAllStoredData();
+                    localStorage.setItem('sukantara_students', JSON.stringify(students));
+                }
+                syncData();
+                showToast("Data Google Sheets berjaya dikemaskini!", "success");
+            } else {
+                showToast("Gagal memuat turun data dari Google Sheets. Membaca storan lokal.", "danger");
+            }
+        });
+
         deleteHouseMembersBtn.addEventListener('click', () => {
             const count = students.filter(s => s.house === activeHouseTab).length;
             if (count === 0) {
@@ -1171,7 +1279,7 @@
                 "Padam Ahli Rumah Sukan", 
                 `Adakah anda pasti mahu memadam KESEMUA ${count} ahli murid di dalam Rumah ${activeHouseTab}? Rekod markah akan dipadam secara kekal!`, 
                 true,
-                "Ya, Padam Semua",
+                "Ya, Teruskan",
                 async () => {
                     const toDelete = students.filter(s => s.house === activeHouseTab);
                     for (const s of toDelete) {
@@ -1183,21 +1291,19 @@
             );
         });
 
-        // CLEAR DATABASE
+        // Padam Keseluruhan Rekod Database
         clearAllBtn.addEventListener('click', () => {
             showConfirm(
                 "Padam Keseluruhan Rekod", 
                 "AMARAN! Tindakan ini akan membuang SEMUA murid dan rumah sukan daripada sistem secara kekal!", 
                 true,
-                "Ya, Padam Semua",
+                "Ya, Teruskan",
                 async () => {
-                    if (isFirebaseConnected && auth && auth.currentUser && !isReadOnly) {
-                        for (const s of students) {
-                            await deleteStudentFromDb(s.id);
-                        }
-                        for (const h of houses) {
-                            await deleteHouseFromDb(h.id);
-                        }
+                    for (const s of students) {
+                        await deleteStudentFromDb(s.id);
+                    }
+                    for (const h of houses) {
+                        await deleteHouseFromDb(h.id);
                     }
                     students = [];
                     houses = [];
@@ -1211,7 +1317,6 @@
             );
         });
 
-        // EXPORT LOGICS
         exportBtn.addEventListener('click', () => {
             const dataToBackup = {
                 houses: houses,
@@ -1221,7 +1326,7 @@
                 const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(dataToBackup, null, 2));
                 const dlAnchorElem = document.createElement('a');
                 dlAnchorElem.setAttribute("href", dataStr);
-                dlAnchorElem.setAttribute("download", `sukantara_system_backup_${Date.now()}.json`);
+                dlAnchorElem.setAttribute("download", `sukantara_backup_${Date.now()}.json`);
                 dlAnchorElem.click();
                 showToast("Fail sandaran JSON berjaya dijana & dimuat turun.", "success");
             } catch(e) {
@@ -1229,7 +1334,6 @@
             }
         });
 
-        // IMPORT LOGICS WITH AUTOMATED SMART PARSER
         importBtn.addEventListener('click', () => {
             jsonFileInput.click();
         });
@@ -1243,14 +1347,12 @@
                 try {
                     const parsed = JSON.parse(evt.target.result);
                     
-                    // SMART PARSER: Check if parsed file is a flat array (e.g. Ahli_Rumah_Biru_2026.json)
                     if (Array.isArray(parsed)) {
                         if (parsed.length === 0) {
                             showToast("Fail kosong atau tidak sah.", "warning");
                             return;
                         }
 
-                        // Check signature fields
                         const sample = parsed[0];
                         const hasNameField = ('nama' in sample) || ('nama_pelajar' in sample) || ('name' in sample);
                         
@@ -1259,7 +1361,6 @@
                             return;
                         }
 
-                        // Show dialog to insert student list straight into active house tab
                         showConfirm(
                             "Import Senarai Ahli",
                             `Sistem mengesan fail ini mengandungi senarai ahli sukan (${parsed.length} orang). Adakah anda mahu mendaftarkan mereka ke dalam Rumah ${activeHouseTab}?`,
@@ -1267,17 +1368,15 @@
                             "Ya, Teruskan",
                             async () => {
                                 let importCount = 0;
+                                const newImportedStudents = [];
+                                
                                 parsed.forEach(item => {
                                     const rawName = item.nama || item.name || item.nama_pelajar;
                                     if (!rawName) return;
 
                                     const normalizedName = rawName.toString().trim().toUpperCase();
-                                    
-                                    // Normalise gender key (supports 'janti', 'jantina', 'singkatan_jantina', 'gender')
                                     const rawGender = item.janti || item.jantina || item.singkatan_jantina || item.gender || "L";
                                     const normalizedGender = normalizeGender(rawGender);
-
-                                    // Normalise class (supports 'kelas', 'class')
                                     const rawClass = item.kelas || item.studentClass || item.class || "T1";
                                     const normalizedClass = normalizeClass(rawClass);
 
@@ -1287,33 +1386,38 @@
                                         gender: normalizedGender,
                                         studentClass: normalizedClass,
                                         house: activeHouseTab,
-                                        longJump: 0,
-                                        highJump: 0,
-                                        running: 0,
-                                        shotPut: 0,
+                                        longJumpEligible: false,
+                                        longJumpRecord: "",
+                                        highJumpEligible: false,
+                                        highJumpRecord: "",
+                                        runningEligible: false,
+                                        runningRecord: "",
+                                        shotPutEligible: false,
+                                        shotPutRecord: "",
                                         totalPoints: 0,
                                         notes: ""
                                     };
 
                                     students.push(newStud);
-                                    saveStudentToDb(newStud);
+                                    newImportedStudents.push(newStud);
                                     importCount++;
                                 });
 
+                                // Hantar kesemua murid baharu yang diimport ke Google Sheets
+                                await sendToGoogleSheets("bulkImport", newImportedStudents);
+                                localStorage.setItem('sukantara_students', JSON.stringify(students));
                                 showToast(`Berjaya membawa masuk ${importCount} ahli baharu ke dalam Rumah ${activeHouseTab}!`, "success");
                                 syncData();
                             }
                         );
 
                     } else if (parsed.houses && parsed.students) {
-                        // Regular System Full Backup Importer
                         showConfirm(
                             "Import Fail Sandaran",
                             `Sistem mengesan fail ini mengandungi data sistem penuh (${parsed.houses.length} rumah sukan, ${parsed.students.length} murid). Mengimport fail ini akan menimpa seluruh pangkalan data sedia ada anda. Teruskan?`,
                             false,
                             "Ya, Teruskan",
                             async () => {
-                                // Overwrite existing arrays
                                 houses = parsed.houses;
                                 students = parsed.students;
                                 normalizeAllStoredData();
@@ -1321,20 +1425,17 @@
                                 localStorage.setItem('sukantara_houses', JSON.stringify(houses));
                                 localStorage.setItem('sukantara_students', JSON.stringify(students));
 
-                                if (isFirebaseConnected && auth && auth.currentUser && !isReadOnly) {
-                                    for (const h of houses) {
-                                        await saveHouseToDb(h);
-                                    }
-                                    for (const s of students) {
-                                        await saveStudentToDb(s);
-                                    }
+                                // Simpan ke Google Sheets secara keseluruhan
+                                await sendToGoogleSheets("bulkImport", students);
+                                for (const h of houses) {
+                                    await sendToGoogleSheets("saveHouse", h);
                                 }
 
                                 if (houses.length > 0) {
                                     activeHouseTab = houses[0].name;
                                 }
 
-                                showToast("Pangkalan data sistem berjaya dipulihkan sepenuhnya dari fail sandaran.", "success");
+                                showToast("Pangkalan data sistem berjaya dipulihkan sepenuhnya.", "success");
                                 syncData();
                             }
                         );
@@ -1345,84 +1446,11 @@
                 } catch(err) {
                     showToast("Gagal membaca JSON: " + err.message, "danger");
                 }
-                // Clear file input cache
                 jsonFileInput.value = "";
             };
             reader.readAsText(file);
         });
 
-        // GOOGLE AUTH LOGIN / LOGOUT HANDLING
-        authBtn.addEventListener('click', async () => {
-            if (!isFirebaseConnected) {
-                showToast("Firebase tidak diaktifkan. Anda berada di dalam mod Local Storage sahaja.", "warning");
-                return;
-            }
-
-            if (auth.currentUser) {
-                showConfirm(
-                    "Log Keluar",
-                    "Adakah anda pasti mahu menukar mod kepada Pelawat (Read-Only)? Anda tidak akan dapat membuat sebarang perubahan pangkalan data.",
-                    true,
-                    "Ya, Log Keluar",
-                    async () => {
-                        try {
-                            await signOut(auth);
-                            showToast("Anda telah keluar dari akaun.", "success");
-                        } catch(e) {
-                            showToast("Gagal keluar log masuk: " + e.message, "danger");
-                        }
-                    }
-                );
-            } else {
-                const provider = new GoogleAuthProvider();
-                try {
-                    await signInWithPopup(auth, provider);
-                    showToast("Log masuk berjaya!", "success");
-                } catch(error) {
-                    console.error("Firebase popup authentication failed: ", error);
-                    
-                    // POPUP BLOCKED RECOVERY
-                    if (error.code === 'auth/popup-blocked') {
-                        popupBlockedModal.classList.remove('hidden');
-                    }
-                    // UNAUTHORIZED DOMAIN / IFRAME HELPER RECOVERY
-                    else if (error.code === 'auth/unauthorized-domain') {
-                        const hostname = window.location.hostname || "localhost";
-                        detectedDomainString.innerText = hostname;
-                        unauthorizedDomainModal.classList.remove('hidden');
-                    } else {
-                        showToast("Authentication Error: " + error.message, "danger");
-                    }
-                }
-            }
-        });
-
-        // Auth Dialog button wiring
-        closePopupBlockedBtn.addEventListener('click', () => {
-            popupBlockedModal.classList.add('hidden');
-        });
-
-        closeAuthHelperBtn.addEventListener('click', () => {
-            unauthorizedDomainModal.classList.add('hidden');
-        });
-
-        copyDomainBtn.addEventListener('click', () => {
-            const textToCopy = detectedDomainString.innerText;
-            try {
-                // Clipboard compatibility for dynamic iframe scopes
-                const el = document.createElement('textarea');
-                el.value = textToCopy;
-                document.body.appendChild(el);
-                el.select();
-                document.execCommand('copy');
-                document.body.removeChild(el);
-                showToast("Nama domain disalin ke klipbod!", "success");
-            } catch (err) {
-                showToast("Gagal menyalin domain: " + err.message, "danger");
-            }
-        });
-
-        // Initialize App on Window Load
         window.onload = function() {
             initDatabase();
         };
