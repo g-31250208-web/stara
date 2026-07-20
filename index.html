@@ -536,6 +536,21 @@
             </div>
 
             <div class="space-y-4 overflow-y-auto pr-0.5 pb-2 flex-1 no-scrollbar">
+                <!-- INTEGRASI FIREBASE CONFIG (NEW FALLBACK FOR PREVIEW) -->
+                <div class="space-y-1.5 bg-blue-50/50 p-2.5 rounded-xl border border-blue-100">
+                    <h3 class="text-[9px] font-extrabold text-blue-900 uppercase tracking-wider flex items-center gap-1">
+                        <i class="fa-solid fa-cloud text-blue-600"></i>
+                        Konfigurasi Firebase Web SDK (JSON)
+                    </h3>
+                    <textarea id="firebaseConfigInput" rows="4" placeholder='Tampal konfigurasi Firebase SDK di sini...&#10;Contoh:&#10;{&#10;  "apiKey": "AIzaSy...",&#10;  "authDomain": "sekolah.firebaseapp.com",&#10;  "projectId": "sekolah-id",&#10;  "appId": "1:..."&#10;}' class="w-full px-2.5 py-2 bg-white border border-blue-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/10 rounded-lg text-[9px] font-mono outline-none transition-all placeholder:text-slate-400"></textarea>
+                    <div class="flex justify-end">
+                        <button id="saveFirebaseConfigBtn" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-[10px] font-bold transition-all shadow-sm active:scale-95">
+                            Hubungkan Firebase
+                        </button>
+                    </div>
+                    <p class="text-[8px] text-blue-500 font-medium">Membolehkan fungsi Log Masuk Google/DELIMa & Firebase Firestore berjalan secara langsung dalam mod pratonton ini.</p>
+                </div>
+
                 <!-- INTEGRASI GOOGLE SHEETS API URL -->
                 <div class="space-y-1.5 bg-indigo-50/50 p-2.5 rounded-xl border border-indigo-100">
                     <h3 class="text-[9px] font-extrabold text-indigo-900 uppercase tracking-wider flex items-center gap-1">
@@ -655,7 +670,22 @@
 
         // Global Firebase state & configs
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'sukantara-sekolah-2026';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
+        let firebaseConfig = null;
+
+        // Semak jika persekitaran membekalkan config automatik
+        if (typeof __firebase_config !== 'undefined') {
+            firebaseConfig = JSON.parse(__firebase_config);
+        } else {
+            // Sandaran konfigurasi manual daripada penyimpanan lokal (untuk Mod Pratonton)
+            const savedFbConfig = localStorage.getItem('sukantara_firebase_config');
+            if (savedFbConfig) {
+                try {
+                    firebaseConfig = JSON.parse(savedFbConfig);
+                } catch(e) {
+                    console.error("Ralat membaca konfigurasi Firebase lokal:", e);
+                }
+            }
+        }
         const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
         let db = null;
@@ -2122,6 +2152,12 @@
                 urlInput.value = googleScriptUrl;
             }
 
+            // Kemas kini paparan input konfigurasi Firebase jika ada
+            const fbConfigInput = document.getElementById('firebaseConfigInput');
+            if (fbConfigInput && firebaseConfig) {
+                fbConfigInput.value = JSON.stringify(firebaseConfig, null, 2);
+            }
+
             setupThresholdListeners();
 
             if (firebaseConfig) {
@@ -2153,6 +2189,8 @@
         const closeHouseSettingsBtn = document.getElementById('closeHouseSettingsBtn');
         const saveGscriptUrlBtn = document.getElementById('saveGscriptUrlBtn');
         const gscriptUrlInput = document.getElementById('gscriptUrlInput');
+        const saveFirebaseConfigBtn = document.getElementById('saveFirebaseConfigBtn');
+        const firebaseConfigInput = document.getElementById('firebaseConfigInput');
 
         // Threshold Modal References
         const thresholdConfigLinkBtn = document.getElementById('thresholdConfigLinkBtn');
@@ -2369,7 +2407,7 @@
 
         if (saveGscriptUrlBtn && gscriptUrlInput) {
             saveGscriptUrlBtn.addEventListener('click', () => {
-                if (!isAdmin) {
+                if (!isAdmin && firebaseActive) {
                     showToast("Dihalang: Pautan Google Sheets hanya boleh diubah oleh Admin Utama.", "danger");
                     return;
                 }
@@ -2381,6 +2419,33 @@
                     initDatabase();
                 } else {
                     showToast("Sila masukkan URL yang sah.", "warning");
+                }
+            });
+        }
+
+        if (saveFirebaseConfigBtn && firebaseConfigInput) {
+            saveFirebaseConfigBtn.addEventListener('click', () => {
+                // Sesiapa boleh menetapkan konfigurasi pada kali pertama (menyelesaikan bootstrap paradox)
+                if (!isAdmin && firebaseActive) {
+                    showToast("Dihalang: Konfigurasi Firebase hanya boleh diubah oleh Admin Utama.", "danger");
+                    return;
+                }
+                const configText = firebaseConfigInput.value.trim();
+                if (configText) {
+                    try {
+                        const parsed = JSON.parse(configText);
+                        localStorage.setItem('sukantara_firebase_config', JSON.stringify(parsed));
+                        firebaseConfig = parsed;
+                        showToast("Konfigurasi Firebase disimpan! Membina sambungan...", "success");
+                        initDatabase();
+                    } catch(e) {
+                        showToast("Format JSON Firebase tidak sah. Sila periksa semula tanda kurung dan koma.", "danger");
+                    }
+                } else {
+                    localStorage.removeItem('sukantara_firebase_config');
+                    firebaseConfig = null;
+                    showToast("Konfigurasi Firebase dipadam. Sistem kembali ke Mod Demo.", "info");
+                    initDatabase();
                 }
             });
         }
