@@ -80,23 +80,17 @@
                 
                 <!-- Ruang Auth Google, Status Sheets dan Peranan Pengguna -->
                 <div class="flex items-center gap-2 flex-shrink-0">
-                    <!-- Google Authenticated Profile Info -->
-                    <div id="authContainer" class="flex items-center gap-1">
-                        <!-- Loaded dynamically via JS -->
-                    </div>
-
                     <!-- Status Sambungan Google Sheets -->
                     <span id="dbStatusBadge" class="px-2 py-1 text-[8px] sm:text-[10px] font-bold rounded-full bg-amber-50 text-amber-700 border border-amber-100 flex items-center gap-1 shadow-sm transition-all duration-300">
                         <span id="dbStatusIndicator" class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
                         <span id="dbStatusText" class="hidden sm:inline">Menyambung...</span>
                     </span>
 
-                    <!-- Peranan Ahli Pasukan -->
-                    <span id="roleBadge" class="px-2 py-1 text-[8px] sm:text-[10px] font-bold rounded-full bg-slate-100 text-slate-500 border border-slate-200 flex items-center gap-1 shadow-sm">
-                        <span id="roleIndicator" class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
-                        <span id="roleText" class="hidden sm:inline">Mod Demo</span>
-                        <i class="fa-solid fa-user-shield sm:hidden"></i>
-                    </span>
+                    <!-- Google Authenticated Profile Info & Login Buttons -->
+                    <div id="authContainer" class="flex items-center gap-1.5">
+                        <!-- Dimuatkan secara dinamik menerusi Firebase JS -->
+                        <span class="px-2.5 py-1 text-[9px] font-bold rounded-full bg-slate-100 text-slate-500 border border-slate-200 animate-pulse">Sila tunggu...</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -656,7 +650,7 @@
     <!-- JAVASCRIPT & DATABASE INTEGRATION -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // Global Firebase state & configs
@@ -676,6 +670,10 @@
         let activeHouseTab = "";
         let currentSortOption = "name_asc";
         let confirmCallback = null;
+        
+        // Ciri kawalan Admin Utama
+        const ADMIN_EMAIL = "sekolah-7608@moe-dl.edu.my";
+        let isAdmin = false;
 
         // Had kelayakan berbilang peringkat mengikut kategori umur
         let thresholds = {
@@ -798,50 +796,218 @@
         async function initFirebase() {
             try {
                 updateDbStatus(true, "Menghubungi Firebase...");
+                if (!firebaseConfig) {
+                    throw new Error("Konfigurasi Firebase tiada.");
+                }
                 const app = initializeApp(firebaseConfig);
                 db = getFirestore(app);
                 auth = getAuth(app);
 
-                // Mengutamakan Custom Token berbanding Anonymous (Mematuhi Aturan Firebase)
-                if (initialAuthToken) {
-                    await signInWithCustomToken(auth, initialAuthToken);
-                } else {
-                    await signInAnonymously(auth);
-                }
-
-                userId = auth.currentUser?.uid || crypto.randomUUID();
-                firebaseActive = true;
-
-                // Render profil pengguna yang disahkan dalam bar navigasi
-                const authContainer = document.getElementById('authContainer');
-                if (authContainer && auth.currentUser) {
-                    const u = auth.currentUser;
-                    const displayName = u.displayName || (u.isAnonymous ? "Cikgu (Sesi Awan)" : "Ahli Pentadbir");
-                    authContainer.innerHTML = `
-                        <div class="flex items-center gap-1 bg-slate-100 rounded-full px-2 py-0.5 border border-slate-200">
-                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                            <span class="text-[9px] font-extrabold text-slate-700 truncate max-w-[80px]" title="${displayName}">${displayName}</span>
-                        </div>
-                    `;
-                }
-
-                const roleText = document.getElementById('roleText');
-                if (roleText) {
-                    roleText.innerText = auth.currentUser?.isAnonymous ? "Sesi Penyumbang" : "Pentadbir Sukan";
-                    const roleBadge = document.getElementById('roleBadge');
-                    if (roleBadge) {
-                        roleBadge.className = "px-2 py-1 text-[8px] sm:text-[10px] font-bold rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100 flex items-center gap-1 shadow-sm";
+                // Mendengar status pengesahan pengguna secara dinamik
+                onAuthStateChanged(auth, (user) => {
+                    updateAuthUI(user);
+                    if (user) {
+                        userId = user.uid;
+                        firebaseActive = true;
+                        updateDbStatus(false, "Berjaya Diselaraskan");
+                        setupFirestoreListeners();
+                    } else {
+                        userId = null;
+                        firebaseActive = false;
+                        updateDbStatus(false, "Sila Log Masuk", "warning");
+                        loadLocalData();
                     }
-                }
+                });
 
-                setupFirestoreListeners();
-                updateDbStatus(false, "Berjaya Diselaraskan");
             } catch (error) {
                 console.error("Firebase gagal diaktifkan. Berpindah ke Mod Lokal:", error);
                 firebaseActive = false;
-                updateDbStatus(false, "Sambungan Awan Gagal", "danger");
+                updateDbStatus(false, "Mod Lokal (Tanpa Awan)", "warning");
+                updateAuthUI(null);
                 loadLocalData();
             }
+        }
+
+        // Fungsi mengawal had akses elemen mengikut peranan pengguna
+        function applyAdminRestrictions() {
+            const thresholdBtn = document.getElementById('thresholdConfigLinkBtn');
+            const dbConfigBtn = document.getElementById('dbConfigLinkBtn');
+            const clearAllBtn = document.getElementById('clearAllBtn');
+            const deleteHouseMembersBtn = document.getElementById('deleteHouseMembersBtn');
+            const resetHouseRecordsBtn = document.getElementById('resetHouseRecordsBtn');
+            const importBtn = document.getElementById('importBtn');
+            
+            const thresholdInputs = document.querySelectorAll('.threshold-input');
+
+            if (isAdmin) {
+                // Tunjukkan semua alat pentadbiran untuk Admin Utama
+                if (thresholdBtn) thresholdBtn.classList.remove('hidden');
+                if (dbConfigBtn) dbConfigBtn.classList.remove('hidden');
+                if (clearAllBtn) clearAllBtn.classList.remove('hidden');
+                if (importBtn) importBtn.classList.remove('hidden');
+
+                if (deleteHouseMembersBtn) {
+                    deleteHouseMembersBtn.disabled = false;
+                    deleteHouseMembersBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    deleteHouseMembersBtn.title = "Padam semua ahli bagi rumah sukan yang aktif";
+                }
+                if (resetHouseRecordsBtn) {
+                    resetHouseRecordsBtn.disabled = false;
+                    resetHouseRecordsBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    resetHouseRecordsBtn.title = "Kosongkan rekod prestasi dan kotak kelayakan rumah aktif";
+                }
+
+                thresholdInputs.forEach(input => {
+                    input.removeAttribute('disabled');
+                    input.classList.remove('bg-slate-900', 'text-slate-500', 'cursor-not-allowed');
+                    input.title = "Masukkan had minima baharu";
+                });
+            } else {
+                // Sembunyikan dan kunci tindakan kritikal bagi pengguna biasa
+                if (thresholdBtn) thresholdBtn.classList.add('hidden');
+                if (dbConfigBtn) dbConfigBtn.classList.add('hidden');
+                if (clearAllBtn) clearAllBtn.classList.add('hidden');
+                if (importBtn) importBtn.classList.add('hidden'); // Hanya admin boleh import json pangkalan data
+
+                if (deleteHouseMembersBtn) {
+                    deleteHouseMembersBtn.disabled = true;
+                    deleteHouseMembersBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                    deleteHouseMembersBtn.title = "Fungsi ini dikunci. Hanya dibenarkan untuk Admin Utama sahaja.";
+                }
+                if (resetHouseRecordsBtn) {
+                    resetHouseRecordsBtn.disabled = true;
+                    resetHouseRecordsBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                    resetHouseRecordsBtn.title = "Fungsi ini dikunci. Hanya dibenarkan untuk Admin Utama sahaja.";
+                }
+
+                thresholdInputs.forEach(input => {
+                    input.setAttribute('disabled', 'true');
+                    input.classList.add('bg-slate-900', 'text-slate-500', 'cursor-not-allowed');
+                    input.title = "Had kelayakan hanya boleh diubah oleh Admin Utama.";
+                });
+            }
+        }
+
+        // Kemas kini komponen UI Log Masuk / Maklumat Profil Google
+        function updateAuthUI(user) {
+            const authContainer = document.getElementById('authContainer');
+            if (!authContainer) return;
+
+            if (user) {
+                const displayName = user.displayName || "Ahli Sukantara";
+                const email = user.email || "";
+                const photoURL = user.photoURL || "https://placehold.co/40x40/1e3b8a/ffffff?text=" + displayName.charAt(0);
+                
+                // Semak peranan Admin Utama sekolah
+                isAdmin = (email.toLowerCase() === ADMIN_EMAIL.toLowerCase());
+
+                // Kenal pasti jika e-mel ialah e-mel DELIMa (KPM Malaysia)
+                const isDelima = email.toLowerCase().endsWith("moe-dl.edu.my") || email.toLowerCase().endsWith("moe.edu.my");
+                
+                let badgeHtml = "";
+                if (isAdmin) {
+                    badgeHtml = `
+                        <span class="px-2.5 py-0.5 text-[8px] sm:text-[9px] font-black rounded-full border bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 border-yellow-300 shadow-sm animate-pulse flex items-center gap-1">
+                            <i class="fa-solid fa-crown text-amber-950"></i> Admin Utama
+                        </span>
+                    `;
+                } else if (isDelima) {
+                    badgeHtml = `
+                        <span class="px-2 py-0.5 text-[8px] sm:text-[9px] font-extrabold rounded-full border bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-sm border-blue-400">
+                            <i class="fa-solid fa-graduation-cap mr-0.5"></i> DELIMa KPM
+                        </span>
+                    `;
+                } else {
+                    badgeHtml = `
+                        <span class="px-2 py-0.5 text-[8px] sm:text-[9px] font-extrabold rounded-full border bg-slate-100 text-slate-700 border-slate-200">
+                            <i class="fa-brands fa-google mr-0.5"></i> Google Personal
+                        </span>
+                    `;
+                }
+
+                authContainer.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <!-- Lencana Kategori Akaun -->
+                        ${badgeHtml}
+                        
+                        <!-- Profil Pengguna -->
+                        <div class="flex items-center gap-1.5 bg-slate-50 border border-slate-100 rounded-full pl-1.5 pr-2.5 py-0.5 shadow-sm">
+                            <img src="${photoURL}" onerror="this.src='https://placehold.co/40x40/1e3b8a/ffffff?text=${displayName.charAt(0)}'" class="w-5 h-5 rounded-full border border-slate-200" alt="Avatar">
+                            <div class="hidden sm:flex flex-col text-left leading-none">
+                                <span class="text-[9px] font-extrabold text-slate-800 truncate max-w-[90px]">${displayName}</span>
+                                <span class="text-[7px] text-slate-400 truncate max-w-[90px]">${email}</span>
+                            </div>
+                        </div>
+
+                        <!-- Butang Log Keluar -->
+                        <button id="logoutBtn" class="px-2.5 py-1 text-[9px] font-bold text-rose-600 hover:text-white hover:bg-rose-600 border border-rose-200 hover:border-rose-600 rounded-lg transition-all active:scale-95" title="Log Keluar">
+                            <i class="fa-solid fa-right-from-bracket"></i>
+                            <span class="hidden md:inline ml-1">Log Keluar</span>
+                        </button>
+                    </div>
+                `;
+
+                document.getElementById('logoutBtn').addEventListener('click', handleLogout);
+                if (isAdmin) {
+                    showToast(`Selamat Datang, Admin Utama (${displayName})!`, "success");
+                }
+            } else {
+                isAdmin = false;
+                // Tunjukkan butang Log Masuk DELIMa & Google
+                authContainer.innerHTML = `
+                    <div class="flex items-center gap-1">
+                        <button id="loginGoogleBtn" class="px-3 py-1.5 bg-gradient-to-tr from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-lg text-[9px] sm:text-[10px] font-black tracking-wide shadow-md shadow-blue-500/10 hover:shadow-blue-500/20 transition-all flex items-center gap-1.5 active:scale-95">
+                            <i class="fa-brands fa-google text-yellow-300"></i>
+                            <span>Log Masuk Google / DELIMa</span>
+                        </button>
+                    </div>
+                `;
+
+                document.getElementById('loginGoogleBtn').addEventListener('click', handleGoogleLogin);
+            }
+
+            // Kemas kini had sekatan paparan mengikut peranan
+            applyAdminRestrictions();
+        }
+
+        // Fungsi mengurus log masuk Google / DELIMa KPM
+        async function handleGoogleLogin() {
+            if (!auth) {
+                showToast("Sistem awan Firebase belum sedia. Menggunakan mod demo penyimpanan lokal sahaja.", "warning");
+                return;
+            }
+            try {
+                updateDbStatus(true, "Membuka Pop-up Google...");
+                const provider = new GoogleAuthProvider();
+                provider.setCustomParameters({
+                    prompt: 'select_account'
+                });
+                await signInWithPopup(auth, provider);
+                showToast("Log masuk berjaya! Menyandarkan data awan...", "success");
+            } catch (error) {
+                console.error("Gagal log masuk Google:", error);
+                showToast("Log masuk dibatalkan atau menghadapi ralat.", "danger");
+                updateDbStatus(false, "Sila Log Masuk", "warning");
+            }
+        }
+
+        // Fungsi mengurus Log Keluar
+        async function handleLogout() {
+            if (!auth) return;
+            showConfirm(
+                "Log Keluar Sesi",
+                "Adakah anda pasti mahu log keluar daripada akaun Google/DELIMa anda?",
+                false,
+                "Log Keluar",
+                async () => {
+                    try {
+                        await signOut(auth);
+                        showToast("Anda telah berjaya log keluar.", "info");
+                    } catch (error) {
+                        console.error("Ralat sewaktu log keluar:", error);
+                    }
+                }
+            );
         }
 
         function setupFirestoreListeners() {
@@ -1159,6 +1325,12 @@
         function setupThresholdListeners() {
             document.querySelectorAll('.threshold-input').forEach(input => {
                 input.addEventListener('change', async (e) => {
+                    if (!isAdmin) {
+                        showToast("Akses Dihalang: Hanya Admin Utama dibenarkan mengubah had minima.", "danger");
+                        updateThresholdInputsUI();
+                        return;
+                    }
+
                     const category = e.target.getAttribute('data-category');
                     const field = e.target.getAttribute('data-field');
                     const value = e.target.value.trim();
@@ -1405,6 +1577,9 @@
 
                 worksheetBody.appendChild(tr);
             });
+
+            // Guna sekatan elemen dinamik pada senarai had jadual apabila ia selesai di-render
+            applyAdminRestrictions();
         }
 
         function renderSettingsHouses() {
@@ -1954,6 +2129,7 @@
             } else {
                 loadLocalData();
                 updateDbStatus(false, "Mod Demo (Tanpa Firebase)", "warning");
+                updateAuthUI(null);
             }
         }
 
@@ -2003,6 +2179,10 @@
 
         if (resetHouseRecordsBtn) {
             resetHouseRecordsBtn.addEventListener('click', () => {
+                if (!isAdmin) {
+                    showToast("Had Kuasa: Hanya Admin Utama sekolah dibenarkan mengeset semula rekod.", "danger");
+                    return;
+                }
                 const count = students.filter(s => s.house === activeHouseTab).length;
                 if (count === 0) {
                     showToast("Tiada ahli murid dalam rumah sukan ini.", "info");
@@ -2125,6 +2305,11 @@
 
         if (saveThresholdConfigBtn) {
             saveThresholdConfigBtn.addEventListener('click', async () => {
+                if (!isAdmin) {
+                    showToast("Ralat Kebenaran: Hanya Admin Utama sahaja boleh menguruskan had minima.", "danger");
+                    return;
+                }
+
                 ['pra', 'tahap1', 'tahap2'].forEach(category => {
                     ['longJump', 'highJump', 'running', 'shotPut'].forEach(field => {
                         const modalEl = document.getElementById(`modal_threshold_${category}_${field}`);
@@ -2151,6 +2336,10 @@
 
         if (resetThresholdsBtn) {
             resetThresholdsBtn.addEventListener('click', () => {
+                if (!isAdmin) {
+                    showToast("Ralat Kebenaran: Hanya Admin Utama sahaja boleh menguruskan had kelayakan.", "danger");
+                    return;
+                }
                 showConfirm(
                     "Set Semula Had Kelayakan",
                     "Adakah anda pasti mahu menetapkan had kelayakan minima sukan kembali kepada nilai asal?",
@@ -2180,6 +2369,10 @@
 
         if (saveGscriptUrlBtn && gscriptUrlInput) {
             saveGscriptUrlBtn.addEventListener('click', () => {
+                if (!isAdmin) {
+                    showToast("Dihalang: Pautan Google Sheets hanya boleh diubah oleh Admin Utama.", "danger");
+                    return;
+                }
                 const url = gscriptUrlInput.value.trim();
                 if (url) {
                     googleScriptUrl = url;
@@ -2233,6 +2426,10 @@
         if (houseForm) {
             houseForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
+                if (!isAdmin) {
+                    showToast("Dihalang: Pengurusan rumah sukan memerlukan kebenaran Admin Utama.", "danger");
+                    return;
+                }
                 const input = document.getElementById('newHouseName');
                 const name = input.value.trim();
                 if (!name) return;
@@ -2298,6 +2495,10 @@
 
         if (deleteHouseMembersBtn) {
             deleteHouseMembersBtn.addEventListener('click', () => {
+                if (!isAdmin) {
+                    showToast("Dihalang: Hanya Admin Utama sahaja dibenarkan memadam ahli rumah sukan.", "danger");
+                    return;
+                }
                 const count = students.filter(s => s.house === activeHouseTab).length;
                 if (count === 0) {
                     showToast("Tiada murid berdaftar dalam rumah ini.", "info");
@@ -2334,6 +2535,10 @@
 
         if (clearAllBtn) {
             clearAllBtn.addEventListener('click', () => {
+                if (!isAdmin) {
+                    showToast("Dihalang: Akses pembersihan pangkalan data memerlukan kelayakan Admin Utama.", "danger");
+                    return;
+                }
                 showConfirm(
                     "Padam Keseluruhan Rekod", 
                     "AMARAN! Tindakan ini akan membuang SEMUA murid dan rumah sukan daripada sistem cloud dan lokal!", 
@@ -2380,6 +2585,10 @@
 
         if (importBtn && jsonFileInput) {
             importBtn.addEventListener('click', () => {
+                if (!isAdmin) {
+                    showToast("Dihalang: Hanya Admin Utama sahaja dibenarkan memuat naik sandaran atau import pangkalan data baru.", "danger");
+                    return;
+                }
                 jsonFileInput.click();
             });
 
