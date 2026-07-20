@@ -315,33 +315,61 @@
                         
                         <!-- Header Row 2: Pra Sekolah Thresholds -->
                         <tr id="row-threshold-pra" class="bg-slate-800 text-white font-semibold text-[9px] border-b border-slate-700 shadow-sm">
-                            <th colspan="4" class="py-1 px-2 text-right text-pink-300 uppercase tracking-wider">Had Min Pra Sekolah:</th>
+                            <th colspan="4" class="py-1 px-2 text-right text-pink-300 uppercase tracking-wider">Had Min Pra (HML/HMP):</th>
                             <th class="py-1 px-1 bg-pink-950/40 border-r border-slate-700 text-left">
-                                <div class="flex items-center gap-1 justify-start pl-2">
-                                    <span class="text-pink-300 font-bold">Min >=</span>
-                                    <input type="text" id="threshold_pra_longJump" class="w-10 px-1 py-0.5 bg-slate-950 text-white text-center font-bold border border-slate-700 rounded text-[9px] threshold-input" data-category="pra" data-field="longJump" placeholder="2.00">
-                                    <span class="text-pink-300 font-bold">m</span>
+                                <div class="flex flex-col gap-1 pl-2">
+                                    <div class="flex items-center gap-1 justify-start">
+                                        <span class="text-pink-300 font-bold w-6">L >=</span>
+                                        <input type="text" id="threshold_pra_longJump_L" class="w-8 px-1 py-0.5 bg-slate-950 text-white text-center font-bold border border-slate-700 rounded text-[9px] threshold-input" data-category="pra" data-gender="L" data-field="longJump" placeholder="2.00">
+                                        <span class="text-pink-400">m</span>
+                                    </div>
+                                    <div class="flex items-center gap-1 justify-start">
+                                        <span class="text-pink-300 font-bold w-6">P >=</span>
+                                        <input type="text" id="threshold_pra_longJump_P" class="w-8 px-1 py-0.5 bg-slate-950 text-white text-center font-bold border border-slate-700 rounded text-[9px] threshold-input" data-category="pra" data-gender="P" data-field="longJump" placeholder="1.80">
+                                        <span class="text-pink-400">m</span>
+                                    </div>
                                 </div>
                             </th>
                             <th class="py-1 px-1 bg-pink-950/40 border-r border-slate-700 text-left">
-                                <div class="flex items-center gap-1 justify-start pl-2">
-                                    <span class="text-pink-300 font-bold">Min >=</span>
-                                    <input type="text" id="threshold_pra_highJump" class="w-10 px-1 py-0.5 bg-slate-950 text-white text-center font-bold border border-slate-700 rounded text-[9px] threshold-input" data-category="pra" data-field="highJump" placeholder="0.80">
-                                    <span class="text-pink-300 font-bold">m</span>
+                                <div class="flex flex-col gap-1 pl-2">
+                                    <div class="flex items-center gap-1 justify-start">
+                                        <span class="text-pink-300 font-bold w-6">L >=</span>
+                                        <input type="text" id="threshold_pra_highJump_L" class="w-8 px-1 py-0.5 bg-slate-950 text-white text-center font-bold border border-slate-700 rounded text-[9px] threshold-input" data-category="pra" data-gender="L" data-field="highJump" placeholder="0.80">
+                                        <span class="text-pink-400">m</span>
+                                    </div>
+                                    <div class="flex items-center gap-1 justify-start">
+                                        <span class="text-pink-300 font-bold w-6">P >=</span>
+                                        <input type="text" id="threshold_pra_highJump_P" class="w-8 px-1 py-0.5 bg-slate-950 text-white text-center font-bold border border-slate-700 rounded text-[9px] threshold-input" data-category="pra" data-gender="P" data-field="highJump" placeholder="0.75">
+                                        <span class="text-pink-400">m</span>
+                                    </div>
                                 </div>
                             </th>
                             <th class="py-1 px-1 bg-pink-950/40 border-r border-slate-700 text-left">
-                                <div class="flex items-center gap-1 justify-start pl-2">
-                                    <span class="text-pink-300 font-bold">Laju <=</span>
-                                    <input type="text" id="threshold_pra_running" class="w-10 px-1 py-0.5 bg-slate-950 text-white text-center font-bold border border-slate-700 rounded text-[9px] threshold-input" data-category="pra" data-field="running" placeholder="15.0">
-                                    <span class="text-pink-300 font-bold">s</span>
+                                <div class="flex flex-col gap-1 pl-2">
+                                    <div class="flex items-center gap-1 justify-start">
+                                        <span class="text-pink-300 font-bold w-6">L <=</span>
+                                        <input type="text" id="threshold_pra_running_L" class="w-8 px-1 py-0.5 bg-slate-950 text-white text-center font-bold border border-slate-700 rounded text-[9px] threshold-input" data-category="pra" data-gender="L" data-field="running" placeholder="15.0">
+                                        <span class="text-pink-400">s</span>
+                                    </div>
+                                    <div class="flex items-center gap-1 justify-start">
+                                        <span class="text-pink-300 font-bold w-6">P <=</span>
+                                        <input type="text" id="threshold_pra_running_P" class="w-8 px-1 py-0.5 bg-slate-950 text-white text-center font-bold border border-slate-700 rounded text-[9px] threshold-input" data-category="pra" data-gender="P" data-field="running" placeholder="16.0">
+                                        <span class="text-pink-400">s</span>
+                                    </div>
                                 </div>
                             </th>
                             <th class="py-1 px-1 bg-pink-950/40 border-r border-slate-700 text-left">
-                                <div class="flex items-center gap-1 justify-start pl-2">
-                                    <span class="text-pink-300 font-bold">Min >=</span>
-                                    <input type="text" id="threshold_pra_shotPut" class="w-10 px-1 py-0.5 bg-slate-950 text-white text-center font-bold border border-slate-700 rounded text-[9px] threshold-input" data-category="pra" data-field="shotPut" placeholder="3.00">
-                                    <span class="text-pink-300 font-bold">m</span>
+                                <div class="flex flex-col gap-1 pl-2">
+                                    <div class="flex items-center gap-1 justify-start">
+                                        <span class="text-pink-300 font-bold w-6">L >=</span>
+                                        <input type="text" id="threshold_pra_shotPut_L" class="w-8 px-1 py-0.5 bg-slate-950 text-white text-center font-bold border border-slate-700 rounded text-[9px] threshold-input" data-category="pra" data-gender="L" data-field="shotPut" placeholder="3.00">
+                                        <span class="text-pink-400">m</span>
+                                    </div>
+                                    <div class="flex items-center gap-1 justify-start">
+                                        <span class="text-pink-300 font-bold w-6">P >=</span>
+                                        <input type="text" id="threshold_pra_shotPut_P" class="w-8 px-1 py-0.5 bg-slate-950 text-white text-center font-bold border border-slate-700 rounded text-[9px] threshold-input" data-category="pra" data-gender="P" data-field="shotPut" placeholder="2.50">
+                                        <span class="text-pink-400">m</span>
+                                    </div>
                                 </div>
                             </th>
                             <th colspan="3" class="bg-slate-800"></th>
@@ -349,33 +377,61 @@
 
                         <!-- Header Row 3: Tahap 1 (T1, T2, T3) Thresholds -->
                         <tr id="row-threshold-tahap1" class="bg-slate-800 text-white font-semibold text-[9px] border-b border-slate-700 shadow-sm">
-                            <th colspan="4" class="py-1 px-2 text-right text-teal-300 uppercase tracking-wider">Had Min Tahap 1 (T1-T3):</th>
+                            <th colspan="4" class="py-1 px-2 text-right text-teal-300 uppercase tracking-wider">Had Min Tahap 1 (HML/HMP):</th>
                             <th class="py-1 px-1 bg-teal-950/40 border-r border-slate-700 text-left">
-                                <div class="flex items-center gap-1 justify-start pl-2">
-                                    <span class="text-teal-300 font-bold">Min >=</span>
-                                    <input type="text" id="threshold_tahap1_longJump" class="w-10 px-1 py-0.5 bg-slate-950 text-white text-center font-bold border border-slate-700 rounded text-[9px] threshold-input" data-category="tahap1" data-field="longJump" placeholder="2.50">
-                                    <span class="text-teal-300 font-bold">m</span>
+                                <div class="flex flex-col gap-1 pl-2">
+                                    <div class="flex items-center gap-1 justify-start">
+                                        <span class="text-teal-300 font-bold w-6">L >=</span>
+                                        <input type="text" id="threshold_tahap1_longJump_L" class="w-8 px-1 py-0.5 bg-slate-950 text-white text-center font-bold border border-slate-700 rounded text-[9px] threshold-input" data-category="tahap1" data-gender="L" data-field="longJump" placeholder="2.50">
+                                        <span class="text-teal-400">m</span>
+                                    </div>
+                                    <div class="flex items-center gap-1 justify-start">
+                                        <span class="text-teal-300 font-bold w-6">P >=</span>
+                                        <input type="text" id="threshold_tahap1_longJump_P" class="w-8 px-1 py-0.5 bg-slate-950 text-white text-center font-bold border border-slate-700 rounded text-[9px] threshold-input" data-category="tahap1" data-gender="P" data-field="longJump" placeholder="2.30">
+                                        <span class="text-teal-400">m</span>
+                                    </div>
                                 </div>
                             </th>
                             <th class="py-1 px-1 bg-teal-950/40 border-r border-slate-700 text-left">
-                                <div class="flex items-center gap-1 justify-start pl-2">
-                                    <span class="text-teal-300 font-bold">Min >=</span>
-                                    <input type="text" id="threshold_tahap1_highJump" class="w-10 px-1 py-0.5 bg-slate-950 text-white text-center font-bold border border-slate-700 rounded text-[9px] threshold-input" data-category="tahap1" data-field="highJump" placeholder="0.90">
-                                    <span class="text-teal-300 font-bold">m</span>
+                                <div class="flex flex-col gap-1 pl-2">
+                                    <div class="flex items-center gap-1 justify-start">
+                                        <span class="text-teal-300 font-bold w-6">L >=</span>
+                                        <input type="text" id="threshold_tahap1_highJump_L" class="w-8 px-1 py-0.5 bg-slate-950 text-white text-center font-bold border border-slate-700 rounded text-[9px] threshold-input" data-category="tahap1" data-gender="L" data-field="highJump" placeholder="0.90">
+                                        <span class="text-teal-400">m</span>
+                                    </div>
+                                    <div class="flex items-center gap-1 justify-start">
+                                        <span class="text-teal-300 font-bold w-6">P >=</span>
+                                        <input type="text" id="threshold_tahap1_highJump_P" class="w-8 px-1 py-0.5 bg-slate-950 text-white text-center font-bold border border-slate-700 rounded text-[9px] threshold-input" data-category="tahap1" data-gender="P" data-field="highJump" placeholder="0.85">
+                                        <span class="text-teal-400">m</span>
+                                    </div>
                                 </div>
                             </th>
                             <th class="py-1 px-1 bg-teal-950/40 border-r border-slate-700 text-left">
-                                <div class="flex items-center gap-1 justify-start pl-2">
-                                    <span class="text-teal-300 font-bold">Laju <=</span>
-                                    <input type="text" id="threshold_tahap1_running" class="w-10 px-1 py-0.5 bg-slate-950 text-white text-center font-bold border border-slate-700 rounded text-[9px] threshold-input" data-category="tahap1" data-field="running" placeholder="13.5">
-                                    <span class="text-teal-300 font-bold">s</span>
+                                <div class="flex flex-col gap-1 pl-2">
+                                    <div class="flex items-center gap-1 justify-start">
+                                        <span class="text-teal-300 font-bold w-6">L <=</span>
+                                        <input type="text" id="threshold_tahap1_running_L" class="w-8 px-1 py-0.5 bg-slate-950 text-white text-center font-bold border border-slate-700 rounded text-[9px] threshold-input" data-category="tahap1" data-gender="L" data-field="running" placeholder="13.5">
+                                        <span class="text-teal-400">s</span>
+                                    </div>
+                                    <div class="flex items-center gap-1 justify-start">
+                                        <span class="text-teal-300 font-bold w-6">P <=</span>
+                                        <input type="text" id="threshold_tahap1_running_P" class="w-8 px-1 py-0.5 bg-slate-950 text-white text-center font-bold border border-slate-700 rounded text-[9px] threshold-input" data-category="tahap1" data-gender="P" data-field="running" placeholder="14.5">
+                                        <span class="text-teal-400">s</span>
+                                    </div>
                                 </div>
                             </th>
                             <th class="py-1 px-1 bg-teal-950/40 border-r border-slate-700 text-left">
-                                <div class="flex items-center gap-1 justify-start pl-2">
-                                    <span class="text-teal-300 font-bold">Min >=</span>
-                                    <input type="text" id="threshold_tahap1_shotPut" class="w-10 px-1 py-0.5 bg-slate-950 text-white text-center font-bold border border-slate-700 rounded text-[9px] threshold-input" data-category="tahap1" data-field="shotPut" placeholder="4.00">
-                                    <span class="text-teal-300 font-bold">m</span>
+                                <div class="flex flex-col gap-1 pl-2">
+                                    <div class="flex items-center gap-1 justify-start">
+                                        <span class="text-teal-300 font-bold w-6">L >=</span>
+                                        <input type="text" id="threshold_tahap1_shotPut_L" class="w-8 px-1 py-0.5 bg-slate-950 text-white text-center font-bold border border-slate-700 rounded text-[9px] threshold-input" data-category="tahap1" data-gender="L" data-field="shotPut" placeholder="4.00">
+                                        <span class="text-teal-400">m</span>
+                                    </div>
+                                    <div class="flex items-center gap-1 justify-start">
+                                        <span class="text-teal-300 font-bold w-6">P >=</span>
+                                        <input type="text" id="threshold_tahap1_shotPut_P" class="w-8 px-1 py-0.5 bg-slate-950 text-white text-center font-bold border border-slate-700 rounded text-[9px] threshold-input" data-category="tahap1" data-gender="P" data-field="shotPut" placeholder="3.50">
+                                        <span class="text-teal-400">m</span>
+                                    </div>
                                 </div>
                             </th>
                             <th colspan="3" class="bg-slate-800"></th>
@@ -383,33 +439,61 @@
 
                         <!-- Header Row 4: Tahap 2 (T4, T5, T6) Thresholds -->
                         <tr id="row-threshold-tahap2" class="bg-slate-800 text-white font-semibold text-[9px] border-b border-slate-700 shadow-sm">
-                            <th colspan="4" class="py-1 px-2 text-right text-indigo-300 uppercase tracking-wider">Had Min Tahap 2 (T4-T6):</th>
+                            <th colspan="4" class="py-1 px-2 text-right text-indigo-300 uppercase tracking-wider">Had Min Tahap 2 (HML/HMP):</th>
                             <th class="py-1 px-1 bg-indigo-950/40 border-r border-slate-700 text-left">
-                                <div class="flex items-center gap-1 justify-start pl-2">
-                                    <span class="text-indigo-300 font-bold">Min >=</span>
-                                    <input type="text" id="threshold_tahap2_longJump" class="w-10 px-1 py-0.5 bg-slate-950 text-white text-center font-bold border border-slate-700 rounded text-[9px] threshold-input" data-category="tahap2" data-field="longJump" placeholder="3.00">
-                                    <span class="text-indigo-300 font-bold">m</span>
+                                <div class="flex flex-col gap-1 pl-2">
+                                    <div class="flex items-center gap-1 justify-start">
+                                        <span class="text-indigo-300 font-bold w-6">L >=</span>
+                                        <input type="text" id="threshold_tahap2_longJump_L" class="w-8 px-1 py-0.5 bg-slate-950 text-white text-center font-bold border border-slate-700 rounded text-[9px] threshold-input" data-category="tahap2" data-gender="L" data-field="longJump" placeholder="3.00">
+                                        <span class="text-indigo-400">m</span>
+                                    </div>
+                                    <div class="flex items-center gap-1 justify-start">
+                                        <span class="text-indigo-300 font-bold w-6">P >=</span>
+                                        <input type="text" id="threshold_tahap2_longJump_P" class="w-8 px-1 py-0.5 bg-slate-950 text-white text-center font-bold border border-slate-700 rounded text-[9px] threshold-input" data-category="tahap2" data-gender="P" data-field="longJump" placeholder="2.80">
+                                        <span class="text-indigo-400">m</span>
+                                    </div>
                                 </div>
                             </th>
                             <th class="py-1 px-1 bg-indigo-950/40 border-r border-slate-700 text-left">
-                                <div class="flex items-center gap-1 justify-start pl-2">
-                                    <span class="text-indigo-300 font-bold">Min >=</span>
-                                    <input type="text" id="threshold_tahap2_highJump" class="w-10 px-1 py-0.5 bg-slate-950 text-white text-center font-bold border border-slate-700 rounded text-[9px] threshold-input" data-category="tahap2" data-field="highJump" placeholder="1.00">
-                                    <span class="text-indigo-300 font-bold">m</span>
+                                <div class="flex flex-col gap-1 pl-2">
+                                    <div class="flex items-center gap-1 justify-start">
+                                        <span class="text-indigo-300 font-bold w-6">L >=</span>
+                                        <input type="text" id="threshold_tahap2_highJump_L" class="w-8 px-1 py-0.5 bg-slate-950 text-white text-center font-bold border border-slate-700 rounded text-[9px] threshold-input" data-category="tahap2" data-gender="L" data-field="highJump" placeholder="1.00">
+                                        <span class="text-indigo-400">m</span>
+                                    </div>
+                                    <div class="flex items-center gap-1 justify-start">
+                                        <span class="text-indigo-300 font-bold w-6">P >=</span>
+                                        <input type="text" id="threshold_tahap2_highJump_P" class="w-8 px-1 py-0.5 bg-slate-950 text-white text-center font-bold border border-slate-700 rounded text-[9px] threshold-input" data-category="tahap2" data-gender="P" data-field="highJump" placeholder="0.95">
+                                        <span class="text-indigo-400">m</span>
+                                    </div>
                                 </div>
                             </th>
                             <th class="py-1 px-1 bg-indigo-950/40 border-r border-slate-700 text-left">
-                                <div class="flex items-center gap-1 justify-start pl-2">
-                                    <span class="text-indigo-300 font-bold">Laju <=</span>
-                                    <input type="text" id="threshold_tahap2_running" class="w-10 px-1 py-0.5 bg-slate-950 text-white text-center font-bold border border-slate-700 rounded text-[9px] threshold-input" data-category="tahap2" data-field="running" placeholder="12.0">
-                                    <span class="text-indigo-300 font-bold">s</span>
+                                <div class="flex flex-col gap-1 pl-2">
+                                    <div class="flex items-center gap-1 justify-start">
+                                        <span class="text-indigo-300 font-bold w-6">L <=</span>
+                                        <input type="text" id="threshold_tahap2_running_L" class="w-8 px-1 py-0.5 bg-slate-950 text-white text-center font-bold border border-slate-700 rounded text-[9px] threshold-input" data-category="tahap2" data-gender="L" data-field="running" placeholder="12.0">
+                                        <span class="text-indigo-400">s</span>
+                                    </div>
+                                    <div class="flex items-center gap-1 justify-start">
+                                        <span class="text-indigo-300 font-bold w-6">P <=</span>
+                                        <input type="text" id="threshold_tahap2_running_P" class="w-8 px-1 py-0.5 bg-slate-950 text-white text-center font-bold border border-slate-700 rounded text-[9px] threshold-input" data-category="tahap2" data-gender="P" data-field="running" placeholder="13.0">
+                                        <span class="text-indigo-400">s</span>
+                                    </div>
                                 </div>
                             </th>
                             <th class="py-1 px-1 bg-indigo-950/40 border-r border-slate-700 text-left">
-                                <div class="flex items-center gap-1 justify-start pl-2">
-                                    <span class="text-indigo-300 font-bold">Min >=</span>
-                                    <input type="text" id="threshold_tahap2_shotPut" class="w-10 px-1 py-0.5 bg-slate-950 text-white text-center font-bold border border-slate-700 rounded text-[9px] threshold-input" data-category="tahap2" data-field="shotPut" placeholder="5.00">
-                                    <span class="text-indigo-300 font-bold">m</span>
+                                <div class="flex flex-col gap-1 pl-2">
+                                    <div class="flex items-center gap-1 justify-start">
+                                        <span class="text-indigo-300 font-bold w-6">L >=</span>
+                                        <input type="text" id="threshold_tahap2_shotPut_L" class="w-8 px-1 py-0.5 bg-slate-950 text-white text-center font-bold border border-slate-700 rounded text-[9px] threshold-input" data-category="tahap2" data-gender="L" data-field="shotPut" placeholder="5.00">
+                                        <span class="text-indigo-400">m</span>
+                                    </div>
+                                    <div class="flex items-center gap-1 justify-start">
+                                        <span class="text-indigo-300 font-bold w-6">P >=</span>
+                                        <input type="text" id="threshold_tahap2_shotPut_P" class="w-8 px-1 py-0.5 bg-slate-950 text-white text-center font-bold border border-slate-700 rounded text-[9px] threshold-input" data-category="tahap2" data-gender="P" data-field="shotPut" placeholder="4.50">
+                                        <span class="text-indigo-400">m</span>
+                                    </div>
                                 </div>
                             </th>
                             <th colspan="3" class="bg-slate-800"></th>
@@ -492,7 +576,7 @@
             <div class="flex items-center justify-between mb-3 border-b border-slate-100 pb-2 flex-shrink-0">
                 <h2 class="text-xs font-bold text-slate-900 flex items-center gap-1.5">
                     <i class="fa-solid fa-sliders text-amber-600"></i>
-                    Urus Had Kelayakan Minima Sukan
+                    Urus Had Kelayakan Minima Sukan (L/P)
                 </h2>
                 <button id="closeThresholdConfigModalBtn" class="p-1 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-50 transition-colors">
                     <i class="fa-solid fa-xmark text-xs"></i>
@@ -507,20 +591,32 @@
                     </h3>
                     <div class="grid grid-cols-2 gap-2">
                         <div>
-                            <label class="text-[8px] font-bold text-slate-400 block mb-0.5">LOMPAT JAUH (>= m)</label>
-                            <input type="text" id="modal_threshold_pra_longJump" class="w-full px-2 py-1.5 bg-white border border-slate-200 rounded text-[10px] font-bold">
+                            <label class="text-[8px] font-bold text-slate-400 block mb-0.5">LOMPAT JAUH</label>
+                            <div class="flex gap-1">
+                                <input type="text" id="modal_threshold_pra_longJump_L" placeholder="L: 2.00" class="w-1/2 px-1 py-1 bg-white border border-slate-200 rounded text-[9px] font-bold text-center">
+                                <input type="text" id="modal_threshold_pra_longJump_P" placeholder="P: 1.80" class="w-1/2 px-1 py-1 bg-white border border-slate-200 rounded text-[9px] font-bold text-center">
+                            </div>
                         </div>
                         <div>
-                            <label class="text-[8px] font-bold text-slate-400 block mb-0.5">LOMPAT TINGGI (>= m)</label>
-                            <input type="text" id="modal_threshold_pra_highJump" class="w-full px-2 py-1.5 bg-white border border-slate-200 rounded text-[10px] font-bold">
+                            <label class="text-[8px] font-bold text-slate-400 block mb-0.5">LOMPAT TINGGI</label>
+                            <div class="flex gap-1">
+                                <input type="text" id="modal_threshold_pra_highJump_L" placeholder="L: 0.80" class="w-1/2 px-1 py-1 bg-white border border-slate-200 rounded text-[9px] font-bold text-center">
+                                <input type="text" id="modal_threshold_pra_highJump_P" placeholder="P: 0.75" class="w-1/2 px-1 py-1 bg-white border border-slate-200 rounded text-[9px] font-bold text-center">
+                            </div>
                         </div>
                         <div>
-                            <label class="text-[8px] font-bold text-slate-400 block mb-0.5">LARIAN (<= s)</label>
-                            <input type="text" id="modal_threshold_pra_running" class="w-full px-2 py-1.5 bg-white border border-slate-200 rounded text-[10px] font-bold">
+                            <label class="text-[8px] font-bold text-slate-400 block mb-0.5">LARIAN (Saat)</label>
+                            <div class="flex gap-1">
+                                <input type="text" id="modal_threshold_pra_running_L" placeholder="L: 15.0" class="w-1/2 px-1 py-1 bg-white border border-slate-200 rounded text-[9px] font-bold text-center">
+                                <input type="text" id="modal_threshold_pra_running_P" placeholder="P: 16.0" class="w-1/2 px-1 py-1 bg-white border border-slate-200 rounded text-[9px] font-bold text-center">
+                            </div>
                         </div>
                         <div>
-                            <label class="text-[8px] font-bold text-slate-400 block mb-0.5">LONTAR PELURU (>= m)</label>
-                            <input type="text" id="modal_threshold_pra_shotPut" class="w-full px-2 py-1.5 bg-white border border-slate-200 rounded text-[10px] font-bold">
+                            <label class="text-[8px] font-bold text-slate-400 block mb-0.5">LONTAR PELURU</label>
+                            <div class="flex gap-1">
+                                <input type="text" id="modal_threshold_pra_shotPut_L" placeholder="L: 3.00" class="w-1/2 px-1 py-1 bg-white border border-slate-200 rounded text-[9px] font-bold text-center">
+                                <input type="text" id="modal_threshold_pra_shotPut_P" placeholder="P: 2.50" class="w-1/2 px-1 py-1 bg-white border border-slate-200 rounded text-[9px] font-bold text-center">
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -532,20 +628,32 @@
                     </h3>
                     <div class="grid grid-cols-2 gap-2">
                         <div>
-                            <label class="text-[8px] font-bold text-slate-400 block mb-0.5">LOMPAT JAUH (>= m)</label>
-                            <input type="text" id="modal_threshold_tahap1_longJump" class="w-full px-2 py-1.5 bg-white border border-slate-200 rounded text-[10px] font-bold">
+                            <label class="text-[8px] font-bold text-slate-400 block mb-0.5">LOMPAT JAUH</label>
+                            <div class="flex gap-1">
+                                <input type="text" id="modal_threshold_tahap1_longJump_L" placeholder="L: 2.50" class="w-1/2 px-1 py-1 bg-white border border-slate-200 rounded text-[9px] font-bold text-center">
+                                <input type="text" id="modal_threshold_tahap1_longJump_P" placeholder="P: 2.30" class="w-1/2 px-1 py-1 bg-white border border-slate-200 rounded text-[9px] font-bold text-center">
+                            </div>
                         </div>
                         <div>
-                            <label class="text-[8px] font-bold text-slate-400 block mb-0.5">LOMPAT TINGGI (>= m)</label>
-                            <input type="text" id="modal_threshold_tahap1_highJump" class="w-full px-2 py-1.5 bg-white border border-slate-200 rounded text-[10px] font-bold">
+                            <label class="text-[8px] font-bold text-slate-400 block mb-0.5">LOMPAT TINGGI</label>
+                            <div class="flex gap-1">
+                                <input type="text" id="modal_threshold_tahap1_highJump_L" placeholder="L: 0.90" class="w-1/2 px-1 py-1 bg-white border border-slate-200 rounded text-[9px] font-bold text-center">
+                                <input type="text" id="modal_threshold_tahap1_highJump_P" placeholder="P: 0.85" class="w-1/2 px-1 py-1 bg-white border border-slate-200 rounded text-[9px] font-bold text-center">
+                            </div>
                         </div>
                         <div>
-                            <label class="text-[8px] font-bold text-slate-400 block mb-0.5">LARIAN (<= s)</label>
-                            <input type="text" id="modal_threshold_tahap1_running" class="w-full px-2 py-1.5 bg-white border border-slate-200 rounded text-[10px] font-bold">
+                            <label class="text-[8px] font-bold text-slate-400 block mb-0.5">LARIAN (Saat)</label>
+                            <div class="flex gap-1">
+                                <input type="text" id="modal_threshold_tahap1_running_L" placeholder="L: 13.5" class="w-1/2 px-1 py-1 bg-white border border-slate-200 rounded text-[9px] font-bold text-center">
+                                <input type="text" id="modal_threshold_tahap1_running_P" placeholder="P: 14.5" class="w-1/2 px-1 py-1 bg-white border border-slate-200 rounded text-[9px] font-bold text-center">
+                            </div>
                         </div>
                         <div>
-                            <label class="text-[8px] font-bold text-slate-400 block mb-0.5">LONTAR PELURU (>= m)</label>
-                            <input type="text" id="modal_threshold_tahap1_shotPut" class="w-full px-2 py-1.5 bg-white border border-slate-200 rounded text-[10px] font-bold">
+                            <label class="text-[8px] font-bold text-slate-400 block mb-0.5">LONTAR PELURU</label>
+                            <div class="flex gap-1">
+                                <input type="text" id="modal_threshold_tahap1_shotPut_L" placeholder="L: 4.00" class="w-1/2 px-1 py-1 bg-white border border-slate-200 rounded text-[9px] font-bold text-center">
+                                <input type="text" id="modal_threshold_tahap1_shotPut_P" placeholder="P: 3.50" class="w-1/2 px-1 py-1 bg-white border border-slate-200 rounded text-[9px] font-bold text-center">
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -557,20 +665,32 @@
                     </h3>
                     <div class="grid grid-cols-2 gap-2">
                         <div>
-                            <label class="text-[8px] font-bold text-slate-400 block mb-0.5">LOMPAT JAUH (>= m)</label>
-                            <input type="text" id="modal_threshold_tahap2_longJump" class="w-full px-2 py-1.5 bg-white border border-slate-200 rounded text-[10px] font-bold">
+                            <label class="text-[8px] font-bold text-slate-400 block mb-0.5">LOMPAT JAUH</label>
+                            <div class="flex gap-1">
+                                <input type="text" id="modal_threshold_tahap2_longJump_L" placeholder="L: 3.00" class="w-1/2 px-1 py-1 bg-white border border-slate-200 rounded text-[9px] font-bold text-center">
+                                <input type="text" id="modal_threshold_tahap2_longJump_P" placeholder="P: 2.80" class="w-1/2 px-1 py-1 bg-white border border-slate-200 rounded text-[9px] font-bold text-center">
+                            </div>
                         </div>
                         <div>
-                            <label class="text-[8px] font-bold text-slate-400 block mb-0.5">LOMPAT TINGGI (>= m)</label>
-                            <input type="text" id="modal_threshold_tahap2_highJump" class="w-full px-2 py-1.5 bg-white border border-slate-200 rounded text-[10px] font-bold">
+                            <label class="text-[8px] font-bold text-slate-400 block mb-0.5">LOMPAT TINGGI</label>
+                            <div class="flex gap-1">
+                                <input type="text" id="modal_threshold_tahap2_highJump_L" placeholder="L: 1.00" class="w-1/2 px-1 py-1 bg-white border border-slate-200 rounded text-[9px] font-bold text-center">
+                                <input type="text" id="modal_threshold_tahap2_highJump_P" placeholder="P: 0.95" class="w-1/2 px-1 py-1 bg-white border border-slate-200 rounded text-[9px] font-bold text-center">
+                            </div>
                         </div>
                         <div>
-                            <label class="text-[8px] font-bold text-slate-400 block mb-0.5">LARIAN (<= s)</label>
-                            <input type="text" id="modal_threshold_tahap2_running" class="w-full px-2 py-1.5 bg-white border border-slate-200 rounded text-[10px] font-bold">
+                            <label class="text-[8px] font-bold text-slate-400 block mb-0.5">LARIAN (Saat)</label>
+                            <div class="flex gap-1">
+                                <input type="text" id="modal_threshold_tahap2_running_L" placeholder="L: 12.0" class="w-1/2 px-1 py-1 bg-white border border-slate-200 rounded text-[9px] font-bold text-center">
+                                <input type="text" id="modal_threshold_tahap2_running_P" placeholder="P: 13.0" class="w-1/2 px-1 py-1 bg-white border border-slate-200 rounded text-[9px] font-bold text-center">
+                            </div>
                         </div>
                         <div>
-                            <label class="text-[8px] font-bold text-slate-400 block mb-0.5">LONTAR PELURU (>= m)</label>
-                            <input type="text" id="modal_threshold_tahap2_shotPut" class="w-full px-2 py-1.5 bg-white border border-slate-200 rounded text-[10px] font-bold">
+                            <label class="text-[8px] font-bold text-slate-400 block mb-0.5">LONTAR PELURU</label>
+                            <div class="flex gap-1">
+                                <input type="text" id="modal_threshold_tahap2_shotPut_L" placeholder="L: 5.00" class="w-1/2 px-1 py-1 bg-white border border-slate-200 rounded text-[9px] font-bold text-center">
+                                <input type="text" id="modal_threshold_tahap2_shotPut_P" placeholder="P: 4.50" class="w-1/2 px-1 py-1 bg-white border border-slate-200 rounded text-[9px] font-bold text-center">
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -861,6 +981,85 @@
         document.getElementById('delimaLoginBtn').addEventListener('click', loginWithGoogle);
         document.getElementById('googlePersonalLoginBtn').addEventListener('click', loginWithGoogle);
 
+        let studentsUnsubscribe = null;
+        let housesUnsubscribe = null;
+        let thresholdsUnsubscribe = null;
+
+        async function setupRealtimeSync() {
+            if (!currentUser) return;
+            
+            updateDbStatus(true, "Menghubung...");
+
+            if (studentsUnsubscribe) studentsUnsubscribe();
+            if (housesUnsubscribe) housesUnsubscribe();
+            if (thresholdsUnsubscribe) thresholdsUnsubscribe();
+
+            const appId = "sukantara-sekolah-2026";
+
+            // Reference public collections
+            const studentsRef = collection(db, 'artifacts', appId, 'public', 'data', 'students');
+            const housesRef = collection(db, 'artifacts', appId, 'public', 'data', 'houses');
+            const thresholdsRef = doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'thresholds');
+
+            // Setup real-time listener for students
+            studentsUnsubscribe = onSnapshot(studentsRef, (snapshot) => {
+                const remoteStudents = [];
+                snapshot.forEach((doc) => {
+                    remoteStudents.push({ id: doc.id, ...doc.data() });
+                });
+                
+                if (remoteStudents.length > 0) {
+                    students = remoteStudents;
+                    normalizeAllStoredData();
+                    localStorage.setItem('sukantara_students', JSON.stringify(students));
+                    renderWorksheetTable();
+                } else {
+                    if (students.length === 0) {
+                        seedMockStudentsIfEmpty();
+                    }
+                }
+                updateDbStatus(true, "Sedia (Awan Masa Nyata)");
+            }, (error) => {
+                console.error("Student Sync Error:", error);
+                showToast("Gagal menyelaraskan data murid.", "danger");
+            });
+
+            // Setup real-time listener for houses
+            housesUnsubscribe = onSnapshot(housesRef, (snapshot) => {
+                const remoteHouses = [];
+                snapshot.forEach((doc) => {
+                    remoteHouses.push({ id: doc.id, ...doc.data() });
+                });
+                if (remoteHouses.length > 0) {
+                    houses = remoteHouses;
+                    localStorage.setItem('sukantara_houses', JSON.stringify(houses));
+                    if (!activeHouseTab && houses.length > 0) {
+                        activeHouseTab = houses[0].name;
+                    }
+                    renderHouseTabs();
+                    renderWorksheetTable();
+                }
+            }, (error) => {
+                console.error("House Sync Error:", error);
+            });
+
+            // Setup real-time listener for thresholds
+            thresholdsUnsubscribe = onSnapshot(thresholdsRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    if (data.pra && data.pra.L) {
+                        thresholds = data;
+                        localStorage.setItem('sukantara_thresholds_v2', JSON.stringify(thresholds));
+                        updateThresholdInputsUI();
+                        reEvaluateAllStudents();
+                        renderWorksheetTable();
+                    }
+                }
+            }, (error) => {
+                console.error("Threshold Sync Error:", error);
+            });
+        }
+
         async function initDatabase() {
             const savedUrl = localStorage.getItem('sukantara_gscript_url');
             if (savedUrl) {
@@ -878,7 +1077,6 @@
             if (savedThresholds) {
                 try {
                     const parsed = JSON.parse(savedThresholds);
-                    // Ensure the parsed values contain the L/P gender keys, otherwise fallback to defaults
                     if (parsed.pra && parsed.pra.L) {
                         thresholds = parsed;
                     }
@@ -921,7 +1119,7 @@
             applyThresholdVisibility();
             syncData();
 
-            updateDbStatus(false, "Sedia (Awan Masa Nyata)");
+            updateDbStatus(false, "Sedia (Tempatan)");
             updateUserHeaderAndPermissions();
         }
 
@@ -1210,6 +1408,16 @@
             });
         }
 
+        async function saveThresholdsToDb() {
+            if (!currentUser) return;
+            try {
+                const appId = "sukantara-sekolah-2026";
+                await setDoc(doc(db, "artifacts", appId, "public", "data", "settings", "thresholds"), thresholds);
+            } catch (err) {
+                console.error("Firestore error saving thresholds:", err);
+            }
+        }
+
         if (saveThresholdConfigBtn) {
             saveThresholdConfigBtn.addEventListener('click', () => {
                 ['pra', 'tahap1', 'tahap2'].forEach(category => {
@@ -1226,6 +1434,7 @@
                 localStorage.setItem('sukantara_thresholds_v2', JSON.stringify(thresholds));
                 updateThresholdInputsUI();
                 reEvaluateAllStudents();
+                saveThresholdsToDb();
                 syncData();
                 thresholdConfigModal.classList.add('hidden');
                 showToast("Had kelayakan dwi-jantina (L/P) berjaya disimpan!", "success");
@@ -1257,6 +1466,7 @@
                         localStorage.setItem('sukantara_thresholds_v2', JSON.stringify(thresholds));
                         updateThresholdInputsUI();
                         reEvaluateAllStudents();
+                        saveThresholdsToDb();
                         syncData();
                         showToast("Had kelayakan dwi-jantina diset semula kepada asal.", "success");
                     }
@@ -1581,8 +1791,10 @@
 
         // Database Helpers
         async function saveStudentToDb(student) {
+            if (!currentUser) return;
             try {
-                await setDoc(doc(db, "artifacts/sukantara-sekolah-2026/public/data/students", student.id), student);
+                const appId = "sukantara-sekolah-2026";
+                await setDoc(doc(db, "artifacts", appId, "public", "data", "students", student.id), student);
                 sendToGoogleSheets("saveStudent", student).catch(console.error);
             } catch (err) {
                 console.error("Firestore error saving student:", err);
@@ -1590,8 +1802,10 @@
         }
 
         async function deleteStudentFromDb(id) {
+            if (!currentUser) return;
             try {
-                await deleteDoc(doc(db, "artifacts/sukantara-sekolah-2026/public/data/students", id));
+                const appId = "sukantara-sekolah-2026";
+                await deleteDoc(doc(db, "artifacts", appId, "public", "data", "students", id));
                 sendToGoogleSheets("deleteStudent", id).catch(console.error);
             } catch (err) {
                 console.error("Firestore error deleting student:", err);
@@ -1599,8 +1813,10 @@
         }
 
         async function saveHouseToDb(house) {
+            if (!currentUser) return;
             try {
-                await setDoc(doc(db, "artifacts/sukantara-sekolah-2026/public/data/houses", house.id), house);
+                const appId = "sukantara-sekolah-2026";
+                await setDoc(doc(db, "artifacts", appId, "public", "data", "houses", house.id), house);
                 sendToGoogleSheets("saveHouse", house).catch(console.error);
             } catch (err) {
                 console.error("Firestore error saving house:", err);
@@ -1608,8 +1824,10 @@
         }
 
         async function deleteHouseFromDb(id) {
+            if (!currentUser) return;
             try {
-                await deleteDoc(doc(db, "artifacts/sukantara-sekolah-2026/public/data/houses", id));
+                const appId = "sukantara-sekolah-2026";
+                await deleteDoc(doc(db, "artifacts", appId, "public", "data", "houses", id));
             } catch (err) {
                 console.error("Firestore error deleting house:", err);
             }
@@ -1627,7 +1845,7 @@
                 updateDbStatus(true, "Berjaya Diselaraskan");
             } catch (e) {
                 console.warn("GScript request failed:", e);
-                updateDbStatus(false, "Sedia (Tempatan)");
+                updateDbStatus(false, "Sedia (Awan Masa Nyata)");
             }
         }
 
@@ -1688,6 +1906,7 @@
                         localStorage.setItem('sukantara_thresholds_v2', JSON.stringify(thresholds));
                         updateThresholdInputsUI();
                         reEvaluateAllStudents();
+                        saveThresholdsToDb();
                         syncData();
                         showToast(`Had Min '${field}' (${gender}) bagi Kategori '${category}' dikemaskini!`, "info");
                     }
@@ -1901,11 +2120,9 @@
                                  (student.runningEligible ? 1 : 0) + 
                                  (student.shotPutEligible ? 1 : 0);
             
-            // Re-render only stats bar & point cell to avoid rebuilding tree mid-focus
             const pointCell = tr.querySelector('td:nth-last-child(3)');
             if (pointCell) pointCell.textContent = student.totalPoints;
             
-            // Live stats updates
             let filtered = students.filter(s => s.house === activeHouseTab);
             const totalPointsHouse = filtered.reduce((acc, curr) => acc + (curr.totalPoints || 0), 0);
             document.getElementById('houseTotalPoints').textContent = totalPointsHouse;
@@ -2001,7 +2218,6 @@
                 rankedData[cls] = {};
                 
                 events.forEach(event => {
-                    // Filter students in class with valid records
                     let list = activePool.filter(s => {
                         if (s.studentClass !== cls) return false;
                         const rec = s[`${event}Record`] || "";
@@ -2326,10 +2542,11 @@
         }
 
         // Listen to Google Authentication Session Status
-        onAuthStateChanged(auth, (user) => {
+        onAuthStateChanged(auth, async (user) => {
             if (user) {
                 currentUser = user;
                 document.getElementById('loginScreen').classList.add('hidden');
+                await setupRealtimeSync();
                 initDatabase();
             } else {
                 currentUser = null;
@@ -2359,7 +2576,6 @@
         }
 
         window.onload = function() {
-            // Wait for load and start initialization sequence
             initDatabase();
         };
     </script>
