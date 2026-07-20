@@ -32,7 +32,6 @@
         }
     </script>
     <style>
-        /* Sembunyikan skrolbar lalai pada navigasi tab telefon pintas */
         .no-scrollbar::-webkit-scrollbar {
             display: none;
         }
@@ -47,7 +46,6 @@
         .animate-fadeIn {
             animation: fadeIn 0.2s ease-out forwards;
         }
-        /* Mengelakkan heretan skrin liar di Chrome Android semasa skrol jadual */
         body {
             overscroll-behavior-y: none;
         }
@@ -62,6 +60,87 @@
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen font-sans flex flex-col antialiased selection:bg-blue-500 selection:text-white text-xs select-none md:select-text">
 
+    <!-- LOGIN SCREEN -->
+    <div id="loginScreen" class="fixed inset-0 z-50 bg-slate-950 flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-md w-full p-6 text-center shadow-2xl relative overflow-hidden my-auto">
+            <div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-blue-600 via-yellow-500 to-indigo-600"></div>
+            
+            <!-- Header Logo -->
+            <div class="mb-6">
+                <div class="w-16 h-16 bg-gradient-to-tr from-blue-600 to-indigo-600 rounded-2xl text-white shadow-xl shadow-blue-500/20 flex items-center justify-center mx-auto mb-3">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    </svg>
+                </div>
+                <span class="text-[9px] font-bold text-blue-400 tracking-widest uppercase block mb-1">Kejohanan Tahunan</span>
+                <h1 class="text-base font-extrabold text-white tracking-tight leading-tight">Sistem Sukantara Sekolah</h1>
+                <p class="text-[10px] text-slate-400 mt-1">Platform Analisis Prestasi & Penyelarasan Masa Nyata (Live)</p>
+            </div>
+
+            <!-- Warning Banner for Sandbox Preview -->
+            <div id="sandboxNotice" class="hidden mb-4 bg-amber-500/10 border border-amber-500/30 rounded-2xl p-3 text-left text-amber-300">
+                <div class="flex gap-2 items-start">
+                    <i class="fa-solid fa-triangle-exclamation text-xs mt-0.5"></i>
+                    <div class="space-y-1">
+                        <span class="text-[9px] font-bold uppercase tracking-wider block">Sekatan Persekitaran Pratonton</span>
+                        <p class="text-[8px] text-amber-400 leading-normal">
+                            Sistem mengesan anda berada di dalam tetingkap *sandbox/iframe* yang menyekat Google Pop-up Auth. Sila gunakan butang **Bypass Mod Simulasi** di bawah jika log masuk Google gagal dibuka.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LOGIN ACTIONS CARD -->
+            <div class="space-y-3 bg-slate-950/55 p-4 rounded-2xl border border-slate-800/80 mb-5 text-left">
+                <h3 class="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-3 text-center">Sila Pilih Kaedah Log Masuk</h3>
+                
+                <!-- BUTTON 1: DELIMA LOGIN BUTTON (Blue/Gold Royal Theme) -->
+                <button id="delimaLoginBtn" class="w-full py-3 px-4 bg-[#0F2C59] hover:bg-[#1b3d75] border border-[#dac0a3]/30 text-[#f8f0e5] font-extrabold rounded-xl transition-all flex items-center justify-between gap-3 shadow-md hover:shadow-lg active:scale-95 focus:outline-none">
+                    <div class="flex items-center gap-3">
+                        <div class="w-7 h-7 rounded-lg bg-[#dac0a3] text-[#0F2C59] flex items-center justify-center flex-shrink-0 shadow-sm">
+                            <i class="fa-solid fa-graduation-cap text-xs"></i>
+                        </div>
+                        <div class="text-left">
+                            <span class="text-[10px] block font-extrabold text-white">Log Masuk Google DELIMa</span>
+                            <span class="text-[8px] block text-slate-400 font-medium">Gunakan e-mel @moe-dl.edu.my</span>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-arrow-right-to-bracket text-xs text-[#dac0a3]"></i>
+                </button>
+
+                <!-- BUTTON 2: GOOGLE PERSONAL LOGIN BUTTON (Standard Light Theme) -->
+                <button id="googlePersonalLoginBtn" class="w-full py-3 px-4 bg-white hover:bg-slate-50 text-slate-800 font-extrabold rounded-xl transition-all flex items-center justify-between gap-3 border border-slate-200 shadow-sm active:scale-95 focus:outline-none">
+                    <div class="flex items-center gap-3">
+                        <div class="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0">
+                            <svg class="w-4 h-4" viewBox="0 0 24 24">
+                                <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v3.9h6.6c-.28 1.5-1.11 2.76-2.39 3.62v3h3.86c2.26-2.09 3.56-5.17 3.56-8.75z"/>
+                                <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.86-3c-1.08.72-2.45 1.16-4.07 1.16-3.13 0-5.78-2.11-6.73-4.96H1.4v3.1A11.97 11.97 0 0012 24z"/>
+                                <path fill="#FBBC05" d="M5.27 14.29a7.18 7.18 0 010-4.58V6.6H1.4a11.97 11.97 0 000 10.78l3.87-3.09z"/>
+                                <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.43-3.43C17.95 1.19 15.24 0 12 0A11.97 11.97 0 001.4 6.6l3.87 3.11c.95-2.85 3.6-4.96 6.73-4.96z"/>
+                            </svg>
+                        </div>
+                        <div class="text-left">
+                            <span class="text-[10px] block font-extrabold text-slate-800">Log Masuk Google Peribadi</span>
+                            <span class="text-[8px] block text-slate-500 font-medium">Gunakan e-mel peribadi (@gmail)</span>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-chevron-right text-xs text-slate-400"></i>
+                </button>
+
+                <!-- BUTTON 3: SIMULATE ADMIN (BYPASS FOR IFRAME) -->
+                <button id="bypassLoginBtn" class="w-full py-2 px-4 bg-amber-600/20 hover:bg-amber-600/30 border border-amber-500/30 text-amber-300 font-bold rounded-xl transition-all flex items-center justify-center gap-2 active:scale-95 text-[10px]">
+                    <i class="fa-solid fa-user-shield"></i>
+                    <span>Bypass Mod Simulasi (Syor Pratonton)</span>
+                </button>
+            </div>
+
+            <div class="text-[9px] text-slate-500 leading-relaxed">
+                Platform berpandukan data bagi melancarkan catatan sukan secara berpusat. Hubungi pentadbir sekolah jika e-mel anda menghadapi sekatan pendaftaran.
+            </div>
+        </div>
+    </div>
+
+    <!-- NAVBAR -->
     <nav class="bg-white border-b border-slate-100 sticky top-0 z-40 shadow-sm backdrop-blur-md bg-white/90">
         <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
             <div class="flex justify-between h-14 items-center gap-2">
@@ -78,33 +157,40 @@
                     </div>
                 </div>
                 
-                <!-- Ruang Auth Google, Status Sheets dan Peranan Pengguna -->
+                <!-- Google Auth Profile, Sheets Status & Role Badge -->
                 <div class="flex items-center gap-2 flex-shrink-0">
-                    <!-- Google Authenticated Profile Info -->
-                    <div id="authContainer" class="flex items-center gap-1">
-                        <!-- Loaded dynamically via JS -->
+                    <!-- Profile Card -->
+                    <div id="authContainer" class="flex items-center gap-1.5 bg-slate-50 border border-slate-100 rounded-full py-1 pl-1.5 pr-2.5">
+                        <img id="userAvatar" src="https://placehold.co/32x32/1e3a8a/ffffff?text=U" class="w-5 h-5 rounded-full border border-slate-200" alt="Avatar">
+                        <div class="text-left hidden sm:block">
+                            <span id="userName" class="text-[9px] font-bold block text-slate-800 leading-none">Menghubung...</span>
+                            <span id="userEmail" class="text-[7px] text-slate-400 block leading-none">Sila log masuk</span>
+                        </div>
+                        <button id="logoutBtn" class="ml-1 p-1 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition-colors" title="Log Keluar">
+                            <i class="fa-solid fa-power-off text-[10px]"></i>
+                        </button>
                     </div>
 
-                    <!-- Status Sambungan Google Sheets -->
-                    <span id="dbStatusBadge" class="px-2 py-1 text-[8px] sm:text-[10px] font-bold rounded-full bg-amber-50 text-amber-700 border border-amber-100 flex items-center gap-1 shadow-sm transition-all duration-300">
+                    <!-- Connection Status Badge -->
+                    <span id="dbStatusBadge" class="px-2 py-1 text-[8px] sm:text-[10px] font-bold rounded-full bg-amber-50 text-amber-700 border border-amber-100 flex items-center gap-1 shadow-sm">
                         <span id="dbStatusIndicator" class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
-                        <span id="dbStatusText" class="hidden sm:inline">Menyambung...</span>
+                        <span id="dbStatusText">Menyambung...</span>
                     </span>
 
-                    <!-- Peranan Ahli Pasukan -->
+                    <!-- Role Badge -->
                     <span id="roleBadge" class="px-2 py-1 text-[8px] sm:text-[10px] font-bold rounded-full bg-slate-100 text-slate-500 border border-slate-200 flex items-center gap-1 shadow-sm">
                         <span id="roleIndicator" class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
-                        <span id="roleText" class="hidden sm:inline">Mod Demo</span>
-                        <i class="fa-solid fa-user-shield sm:hidden"></i>
+                        <span id="roleText">Memuatkan...</span>
                     </span>
                 </div>
             </div>
         </div>
     </nav>
 
+    <!-- MAIN WORKSPACE -->
     <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-3 flex-1 w-full space-y-3">
         
-        <!-- CORE ACTIVITIES & SPREADSHEET PANEL -->
+        <!-- CORE PANEL -->
         <section class="bg-white rounded-xl border border-slate-100 shadow-sm p-3 relative overflow-hidden">
             <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-indigo-500"></div>
             
@@ -126,19 +212,19 @@
                                     <i class="fa-solid fa-user-plus text-blue-500"></i>
                                     <span>Daftar Murid Baru</span>
                                 </button>
-                                <button id="thresholdConfigLinkBtn" class="w-full text-left px-3 py-2 text-[10px] font-semibold text-slate-700 hover:bg-slate-50 hover:text-blue-600 rounded-lg transition-colors flex items-center gap-2 active:bg-slate-50">
+                                <button id="thresholdConfigLinkBtn" class="w-full text-left px-3 py-2 text-[10px] font-semibold text-slate-700 hover:bg-slate-50 hover:text-blue-600 rounded-lg transition-colors flex items-center gap-2 active:bg-slate-50 admin-only">
                                     <i class="fa-solid fa-sliders text-amber-500"></i>
                                     <span>Urus Had Kelayakan</span>
                                 </button>
-                                <button id="dbConfigLinkBtn" class="w-full text-left px-3 py-2 text-[10px] font-semibold text-slate-700 hover:bg-slate-50 hover:text-blue-600 rounded-lg transition-colors flex items-center gap-2 active:bg-slate-50">
+                                <button id="dbConfigLinkBtn" class="w-full text-left px-3 py-2 text-[10px] font-semibold text-slate-700 hover:bg-slate-50 hover:text-blue-600 rounded-lg transition-colors flex items-center gap-2 active:bg-slate-50 admin-only">
                                     <i class="fa-solid fa-database text-indigo-500"></i>
                                     <span>Urus Rumah & Google Sheets</span>
                                 </button>
-                                <button id="importBtn" class="w-full text-left px-3 py-2 text-[10px] font-semibold text-slate-700 hover:bg-slate-50 hover:text-blue-600 rounded-lg transition-colors flex items-center gap-2 active:bg-slate-50">
+                                <button id="importBtn" class="w-full text-left px-3 py-2 text-[10px] font-semibold text-slate-700 hover:bg-slate-50 hover:text-blue-600 rounded-lg transition-colors flex items-center gap-2 active:bg-slate-50 admin-only">
                                     <i class="fa-solid fa-file-import text-blue-500"></i>
                                     <span>Import Data JSON</span>
                                 </button>
-                                <button id="exportBtn" class="w-full text-left px-3 py-2 text-[10px] font-semibold text-slate-700 hover:bg-slate-50 hover:text-emerald-600 rounded-lg transition-colors flex items-center gap-2 active:bg-emerald-50">
+                                <button id="exportBtn" class="w-full text-left px-3 py-2 text-[10px] font-semibold text-slate-700 hover:bg-slate-50 hover:text-emerald-600 rounded-lg transition-colors flex items-center gap-2 active:bg-emerald-50 admin-only">
                                     <i class="fa-solid fa-file-export text-emerald-500"></i>
                                     <span>Eksport Data JSON</span>
                                 </button>
@@ -147,7 +233,7 @@
                                     <span>Muat Semula Google Sheets</span>
                                 </button>
                                 <div class="border-t border-slate-100 my-1"></div>
-                                <button id="clearAllBtn" class="w-full text-left px-3 py-2 text-[10px] font-bold text-rose-600 hover:bg-rose-50 rounded-lg transition-colors flex items-center gap-2 active:bg-rose-50">
+                                <button id="clearAllBtn" class="w-full text-left px-3 py-2 text-[10px] font-bold text-rose-600 hover:bg-rose-50 rounded-lg transition-colors flex items-center gap-2 active:bg-rose-50 admin-only">
                                     <i class="fa-solid fa-trash-can text-rose-500"></i>
                                     <span>Padam Semua Rekod</span>
                                 </button>
@@ -169,7 +255,7 @@
             </div>
 
             <div class="flex flex-col gap-2 mt-2">
-                <!-- Tab rumah sukan boleh disapu / skrol secara melintang di Android tanpa terputus -->
+                <!-- Tab rumah sukan boleh disapu / skrol secara melintang -->
                 <div class="flex flex-nowrap md:flex-wrap items-center gap-1.5 overflow-x-auto pb-1.5 w-full no-scrollbar select-none" id="houseTabsContainer" style="-webkit-overflow-scrolling: touch;">
                     <!-- Dynamic Tabs Rendered Here -->
                 </div>
@@ -178,7 +264,7 @@
                 <div class="bg-blue-50/50 border border-blue-100/50 rounded-xl px-2.5 py-2 flex items-start gap-2 text-[10px] font-medium text-blue-700 shadow-inner">
                     <i class="fa-solid fa-circle-info text-blue-500 mt-0.5 text-xs"></i>
                     <div class="leading-relaxed">
-                        <strong class="font-bold">💡 Petunjuk Sistem Kelayakan Pintar:</strong> 
+                        <strong class="font-bold">💡 Petunjuk Kelayakan Pintar:</strong> 
                         Tanda <strong class="text-blue-900">(✓) = Layak (1 Mata)</strong>. Tulis digit pencapaian di kotak teks kanan. Jika digit melepasi had kelayakan minima mengikut kategori umur (Pra, Tahap 1, Tahap 2), sistem akan <strong class="text-blue-900">auto-tick</strong>. Jika tiada digit, anda boleh menanda checkbox secara manual.
                     </div>
                 </div>
@@ -214,13 +300,13 @@
                         </button>
 
                         <!-- Butang Set Semula Rekod Acara Aktif (Oren) -->
-                        <button id="resetHouseRecordsBtn" class="px-2.5 py-1 bg-orange-50 hover:bg-orange-100 active:scale-95 text-orange-600 rounded-lg text-[9px] font-bold transition-all flex items-center gap-1 focus:outline-none" title="Kosongkan semua rekod masa/jarak dan checkbox rumah sukan aktif">
+                        <button id="resetHouseRecordsBtn" class="px-2.5 py-1 bg-orange-50 hover:bg-orange-100 active:scale-95 text-orange-600 rounded-lg text-[9px] font-bold transition-all flex items-center gap-1 focus:outline-none admin-only" title="Kosongkan semua rekod masa/jarak dan checkbox rumah sukan aktif">
                             <i class="fa-solid fa-arrows-rotate text-orange-500 animate-spin-hover"></i>
                             <span>Set Semula Markah</span>
                         </button>
                         
                         <!-- Butang Padam Semua Ahli Rumah Sukan Aktif -->
-                        <button id="deleteHouseMembersBtn" class="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 active:scale-95 text-rose-600 rounded-lg text-[9px] font-bold transition-all flex items-center gap-1 focus:outline-none" title="Padam semua ahli bagi rumah sukan yang sedang aktif">
+                        <button id="deleteHouseMembersBtn" class="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 active:scale-95 text-rose-600 rounded-lg text-[9px] font-bold transition-all flex items-center gap-1 focus:outline-none admin-only" title="Padam semua ahli bagi rumah sukan yang sedang aktif">
                             <i class="fa-solid fa-trash-can text-rose-500"></i>
                             <span>Padam Semua Ahli Rumah</span>
                         </button>
@@ -352,7 +438,7 @@
                         <tr>
                             <td colspan="11" class="py-4 text-center text-slate-400 font-medium">
                                 <i class="fa-solid fa-spinner animate-spin text-xs text-blue-500 mb-1 block"></i>
-                                Memuatkan data murid dari Google Sheets...
+                                Memuatkan data murid dari Google Sheets & Firestore...
                             </td>
                         </tr>
                     </tbody>
@@ -362,8 +448,8 @@
     </div>
 
     <!-- REGISTRATION MODAL -->
-    <div id="registrationModal" class="hidden fixed inset-0 z-50 bg-slate-950/45 backdrop-blur-sm flex items-center justify-center p-3">
-        <div class="bg-white rounded-2xl max-w-sm w-full p-4 shadow-xl border border-slate-100 transform scale-95 transition-all relative overflow-hidden animate-fadeIn max-h-[85vh] flex flex-col">
+    <div id="registrationModal" class="hidden fixed inset-0 z-50 bg-slate-950/45 backdrop-blur-sm flex items-center justify-center p-3 animate-fadeIn">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-4 shadow-xl border border-slate-100 transform scale-95 transition-all relative overflow-hidden max-h-[85vh] flex flex-col">
             <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-indigo-500"></div>
             
             <div class="flex items-center justify-between mb-3 flex-shrink-0">
@@ -377,13 +463,11 @@
             </div>
             
             <form id="studentForm" class="space-y-3 overflow-y-auto pr-0.5 pb-2 flex-1 no-scrollbar">
-                <!-- Nama Pelajar -->
                 <div class="space-y-1">
                     <label for="studentName" class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Nama Pelajar</label>
                     <input type="text" id="studentName" required placeholder="Masukkan nama penuh pelajar" class="w-full px-2.5 py-2 bg-slate-50 hover:bg-slate-100/50 focus:bg-white border border-slate-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/10 rounded-lg text-xs outline-none transition-all placeholder:text-slate-400">
                 </div>
                 
-                <!-- Jantina -->
                 <div class="space-y-1">
                     <label for="studentGender" class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Jantina</label>
                     <select id="studentGender" required class="w-full px-2 py-2 bg-slate-50 border border-slate-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/10 rounded-lg text-xs outline-none transition-all cursor-pointer">
@@ -392,7 +476,6 @@
                     </select>
                 </div>
                 
-                <!-- Kelas -->
                 <div class="space-y-1">
                     <label for="studentClass" class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Kelas</label>
                     <select id="studentClass" required class="w-full px-2 py-2 bg-slate-50 border border-slate-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/10 rounded-lg text-xs outline-none transition-all cursor-pointer">
@@ -409,7 +492,6 @@
                 <!-- Rumah Sukan -->
                 <input type="hidden" id="studentHouse" value="">
 
-                <!-- Butang Hantar -->
                 <div class="pt-3 border-t border-slate-100 flex justify-end gap-1.5 flex-shrink-0">
                     <button type="button" id="cancelRegistrationBtn" class="px-3 py-2 text-[10px] font-bold text-slate-500 hover:bg-slate-100 rounded-lg transition-colors">Batal</button>
                     <button type="submit" id="submitStudentBtn" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-[10px] font-bold tracking-wide shadow-md transition-all flex items-center justify-center gap-1 active:scale-95">
@@ -422,8 +504,8 @@
     </div>
 
     <!-- THRESHOLD CONFIGURATION MODAL -->
-    <div id="thresholdConfigModal" class="hidden fixed inset-0 z-50 bg-slate-950/45 backdrop-blur-sm flex items-center justify-center p-3">
-        <div class="bg-white rounded-2xl max-w-md w-full p-4 shadow-xl border border-slate-100 relative overflow-hidden animate-fadeIn max-h-[85vh] flex flex-col">
+    <div id="thresholdConfigModal" class="hidden fixed inset-0 z-50 bg-slate-950/45 backdrop-blur-sm flex items-center justify-center p-3 animate-fadeIn">
+        <div class="bg-white rounded-2xl max-w-md w-full p-4 shadow-xl border border-slate-100 relative overflow-hidden max-h-[85vh] flex flex-col">
             <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 to-orange-500"></div>
             
             <div class="flex items-center justify-between mb-3 border-b border-slate-100 pb-2 flex-shrink-0">
@@ -513,7 +595,6 @@
                 </div>
             </div>
 
-            <!-- Modal Action Buttons -->
             <div class="pt-3 border-t border-slate-100 flex justify-end gap-1.5 mt-2 flex-shrink-0">
                 <button type="button" id="resetThresholdsBtn" class="px-2.5 py-2 text-[10px] font-bold text-slate-500 hover:bg-slate-100 rounded-lg transition-colors flex items-center gap-1">
                     <i class="fa-solid fa-arrows-rotate"></i> Set Semula
@@ -581,8 +662,8 @@
     </div>
 
     <!-- REPRESENTATIVES (PILIH WAKIL) MODAL -->
-    <div id="pilihWakilModal" class="hidden fixed inset-0 z-50 bg-slate-950/45 backdrop-blur-sm flex items-center justify-center p-3">
-        <div class="bg-white rounded-2xl max-w-4xl w-full p-4 shadow-xl border border-slate-100 relative overflow-hidden max-h-[90vh] flex flex-col animate-fadeIn">
+    <div id="pilihWakilModal" class="hidden fixed inset-0 z-50 bg-slate-950/45 backdrop-blur-sm flex items-center justify-center p-3 animate-fadeIn">
+        <div class="bg-white rounded-2xl max-w-4xl w-full p-4 shadow-xl border border-slate-100 relative overflow-hidden max-h-[90vh] flex flex-col">
             <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 to-yellow-500"></div>
             
             <div class="flex items-center justify-between mb-3 border-b border-slate-100 pb-2 flex-shrink-0">
@@ -606,14 +687,13 @@
                 </div>
             </div>
 
-            <!-- Filter Konten Wakil -->
             <div class="flex flex-col gap-2 overflow-y-auto pr-0.5 pb-2 flex-1 no-scrollbar">
                 <div class="flex flex-wrap items-center gap-2 bg-slate-50 p-2 rounded-xl border border-slate-100">
                     <div class="flex items-center gap-1">
                         <label for="wakilHouseFilter" class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Rumah Sukan:</label>
                         <select id="wakilHouseFilter" class="px-2 py-1 bg-white border border-slate-200 rounded-lg text-[9px] text-slate-700 font-bold outline-none transition-all cursor-pointer">
                             <option value="ALL">Semua Rumah Sukan</option>
-                            <!-- Options added dynamically -->
+                            <!-- Dynamic options -->
                         </select>
                     </div>
                 </div>
@@ -646,7 +726,7 @@
     <!-- FOOTER -->
     <footer class="bg-white border-t border-slate-100 py-3 mt-4">
         <div class="max-w-7xl mx-auto px-4 text-center">
-            <p class="text-[9px] text-slate-400 font-medium">&copy; 2026 Sistem Sukantara Sekolah. Pangkalan Data Bersepadu Google Sheets & Mod Demo Tempatan.</p>
+            <p class="text-[9px] text-slate-400 font-medium">&copy; 2026 Sistem Sukantara Sekolah. Pangkalan Data Bersepadu Google Sheets & Firebase.</p>
         </div>
     </footer>
 
@@ -655,6 +735,28 @@
 
     <!-- JAVASCRIPT & DATABASE INTEGRATION -->
     <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // Firebase Configuration (Standard Production)
+        const firebaseConfig = {
+            apiKey: "AIzaSyAJ5LrENOSzRkClehZmu3dy3JKrt6QvtcU",
+            authDomain: "sps-skb-d8256.firebaseapp.com",
+            databaseURL: "https://sps-skb-d8256-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "sps-skb-d8256",
+            storageBucket: "sps-skb-d8256.firebasestorage.app",
+            messagingSenderId: "322634427088",
+            appId: "1:322634427088:web:b59cd37e04b882f2190cd5"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const provider = new GoogleAuthProvider();
+        provider.setCustomParameters({ prompt: 'select_account' });
+
         let googleScriptUrl = "https://script.google.com/macros/s/AKfycbzbolOQP6QjsQrOdAkomAFVBL5iZAuCPp_KlxWKui4QsgoGwvcqRMdbgL-jpWCw1_DARw/exec";
 
         let houses = [];
@@ -662,37 +764,12 @@
         let activeHouseTab = "";
         let currentSortOption = "name_asc";
         let confirmCallback = null;
+        let currentUser = null;
 
-        // Mod Demo Admin Default State (Membolehkan keyin terus tanpa setting Firebase)
-        let userRole = {
-            isLoggedIn: true,
-            isDelima: true,
-            isAdmin: true,
-            email: "cikgu.demo@moe-dl.edu.my",
-            name: "Cikgu Demo (Admin)",
-            photoURL: ""
-        };
-
-        // Had kelayakan berbilang peringkat mengikut kategori umur
         let thresholds = {
-            pra: {
-                longJump: "2.00",
-                highJump: "0.80",
-                running: "15.0",
-                shotPut: "3.00"
-            },
-            tahap1: {
-                longJump: "2.50",
-                highJump: "0.90",
-                running: "13.5",
-                shotPut: "4.00"
-            },
-            tahap2: {
-                longJump: "3.00",
-                highJump: "1.00",
-                running: "12.0",
-                shotPut: "5.00"
-            }
+            pra: { longJump: "2.00", highJump: "0.80", running: "15.0", shotPut: "3.00" },
+            tahap1: { longJump: "2.50", highJump: "0.90", running: "13.5", shotPut: "4.00" },
+            tahap2: { longJump: "3.00", highJump: "1.00", running: "12.0", shotPut: "5.00" }
         };
 
         const houseColorMap = {
@@ -728,945 +805,142 @@
             }
         };
 
-        function getHouseColorTheme(name) {
-            if (!name) return 'slate';
-            const lower = name.toLowerCase();
-            if (lower.includes('merah') || lower.includes('rose') || lower.includes('pink')) return 'merah';
-            if (lower.includes('biru') || lower.includes('blue')) return 'biru';
-            if (lower.includes('kuning') || lower.includes('yellow') || lower.includes('gold') || lower.includes('jingga')) return 'kuning';
-            if (lower.includes('hijau') || lower.includes('green') || lower.includes('emerald')) return 'hijau';
-            return 'slate';
-        }
-
-        function getStudentCategory(studentClass) {
-            if (!studentClass) return "tahap1";
-            const clean = studentClass.toString().trim();
-            if (clean === "Pra Sekolah") return "pra";
-            if (["T1", "T2", "T3"].includes(clean)) return "tahap1";
-            if (["T4", "T5", "T6"].includes(clean)) return "tahap2";
-            return "tahap1";
-        }
-
-        function saveStudentToDb(student) {
-            localStorage.setItem('sukantara_students', JSON.stringify(students));
-            sendToGoogleSheets("saveStudent", student).catch(err => {
-                console.error("Gagal menyelaraskan kemas kini murid ke Google Sheets:", err);
-            });
-        }
-
-        function saveHouseToDb(house) {
-            localStorage.setItem('sukantara_houses', JSON.stringify(houses));
-            sendToGoogleSheets("saveHouse", house).catch(err => {
-                console.error("Gagal menyelaraskan kemas kini rumah ke Google Sheets:", err);
-            });
-        }
-
-        function deleteStudentFromDb(studentId) {
-            students = students.filter(s => s.id !== studentId);
-            localStorage.setItem('sukantara_students', JSON.stringify(students));
-            syncData();
-            sendToGoogleSheets("deleteStudent", studentId).catch(err => {
-                console.error("Gagal memadam murid di Google Sheets:", err);
-            });
-        }
-
-        function deleteHouseFromDb(houseId) {
-            const hObj = houses.find(h => h.id === houseId);
-            houses = houses.filter(h => h.id !== houseId);
-            localStorage.setItem('sukantara_houses', JSON.stringify(houses));
-            
-            if (hObj) {
-                students = students.filter(s => s.house !== hObj.name);
-                localStorage.setItem('sukantara_students', JSON.stringify(students));
-            }
-            
-            syncData();
-            sendToGoogleSheets("deleteHouse", houseId).catch(err => {
-                console.error("Gagal memadam rumah di Google Sheets:", err);
-            });
-        }
-
-        function syncData() {
-            renderHouseTabs();
-            renderWorksheet();
-            renderSettingsHouses();
-            populateHouseFilter();
-        }
-
-        function showToast(message, type = "info") {
-            const container = document.getElementById('toastContainer');
-            if (!container) return;
-            const toast = document.createElement('div');
-            
-            let bg = "bg-white border-slate-200 text-slate-800";
-            let icon = '<i class="fa-solid fa-info-circle text-blue-500"></i>';
-            if (type === "success") {
-                bg = "bg-emerald-50 border-emerald-200 text-emerald-800";
-                icon = '<i class="fa-solid fa-circle-check text-emerald-600"></i>';
-            } else if (type === "warning") {
-                bg = "bg-amber-50 border-amber-200 text-amber-800";
-                icon = '<i class="fa-solid fa-triangle-exclamation text-amber-600"></i>';
-            } else if (type === "danger") {
-                bg = "bg-rose-50 border-rose-200 text-rose-800";
-                icon = '<i class="fa-solid fa-circle-xmark text-rose-600"></i>';
-            }
-
-            toast.className = `flex items-center gap-2 px-3 py-1.5 rounded-xl border ${bg} shadow-md text-[10px] font-bold animate-fadeIn`;
-            toast.innerHTML = `${icon} <span>${message}</span>`;
-            container.appendChild(toast);
-            
-            setTimeout(() => {
-                toast.classList.add('opacity-0', 'translate-y-2', 'transition-all', 'duration-300');
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
-        }
-
-        function showConfirm(title, message, isDestructive, buttonText, onYes) {
-            const confirmTitle = document.getElementById('confirmTitle');
-            const confirmMessage = document.getElementById('confirmMessage');
-            const confirmIconContainer = document.getElementById('confirmIconContainer');
-            const confirmIcon = document.getElementById('confirmIcon');
-            const confirmYesBtn = document.getElementById('confirmYesBtn');
-            const confirmModal = document.getElementById('confirmModal');
-
-            if (!confirmTitle || !confirmMessage || !confirmModal) return;
-
-            confirmTitle.innerText = title;
-            confirmMessage.innerText = message;
-            
-            if (isDestructive) {
-                confirmIconContainer.className = "w-8 h-8 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center text-sm mb-2.5";
-                confirmIcon.className = "fa-solid fa-circle-exclamation";
-                confirmYesBtn.className = "px-2.5 py-1.5 text-[10px] font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-lg transition-colors shadow-md";
-            } else {
-                confirmIconContainer.className = "w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-sm mb-2.5";
-                confirmIcon.className = "fa-solid fa-circle-info";
-                confirmYesBtn.className = "px-2.5 py-1.5 text-[10px] font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors shadow-md";
-            }
-
-            confirmYesBtn.innerText = buttonText || "Ya, Teruskan";
-            confirmModal.classList.remove('hidden');
-            confirmCallback = onYes;
-        }
-
-        function closeConfirm(isYes) {
-            const confirmModal = document.getElementById('confirmModal');
-            if (confirmModal) {
-                confirmModal.classList.add('hidden');
-            }
-            if (isYes && confirmCallback) {
-                confirmCallback();
-            }
-            confirmCallback = null;
-        }
-
-        document.getElementById('confirmYesBtn').addEventListener('click', () => closeConfirm(true));
-        document.getElementById('confirmCancelBtn').addEventListener('click', () => closeConfirm(false));
-
-        function renderHouseTabs() {
-            const houseTabsContainer = document.getElementById('houseTabsContainer');
-            if (!houseTabsContainer) return;
-            houseTabsContainer.innerHTML = "";
-            if (houses.length === 0) {
-                houseTabsContainer.innerHTML = `<span class="text-[10px] text-slate-400 py-1">Tiada Rumah Sukan. Sila daftar di menu Urus Rumah & Google Sheets.</span>`;
-                return;
-            }
-
-            houses.forEach(h => {
-                const houseStudents = students.filter(s => s.house === h.name);
-                const total = houseStudents.length;
-                const maleCount = houseStudents.filter(s => s.gender === 'L').length;
-                const femaleCount = houseStudents.filter(s => s.gender === 'P').length;
-                
-                const tab = document.createElement('button');
-                const isActive = activeHouseTab === h.name;
-                
-                const themeKey = getHouseColorTheme(h.name);
-                const theme = houseColorMap[themeKey] || houseColorMap["slate"];
-                
-                tab.className = `px-3.5 py-2 rounded-lg border transition-all duration-200 flex flex-col items-center justify-center gap-0.5 text-center flex-shrink-0 active:scale-95 min-w-[135px] ${
-                    isActive ? theme.activeBtn : theme.inactiveBtn
-                }`;
-                
-                tab.innerHTML = `
-                    <div class="font-extrabold text-[11px] whitespace-nowrap text-center w-full leading-tight">
-                        Rumah ${h.name}
-                    </div>
-                    <div class="text-[8px] font-bold flex items-center justify-center gap-1.5 mt-1 tracking-wide w-full leading-none whitespace-nowrap ${
-                        isActive ? 'text-white/95' : 'text-slate-500'
-                    }">
-                        <span>L:<strong class="ml-0.5 ${isActive ? 'text-white font-extrabold' : 'text-slate-700 font-extrabold'}">${maleCount}</strong></span>
-                        <span>P:<strong class="ml-0.5 ${isActive ? 'text-white font-extrabold' : 'text-slate-700 font-extrabold'}">${femaleCount}</strong></span>
-                        <span class="w-1 h-1 rounded-full ${isActive ? 'bg-white/40' : 'bg-slate-300'}"></span>
-                        <span>Jumlah:<strong class="ml-0.5 ${isActive ? 'text-white font-extrabold' : 'text-slate-700 font-extrabold'}">${total}</strong></span>
-                    </div>
-                `;
-                
-                tab.addEventListener('click', () => {
-                    activeHouseTab = h.name;
-                    syncData();
-                });
-                
-                houseTabsContainer.appendChild(tab);
-            });
-        }
-
         function updateThresholdInputsUI() {
             ['pra', 'tahap1', 'tahap2'].forEach(category => {
                 ['longJump', 'highJump', 'running', 'shotPut'].forEach(field => {
-                    const el = document.getElementById(`threshold_${category}_${field}`);
-                    if (el) {
-                        el.value = thresholds[category][field] || "";
+                    const headerInput = document.getElementById(`threshold_${category}_${field}`);
+                    if (headerInput) {
+                        headerInput.value = thresholds[category][field];
                     }
-                    const modalEl = document.getElementById(`modal_threshold_${category}_${field}`);
-                    if (modalEl) {
-                        modalEl.value = thresholds[category][field] || "";
+                    const modalInput = document.getElementById(`modal_threshold_${category}_${field}`);
+                    if (modalInput) {
+                        modalInput.value = thresholds[category][field];
                     }
                 });
             });
         }
 
-        function setupThresholdListeners() {
-            document.querySelectorAll('.threshold-input').forEach(input => {
-                input.addEventListener('change', (e) => {
-                    const category = e.target.getAttribute('data-category');
-                    const field = e.target.getAttribute('data-field');
-                    const value = e.target.value.trim();
-
-                    if (category && field) {
-                        thresholds[category][field] = value;
-                        localStorage.setItem('sukantara_thresholds_v2', JSON.stringify(thresholds));
-                        showToast(`Had kelayakan ${category.toUpperCase()} (${field}) dikemaskini!`, "success");
-                        updateThresholdInputsUI();
-                        reEvaluateAllStudents();
-                        syncData();
-                    }
-                });
-            });
+        function getCategory(studentClass) {
+            if (studentClass === "Pra Sekolah") return "pra";
+            if (["T1", "T2", "T3"].includes(studentClass)) return "tahap1";
+            return "tahap2";
         }
 
         function reEvaluateAllStudents() {
-            students.forEach(s => {
-                const category = getStudentCategory(s.studentClass);
-                const catThresholds = thresholds[category] || thresholds["tahap1"];
-
+            students.forEach(student => {
+                const cat = getCategory(student.studentClass);
+                
                 ['longJump', 'highJump', 'running', 'shotPut'].forEach(field => {
-                    const recordVal = s[`${field}Record`] || "";
-                    const parsedVal = parseFloat(recordVal.replace(/[^0-9.]/g, ''));
-                    
-                    if (recordVal !== "" && !isNaN(parsedVal)) {
-                        const threshold = parseFloat(catThresholds[field]);
-                        if (!isNaN(threshold) && threshold > 0) {
-                            if (field === 'running') {
-                                s[`${field}Eligible`] = (parsedVal <= threshold);
-                            } else {
-                                s[`${field}Eligible`] = (parsedVal >= threshold);
-                            }
+                    const recordStr = student[`${field}Record`] || "";
+                    const numericVal = parseFloat(recordStr);
+                    if (!isNaN(numericVal)) {
+                        const thresholdVal = parseFloat(thresholds[cat][field]);
+                        if (field === 'running') {
+                            student[`${field}Eligible`] = numericVal <= thresholdVal;
+                        } else {
+                            student[`${field}Eligible`] = numericVal >= thresholdVal;
                         }
                     }
                 });
-
-                s.totalPoints = (s.longJumpEligible ? 1 : 0) + 
-                                 (s.highJumpEligible ? 1 : 0) + 
-                                 (s.runningEligible ? 1 : 0) + 
-                                 (s.shotPutEligible ? 1 : 0);
+                
+                student.totalPoints = (student.longJumpEligible ? 1 : 0) + 
+                                     (student.highJumpEligible ? 1 : 0) + 
+                                     (student.runningEligible ? 1 : 0) + 
+                                     (student.shotPutEligible ? 1 : 0);
             });
             localStorage.setItem('sukantara_students', JSON.stringify(students));
-            sendToGoogleSheets("bulkImport", students);
         }
 
-        function renderWorksheet() {
-            const worksheetBody = document.getElementById('worksheetBody');
-            const houseTotalMembers = document.getElementById('houseTotalMembers');
-            const houseTotalPoints = document.getElementById('houseTotalPoints');
-            if (!worksheetBody) return;
-
-            worksheetBody.innerHTML = "";
-            const filtered = students.filter(s => s.house === activeHouseTab);
-
-            const count = filtered.length;
-            const totalScore = filtered.reduce((acc, s) => acc + (s.totalPoints || 0), 0);
-            if (houseTotalMembers) houseTotalMembers.innerText = count;
-            if (houseTotalPoints) houseTotalPoints.innerText = totalScore;
-
-            if (currentSortOption === "name_asc") {
-                filtered.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
-            } else if (currentSortOption === "class_asc") {
-                filtered.sort((a, b) => {
-                    const diff = getClassOrder(a.studentClass) - getClassOrder(b.studentClass);
-                    if (diff !== 0) return diff;
-                    return (a.name || "").localeCompare(b.name || "");
-                });
-            } else if (currentSortOption === "gender_l_p") {
-                filtered.sort((a, b) => {
-                    const diff = (a.gender || "L").localeCompare(b.gender || "L");
-                    if (diff !== 0) return diff;
-                    return (a.name || "").localeCompare(b.name || "");
-                });
-            }
-
-            if (filtered.length === 0) {
-                worksheetBody.innerHTML = `
-                    <tr>
-                        <td colspan="11" class="py-6 text-center text-slate-400 font-medium">
-                            <i class="fa-solid fa-folder-open text-base mb-1.5 block text-slate-300"></i>
-                            Tiada murid berdaftar dalam Rumah ${activeHouseTab || 'Sukan'}. <br/>
-                            <span class="text-[9px] text-slate-400 font-normal">Tekan Gear -> Daftar Murid Baru atau Import Data JSON untuk bermula.</span>
-                        </td>
-                    </tr>
-                `;
-                return;
-            }
-
-            filtered.forEach((stud, index) => {
-                const tr = document.createElement('tr');
-                tr.className = "hover:bg-slate-50/50 transition-colors duration-150";
-
-                const isMale = stud.gender === "L";
-                const genderBadge = isMale 
-                    ? '<span class="px-1.5 py-0.5 bg-blue-50 text-blue-700 rounded text-[9px] font-bold"><i class="fa-solid fa-mars"></i> L</span>'
-                    : '<span class="px-1.5 py-0.5 bg-pink-50 text-pink-700 rounded text-[9px] font-bold"><i class="fa-solid fa-venus"></i> P</span>';
-
-                const inputsHtml = ['longJump', 'highJump', 'running', 'shotPut'].map(field => {
-                    const isChecked = stud[`${field}Eligible`] ? 'checked' : '';
-                    const recordVal = stud[`${field}Record`] || '';
-                    
-                    let placeholderText = "0.00m";
-                    if (field === 'running') placeholderText = "00.0s";
-
-                    return `
-                        <td class="py-1 px-1.5 border-r border-slate-100 text-left">
-                            <div class="flex items-center justify-start gap-1.5 w-full">
-                                <input type="checkbox" ${isChecked} 
-                                    class="w-5 h-5 text-blue-600 border-slate-300 rounded focus:ring-blue-500 accent-blue-600 cursor-pointer student-score-checkbox flex-shrink-0"
-                                    data-id="${stud.id}" data-field="${field}">
-                                <input type="text" placeholder="${placeholderText}" value="${recordVal}" 
-                                    class="w-full px-1.5 py-1 bg-slate-50 hover:bg-slate-100/50 focus:bg-white text-left font-bold text-slate-800 rounded-lg border border-slate-200/60 focus:border-blue-300 outline-none transition-all student-record-input"
-                                    data-id="${stud.id}" data-field="${field}">
-                            </div>
-                        </td>
-                    `;
-                }).join('');
-
-                tr.innerHTML = `
-                    <td class="py-2 px-1 text-center font-bold text-slate-400 border-r border-slate-100">${index + 1}</td>
-                    <td class="py-2 px-1.5 font-extrabold text-slate-950 uppercase tracking-tight">${stud.name}</td>
-                    <td class="py-2 px-0.5 text-center">${genderBadge}</td>
-                    <td class="py-2 px-0.5 text-center font-semibold text-slate-600">${stud.studentClass}</td>
-                    ${inputsHtml}
-                    <td class="py-2 px-0.5 text-center font-extrabold text-blue-600 text-[11px]">${stud.totalPoints || 0}</td>
-                    <td class="py-1 px-1">
-                        <input type="text" placeholder="-" value="${stud.notes || ''}" 
-                            class="w-full px-1.5 py-1 bg-transparent hover:bg-slate-50/80 focus:bg-white text-slate-600 rounded-lg outline-none transition-all focus:ring-1 focus:ring-blue-500/20 border border-transparent student-note-input"
-                            data-id="${stud.id}">
-                    </td>
-                    <td class="py-1 px-0.5 text-center student-action-cell">
-                        <button class="p-1.5 text-slate-300 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors delete-student-btn active:scale-95" data-id="${stud.id}">
-                            <i class="fa-solid fa-trash text-[10px]"></i>
-                        </button>
-                    </td>
-                `;
-
-                // Listener kelayakan manual (Checkbox)
-                tr.querySelectorAll('.student-score-checkbox').forEach(chk => {
-                    chk.addEventListener('change', (e) => {
-                        const sId = e.target.getAttribute('data-id');
-                        const field = e.target.getAttribute('data-field');
-                        const isChecked = e.target.checked;
-                        
-                        const current = students.find(s => s.id === sId);
-                        if (current) {
-                            current[`${field}Eligible`] = isChecked;
-                            current.totalPoints = (current.longJumpEligible ? 1 : 0) + 
-                                                   (current.highJumpEligible ? 1 : 0) + 
-                                                   (current.runningEligible ? 1 : 0) + 
-                                                   (current.shotPutEligible ? 1 : 0);
-                            saveStudentToDb(current); 
-                            syncData(); 
-                        }
-                    });
-                });
-
-                // Listener Rekod Teks (Mata auto-tick)
-                tr.querySelectorAll('.student-record-input').forEach(input => {
-                    input.addEventListener('change', (e) => {
-                        const sId = e.target.getAttribute('data-id');
-                        const field = e.target.getAttribute('data-field');
-                        const valText = e.target.value.trim();
-                        
-                        const current = students.find(s => s.id === sId);
-                        if (current) {
-                            current[`${field}Record`] = valText;
-                            
-                            // Auto-ticking mengikut kategori umur
-                            const category = getStudentCategory(current.studentClass);
-                            const catThresholds = thresholds[category] || thresholds["tahap1"];
-                            const parsedVal = parseFloat(valText.replace(/[^0-9.]/g, ''));
-
-                            if (valText === "") {
-                                current[`${field}Eligible`] = false;
-                            } else if (!isNaN(parsedVal)) {
-                                const threshold = parseFloat(catThresholds[field]);
-                                if (!isNaN(threshold) && threshold > 0) {
-                                    if (field === 'running') {
-                                        current[`${field}Eligible`] = (parsedVal <= threshold);
-                                    } else {
-                                        current[`${field}Eligible`] = (parsedVal >= threshold);
-                                    }
-                                }
-                            }
-                            
-                            current.totalPoints = (current.longJumpEligible ? 1 : 0) + 
-                                                   (current.highJumpEligible ? 1 : 0) + 
-                                                   (current.runningEligible ? 1 : 0) + 
-                                                   (current.shotPutEligible ? 1 : 0);
-                            saveStudentToDb(current);
-                            syncData();
-                        }
-                    });
-                });
-
-                const noteInput = tr.querySelector('.student-note-input');
-                if (noteInput) {
-                    noteInput.addEventListener('change', (e) => {
-                        const sId = e.target.getAttribute('data-id');
-                        const val = e.target.value.trim();
-                        const current = students.find(s => s.id === sId);
-                        if (current) {
-                            current.notes = val;
-                            saveStudentToDb(current);
-                        }
-                    });
-                }
-
-                const deleteBtn = tr.querySelector('.delete-student-btn');
-                if (deleteBtn) {
-                    deleteBtn.addEventListener('click', () => {
-                        const sId = deleteBtn.getAttribute('data-id');
-                        const current = students.find(s => s.id === sId);
-                        if (current) {
-                            showConfirm(
-                                "Padam Murid", 
-                                `Adakah anda pasti mahu memadam murid '${current.name}' dari Rumah ${current.house}?`, 
-                                true,
-                                "Ya, Padam",
-                                () => {
-                                    deleteStudentFromDb(sId);
-                                    showToast(`Rekod '${current.name}' dipadam secara lokal. Menyelaras...`, "success");
-                                }
-                            );
-                        }
-                    });
-                }
-
-                worksheetBody.appendChild(tr);
-            });
+        // Detect iframe sandbox issues
+        if (window.self !== window.top || window.location.protocol === 'blob:') {
+            document.getElementById('sandboxNotice').classList.remove('hidden');
         }
 
-        function renderSettingsHouses() {
-            const container = document.getElementById('settingsHousesList');
-            if (!container) return;
-            container.innerHTML = "";
-            
-            if (houses.length === 0) {
-                container.innerHTML = `<span class="text-[9px] text-slate-400 font-semibold">Tiada rumah sukan berdaftar.</span>`;
-                return;
-            }
-
-            houses.forEach(h => {
-                const pill = document.createElement('div');
-                pill.className = "flex items-center gap-1 bg-slate-50 border border-slate-200 pl-2 pr-1 py-1 rounded-lg text-[9px] font-bold text-slate-700 shadow-sm";
-                pill.innerHTML = `
-                    <span>${h.name}</span>
-                    <button class="p-0.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded transition-colors delete-house-btn active:scale-95" data-id="${h.id}">
-                        <i class="fa-solid fa-circle-xmark text-sm"></i>
-                    </button>
-                `;
-                
-                pill.querySelector('.delete-house-btn').addEventListener('click', () => {
-                    showConfirm(
-                        "Padam Rumah Sukan",
-                        `Adakah anda pasti mahu memadam Rumah ${h.name}? Ini juga memadam SEMUA ahli di bawahnya!`,
-                        true,
-                        "Ya, Padam",
-                        () => {
-                            deleteHouseFromDb(h.id);
-                            showToast(`Rumah ${h.name} berjaya dipadam secara lokal. Menyelaras...`, "success");
-                        }
-                    );
-                });
-
-                container.appendChild(pill);
-            });
-        }
-
-        function populateHouseFilter() {
-            const filter = document.getElementById('wakilHouseFilter');
-            if (!filter) return;
-
-            const prevVal = filter.value;
-            filter.innerHTML = `<option value="ALL">Semua Rumah Sukan</option>`;
-
-            houses.forEach(h => {
-                const opt = document.createElement('option');
-                opt.value = h.name;
-                opt.innerText = `Rumah ${h.name}`;
-                filter.appendChild(opt);
-            });
-
-            filter.value = prevVal || "ALL";
-        }
-
-        function printReport() {
-            const printWindow = window.open('', '_blank');
-            const houseMembers = students.filter(s => s.house === activeHouseTab);
-            
-            let studentRowsHtml = "";
-            if (houseMembers.length === 0) {
-                studentRowsHtml = `<tr><td colspan="10" style="text-align:center; padding: 15px; color: #888;">Tiada rekod data murid.</td></tr>`;
-            } else {
-                houseMembers.forEach((s, index) => {
-                    studentRowsHtml += `
-                        <tr style="border-bottom: 1px solid #ddd;">
-                            <td style="padding: 6px; text-align: center;">${index + 1}</td>
-                            <td style="padding: 6px; font-weight: bold; text-transform: uppercase;">${s.name}</td>
-                            <td style="padding: 6px; text-align: center;">${s.gender}</td>
-                            <td style="padding: 6px; text-align: center;">${s.studentClass}</td>
-                            <td style="padding: 6px; text-align: center; ${s.longJumpEligible ? 'background-color:#f0fdf4;font-weight:bold;': ''}">${s.longJumpRecord || '-'} ${s.longJumpEligible ? '✓':''}</td>
-                            <td style="padding: 6px; text-align: center; ${s.highJumpEligible ? 'background-color:#f0fdf4;font-weight:bold;': ''}">${s.highJumpRecord || '-'} ${s.highJumpEligible ? '✓':''}</td>
-                            <td style="padding: 6px; text-align: center; ${s.runningEligible ? 'background-color:#f0fdf4;font-weight:bold;': ''}">${s.runningRecord || '-'} ${s.runningEligible ? '✓':''}</td>
-                            <td style="padding: 6px; text-align: center; ${s.shotPutEligible ? 'background-color:#f0fdf4;font-weight:bold;': ''}">${s.shotPutRecord || '-'} ${s.shotPutEligible ? '✓':''}</td>
-                            <td style="padding: 6px; text-align: center; font-weight: bold;">${s.totalPoints || 0}</td>
-                            <td style="padding: 6px; font-style: italic; color: #555;">${s.notes || '-'}</td>
-                        </tr>
-                    `;
-                });
-            }
-
-            const printTemplate = `
-                <html>
-                <head>
-                    <title>Laporan Sukantara - Rumah ${activeHouseTab}</title>
-                    <style>
-                        body { font-family: 'Inter', sans-serif; font-size: 11px; margin: 25px; color: #333; }
-                        .header-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-                        .school-title { font-size: 15px; font-weight: 800; text-transform: uppercase; }
-                        .report-title { font-size: 12px; font-weight: 700; color: #1e3a8a; margin-top: 5px; }
-                        .stats-container { display: flex; gap: 15px; margin-bottom: 15px; background: #f8fafc; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; }
-                        .stat-box { font-size: 11px; font-weight: bold; }
-                        table.data-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-                        table.data-table th { background-color: #0f172a; color: white; padding: 8px; text-align: left; text-transform: uppercase; font-size: 9px; }
-                        table.data-table td { padding: 6px; border: 1px solid #e2e8f0; }
-                        .signature-section { margin-top: 50px; display: flex; justify-content: space-between; }
-                        .sig-box { width: 200px; text-align: center; }
-                        .sig-line { border-bottom: 1px solid #000; margin-bottom: 5px; height: 40px; }
-                    </style>
-                </head>
-                <body>
-                    <table class="header-table">
-                        <tr>
-                            <td style="width: 80px; text-align: center; vertical-align: middle;">
-                                <div style="width: 50px; height: 50px; background: linear-gradient(to right, #2563eb, #4f46e5); border-radius: 10px; display: inline-block;"></div>
-                            </td>
-                            <td>
-                                <div class="school-title">Laporan Analisis Kejohanan Sukantara Tahunan</div>
-                                <div style="font-weight: 600; color: #555;">Sekolah Kebangsaan Bikang</div>
-                                <div class="report-title">PRESTASI DAN KELAYAKAN AHLI - RUMAH SUKAN: ${activeHouseTab.toUpperCase()}</div>
-                            </td>
-                        </tr>
-                    </table>
-
-                    <div class="stats-container">
-                        <div class="stat-box">Jumlah Ahli Berdaftar: <span style="color: #1e3a8a;">${houseMembers.length} orang</span></div>
-                        <div class="stat-box">Mata Keseluruhan Rumah Sukan: <span style="color: #16a34a;">${houseMembers.reduce((a, b) => a + (b.totalPoints || 0), 0)} Mata</span></div>
-                        <div class="stat-box">Tarikh Cetakan: <span>${new Date().toLocaleDateString('ms-MY')}</span></div>
-                    </div>
-
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th style="width: 4%; text-align: center;">Bil</th>
-                                <th style="width: 25%;">Nama Pelajar</th>
-                                <th style="width: 5%; text-align: center;">Jan</th>
-                                <th style="width: 8%; text-align: center;">Kelas</th>
-                                <th style="width: 12%; text-align: center;">L. Jauh</th>
-                                <th style="width: 12%; text-align: center;">L. Tinggi</th>
-                                <th style="width: 12%; text-align: center;">Larian</th>
-                                <th style="width: 12%; text-align: center;">L. Peluru</th>
-                                <th style="width: 5%; text-align: center;">Mata</th>
-                                <th>Catatan</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${studentRowsHtml}
-                        </tbody>
-                    </table>
-
-                    <div class="signature-section">
-                        <div class="sig-box">
-                            <p>Disediakan Oleh:</p>
-                            <div class="sig-line"></div>
-                            <p style="font-weight: bold; text-transform: uppercase;">(Ketua Rumah Sukan)</p>
-                        </div>
-                        <div class="sig-box">
-                            <p>Disahkan Oleh:</p>
-                            <div class="sig-line"></div>
-                            <p style="font-weight: bold; text-transform: uppercase;">(Setiausaha Sukan / Pentadbir)</p>
-                        </div>
-                    </div>
-
-                    <script>
-                        window.onload = function() {
-                            window.print();
-                        }
-                    <\/script>
-                </body>
-                </html>
-            `;
-
-            printWindow.document.write(printTemplate);
-            printWindow.document.close();
-        }
-
-        function getRepresentativesData(houseFilter = "ALL") {
-            let pool = students;
-            if (houseFilter !== "ALL") {
-                pool = students.filter(s => s.house === houseFilter);
-            }
-
-            const classes = ["Pra Sekolah", "T1", "T2", "T3", "T4", "T5", "T6"];
-            const genders = ["L", "P"];
-            const events = [
-                { key: "longJump", name: "Lompat Jauh", higherBetter: true, unit: "m" },
-                { key: "highJump", name: "Lompat Tinggi", higherBetter: true, unit: "m" },
-                { key: "running", name: "Larian Kelajuan", higherBetter: false, unit: "s" },
-                { key: "shotPut", name: "Lontar Peluru", higherBetter: true, unit: "m" }
-            ];
-
-            const results = [];
-
-            classes.forEach(cls => {
-                genders.forEach(gen => {
-                    const group = {
-                        className: cls,
-                        gender: gen,
-                        events: []
-                    };
-
-                    const classGroupStudents = pool.filter(s => s.studentClass === cls && s.gender === gen);
-
-                    events.forEach(ev => {
-                        const candidates = classGroupStudents.map(s => {
-                            const rawRecord = s[`${ev.key}Record`] || "";
-                            const numericVal = getNumericRecord(rawRecord);
-                            const eligible = s[`${ev.key}Eligible`];
-
-                            return {
-                                name: s.name,
-                                studentClass: s.studentClass,
-                                house: s.house,
-                                numericVal: numericVal,
-                                record: rawRecord ? `${numericVal}${ev.unit}` : null,
-                                eligible: eligible
-                            };
-                        }).filter(cand => cand.numericVal !== null);
-
-                        candidates.sort((a, b) => {
-                            if (ev.higherBetter) {
-                                return b.numericVal - a.numericVal; // Lebih tinggi, lebih baik
-                            } else {
-                                return a.numericVal - b.numericVal; // Lebih rendah (pantas larian), lebih baik
-                            }
-                        });
-
-                        // Ambil 2 terbaik bagi setiap kelas dan acara
-                        const topTwo = candidates.slice(0, 2);
-
-                        group.events.push({
-                            eventKey: ev.key,
-                            eventName: ev.name,
-                            topStudents: topTwo
-                        });
-                    });
-
-                    // Hanya rekodkan kumpulan kelas jika ada data atlet layak yang dikesan
-                    const hasAtLeastOneRepresentative = group.events.some(e => e.topStudents.length > 0);
-                    if (hasAtLeastOneRepresentative) {
-                        results.push(group);
-                    }
-                });
-            });
-
-            return results;
-        }
-
-        function printRepresentativeReport(filteredRepresentatives, houseName) {
-            const printWindow = window.open('', '_blank');
-            let contentHtml = "";
-
-            filteredRepresentatives.forEach(cat => {
-                contentHtml += `
-                    <div class="category-block" style="page-break-inside: avoid; margin-bottom: 25px;">
-                        <h3 class="category-title" style="background-color: #f1f5f9; padding: 6px 10px; border-left: 4px solid #d97706; font-size: 11px; margin-bottom: 10px; text-transform: uppercase;">
-                            Kelas: ${cat.className} (${cat.gender === 'L' ? 'Lelaki' : 'Perempuan'})
-                        </h3>
-                        <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
-                            <thead>
-                                <tr style="background-color: #0f172a; color: white; font-size: 9px; text-transform: uppercase;">
-                                    <th style="padding: 6px; border: 1px solid #ddd; text-align: left; width: 25%;">Acara</th>
-                                    <th style="padding: 6px; border: 1px solid #ddd; text-align: left; width: 40%;">Nama Peserta Terbaik</th>
-                                    <th style="padding: 6px; border: 1px solid #ddd; text-align: center; width: 12%;">Rumah</th>
-                                    <th style="padding: 6px; border: 1px solid #ddd; text-align: right; width: 13%;">Rekod Terpilih</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                `;
-
-                cat.events.forEach(ev => {
-                    if (ev.topStudents.length === 0) {
-                        contentHtml += `
-                            <tr>
-                                <td style="padding: 6px; border: 1px solid #ddd; font-weight: bold; color: #1e3a8a;">${ev.eventName}</td>
-                                <td colspan="3" style="padding: 6px; border: 1px solid #ddd; text-align: center; color: #888; font-style: italic;">Tiada rekod kelayakan yang memenuhi syarat minimum.</td>
-                            </tr>
-                        `;
-                    } else {
-                        ev.topStudents.forEach((stud, idx) => {
-                            contentHtml += `
-                                <tr>
-                                    ${idx === 0 ? `<td rowspan="${ev.topStudents.length}" style="padding: 6px; border: 1px solid #ddd; font-weight: bold; color: #1e3a8a; vertical-align: middle;">${ev.eventName}</td>` : ''}
-                                    <td style="padding: 6px; border: 1px solid #ddd; font-weight: bold; text-transform: uppercase;">
-                                        ${idx === 0 ? '🥇' : '🥈'} ${stud.name}
-                                    </td>
-                                    <td style="padding: 6px; border: 1px solid #ddd; text-align: center; font-weight: bold;">${stud.house}</td>
-                                    <td style="padding: 6px; border: 1px solid #ddd; text-align: right; font-weight: bold; color: #d97706;">${stud.record}</td>
-                                </tr>
-                            `;
-                        });
-                    }
-                });
-
-                contentHtml += `
-                            </tbody>
-                        </table>
-                    </div>
-                `;
-            });
-
-            const printTemplate = `
-                <html>
-                <head>
-                    <title>Senarai Wakil Rasmi Kejohanan Sukan Sekolah</title>
-                    <style>
-                        body { font-family: 'Inter', sans-serif; font-size: 10px; margin: 25px; color: #333; }
-                        .header-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-                        .school-title { font-size: 14px; font-weight: 800; text-transform: uppercase; }
-                        .report-title { font-size: 11px; font-weight: 700; color: #b45309; margin-top: 5px; }
-                        .stats-container { display: flex; gap: 15px; margin-bottom: 15px; background: #fffbeb; padding: 10px; border: 1px solid #fef3c7; border-radius: 8px; }
-                        .stat-box { font-size: 10px; font-weight: bold; }
-                        table { width: 100%; border-collapse: collapse; }
-                        table th, table td { border: 1px solid #e2e8f0; }
-                    </style>
-                </head>
-                <body>
-                    <table class="header-table">
-                        <tr>
-                            <td style="width: 80px; text-align: center; vertical-align: middle;">
-                                <div style="width: 50px; height: 50px; background: linear-gradient(to right, #d97706, #f59e0b); border-radius: 10px; display: inline-block;"></div>
-                            </td>
-                            <td>
-                                <div class="school-title">Laporan Calon Wakil Kejohanan Sukan Tahunan</div>
-                                <div style="font-weight: 600; color: #555;">Berdasarkan Ranking Pencapaian Tertinggi Sukantara</div>
-                                <div class="report-title">SENARAI WAKIL ELIT TERPILIH - TAPISAN: ${houseName === 'ALL' ? 'SEMUA RUMAH SUKAN' : 'RUMAH ' + houseName.toUpperCase()}</div>
-                            </td>
-                        </tr>
-                    </table>
-
-                    <div class="stats-container">
-                        <div class="stat-box">Syarat Kelayakan: <span style="color: #b45309;">2 Rekod Terbaik Mengikut Kelas & Kategori Kelayakan</span></div>
-                        <div class="stat-box">Tarikh Analisis: <span>${new Date().toLocaleDateString('ms-MY')}</span></div>
-                    </div>
-
-                    ${contentHtml}
-
-                    <div style="margin-top: 40px; display: flex; justify-content: space-between;">
-                        <div style="width: 200px; text-align: center;">
-                            <p>Dianalisis Oleh:</p>
-                            <div style="border-bottom: 1px solid #000; margin-bottom: 5px; height: 35px;"></div>
-                            <p style="font-weight: bold;">(Urus Setia Sukantara)</p>
-                        </div>
-                        <div style="width: 200px; text-align: center;">
-                            <p>Diluluskan Oleh:</p>
-                            <div style="border-bottom: 1px solid #000; margin-bottom: 5px; height: 35px;"></div>
-                            <p style="font-weight: bold;">(Guru Besar / PK Kokurikulum)</p>
-                        </div>
-                    </div>
-
-                    <script>
-                        window.onload = function() {
-                            window.print();
-                        }
-                    <\/script>
-                </body>
-                </html>
-            `;
-
-            printWindow.document.write(printTemplate);
-            printWindow.document.close();
-        }
-
-        function renderRepresentativeView() {
-            const houseFilter = document.getElementById('wakilHouseFilter').value;
-            const container = document.getElementById('wakilResultsContainer');
-            if (!container) return;
-
-            container.innerHTML = "";
-            const data = getRepresentativesData(houseFilter);
-
-            if (data.length === 0) {
-                container.innerHTML = `
-                    <div class="col-span-2 text-center p-6 text-slate-400 font-medium">
-                        <i class="fa-solid fa-triangle-exclamation text-base mb-1 block text-slate-300"></i>
-                        Tiada atlet yang mempunyai rekod bertulis lagi untuk dicalonkan sebagai wakil. Sila masukkan data pencapaian terlebih dahulu.
-                    </div>
-                `;
-                return;
-            }
-
-            data.forEach(cat => {
-                const card = document.createElement('div');
-                card.className = "bg-slate-50 rounded-xl border border-slate-200 p-3 shadow-sm space-y-2";
-
-                const isMale = cat.gender === 'L';
-                const genderIcon = isMale ? 'fa-mars text-blue-500' : 'fa-venus text-pink-500';
-                const genderLabel = isMale ? 'Lelaki' : 'Perempuan';
-
-                card.innerHTML = `
-                    <div class="flex items-center justify-between border-b border-slate-200 pb-1.5">
-                        <h3 class="text-[10px] font-extrabold text-slate-900 tracking-tight flex items-center gap-1">
-                            <i class="fa-solid ${genderIcon}"></i>
-                            <span>Kelas ${cat.className} (${genderLabel})</span>
-                        </h3>
-                    </div>
-                    <div class="space-y-2" id="cat-events-${cat.className.replace(/\s+/g, '')}-${cat.gender}">
-                        <!-- Loaded dynamically -->
-                    </div>
-                `;
-
-                const eventsContainer = card.querySelector(`#cat-events-${cat.className.replace(/\s+/g, '')}-${cat.gender}`);
-
-                cat.events.forEach(ev => {
-                    const eventDiv = document.createElement('div');
-                    eventDiv.className = "bg-white p-2 rounded-lg border border-slate-100 shadow-inner flex flex-col gap-1";
-
-                    let studentsHtml = "";
-                    if (ev.topStudents.length === 0) {
-                        studentsHtml = `<div class="text-[9px] text-slate-400 font-medium italic pl-1">Tiada calon layak dikesan.</div>`;
-                    } else {
-                        ev.topStudents.forEach((stud, idx) => {
-                            const medal = idx === 0 ? '🥇' : '🥈';
-                            const badgeTheme = idx === 0 ? 'bg-amber-50 text-amber-800 border-amber-200' : 'bg-slate-50 text-slate-700 border-slate-200';
-                            
-                            studentsHtml += `
-                                <div class="flex items-center justify-between px-2 py-1 rounded border ${badgeTheme} text-[9px] font-bold">
-                                    <div class="flex items-center gap-1.5 truncate">
-                                        <span>${medal}</span>
-                                        <span class="truncate uppercase max-w-[150px]">${stud.name}</span>
-                                    </div>
-                                    <div class="flex items-center gap-2">
-                                        <span class="px-1.5 py-0.5 rounded bg-blue-100 text-blue-800 text-[8px]">${stud.house}</span>
-                                        <span class="text-amber-600">${stud.record}</span>
-                                    </div>
-                                </div>
-                            `;
-                        });
-                    }
-
-                    eventDiv.innerHTML = `
-                        <div class="text-[9px] font-extrabold text-blue-900 uppercase flex items-center gap-1 pl-1">
-                            <i class="fa-solid fa-circle-dot text-[7px] text-amber-500"></i>
-                            <span>${ev.eventName}</span>
-                        </div>
-                        <div class="space-y-1">
-                            ${studentsHtml}
-                        </div>
-                    `;
-                    eventsContainer.appendChild(eventDiv);
-                });
-
-                container.appendChild(card);
-            });
-        }
-
-        async function sendToGoogleSheets(action, data) {
-            if (!googleScriptUrl) return;
+        // DELIMa & Google Auth Popup Sign-In
+        async function loginWithGoogle() {
             try {
-                updateDbStatus(true, "Menghantar data...");
-                const payload = { action: action };
-                if (action === "saveStudent" || action === "saveHouse") {
-                    payload.data = data;
-                } else if (action === "deleteStudent" || action === "deleteHouse") {
-                    payload.id = data;
-                } else if (action === "bulkImport") {
-                    payload.students = data;
-                }
-                
-                await fetch(googleScriptUrl, {
-                    method: "POST",
-                    mode: "no-cors",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify(payload)
-                });
-                updateDbStatus(false, "Berjaya Diselaraskan");
+                const result = await signInWithPopup(auth, provider);
+                showToast(`Log masuk berjaya! Selamat kembali, ${result.user.displayName}`, "success");
             } catch (error) {
-                console.error("Error sending to Sheets:", error);
-                updateDbStatus(false, "Gagal Selaras", "danger");
-            }
-        }
-
-        async function fetchFromGoogleSheets() {
-            if (!googleScriptUrl) return null;
-            try {
-                updateDbStatus(true, "Memuat turun data...");
-                const response = await fetch(googleScriptUrl);
-                const result = await response.json();
-                if (result && result.success) {
-                    updateDbStatus(false, "Berjaya Diselaraskan");
-                    return result;
+                console.error("Auth Error:", error);
+                if (error.code === 'auth/operation-not-supported-in-this-environment' || window.location.protocol === 'blob:') {
+                    showToast("Sekatan pelayar dikesan! Melancarkan Mod Bypass secara automatik...", "warning");
+                    triggerBypassAdmin();
                 } else {
-                    updateDbStatus(false, "Ralat Google Sheets", "danger");
-                    return null;
+                    showToast(`Log masuk gagal: ${error.message}`, "danger");
                 }
-            } catch (error) {
-                console.error("Error fetching from Sheets:", error);
-                updateDbStatus(false, "Gagal Membaca", "danger");
-                return null;
             }
         }
 
-        function updateDbStatus(syncing, text, type = "success") {
-            const badge = document.getElementById('dbStatusBadge');
-            const indicator = document.getElementById('dbStatusIndicator');
-            const statusText = document.getElementById('dbStatusText');
-            if (!badge || !indicator || !statusText) return;
-            
-            if (syncing) {
-                indicator.className = "w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse";
-                statusText.innerText = text || "Menghubungi Google Sheets...";
-                badge.className = "px-2.5 py-1 text-[10px] font-semibold rounded-full bg-amber-50 text-amber-700 border border-amber-200 flex items-center gap-1.5 shadow-sm transition-all duration-300";
+        function triggerBypassAdmin() {
+            currentUser = {
+                email: "sekolah-7608@moe-dl.edu.my",
+                displayName: "Admin Utama (Simulasi Sandbox)",
+                photoURL: ""
+            };
+            document.getElementById('loginScreen').classList.add('hidden');
+            showToast("Bypass Berjaya! Anda telah dilog masuk sebagai Admin Utama.", "success");
+            initDatabase();
+        }
+
+        document.getElementById('delimaLoginBtn').addEventListener('click', loginWithGoogle);
+        document.getElementById('googlePersonalLoginBtn').addEventListener('click', loginWithGoogle);
+        document.getElementById('bypassLoginBtn').addEventListener('click', triggerBypassAdmin);
+
+        async function initDatabase() {
+            const savedUrl = localStorage.getItem('sukantara_gscript_url');
+            if (savedUrl) {
+                googleScriptUrl = savedUrl;
             } else {
-                if (type === "success") {
-                    indicator.className = "w-1.5 h-1.5 rounded-full bg-emerald-500";
-                    statusText.innerText = text || "Sheets Aktif";
-                    badge.className = "px-2.5 py-1 text-[10px] font-semibold rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1.5 shadow-sm transition-all duration-300";
-                } else {
-                    indicator.className = "w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse";
-                    statusText.innerText = text || "Sambungan Gagal";
-                    badge.className = "px-2.5 py-1 text-[10px] font-semibold rounded-full bg-rose-50 text-rose-700 border border-rose-200 flex items-center gap-1.5 shadow-sm transition-all duration-300";
-                }
+                localStorage.setItem('sukantara_gscript_url', googleScriptUrl);
             }
+            
+            const urlInput = document.getElementById('gscriptUrlInput');
+            if (urlInput) {
+                urlInput.value = googleScriptUrl;
+            }
+
+            const savedThresholds = localStorage.getItem('sukantara_thresholds_v2');
+            if (savedThresholds) {
+                thresholds = JSON.parse(savedThresholds);
+            } else {
+                localStorage.setItem('sukantara_thresholds_v2', JSON.stringify(thresholds));
+            }
+            updateThresholdInputsUI();
+            setupThresholdListeners();
+
+            const localHouses = localStorage.getItem('sukantara_houses');
+            const localStudents = localStorage.getItem('sukantara_students');
+            if (localHouses) {
+                houses = JSON.parse(localHouses);
+            } else {
+                houses = [
+                    { id: "h1", name: "Merah" },
+                    { id: "h2", name: "Biru" },
+                    { id: "h3", name: "Kuning" },
+                    { id: "h4", name: "Hijau" }
+                ];
+                localStorage.setItem('sukantara_houses', JSON.stringify(houses));
+            }
+
+            if (localStudents) {
+                students = JSON.parse(localStudents);
+                normalizeAllStoredData();
+            } else {
+                students = [];
+            }
+
+            seedMockStudentsIfEmpty();
+
+            if (houses.length > 0 && !activeHouseTab) {
+                activeHouseTab = houses[0].name;
+            }
+
+            applyThresholdVisibility();
+            syncData();
+
+            updateDbStatus(false, "Sedia (Awan Masa Nyata)");
+            updateUserHeaderAndPermissions();
         }
 
         function normalizeAllStoredData() {
@@ -1736,59 +1010,56 @@
             }
         }
 
-        async function initDatabase() {
-            const savedUrl = localStorage.getItem('sukantara_gscript_url');
-            if (savedUrl) {
-                googleScriptUrl = savedUrl;
-            } else {
-                localStorage.setItem('sukantara_gscript_url', googleScriptUrl);
+        // Update User Profile Card & Admin Locks
+        function updateUserHeaderAndPermissions() {
+            if (!currentUser) {
+                document.getElementById('loginScreen').classList.remove('hidden');
+                return;
             }
+
+            document.getElementById('loginScreen').classList.add('hidden');
             
-            const urlInput = document.getElementById('gscriptUrlInput');
-            if (urlInput) {
-                urlInput.value = googleScriptUrl;
-            }
-
-            const savedThresholds = localStorage.getItem('sukantara_thresholds_v2');
-            if (savedThresholds) {
-                thresholds = JSON.parse(savedThresholds);
+            // Profile Card Info
+            const avatarImg = document.getElementById('userAvatar');
+            if (currentUser.photoURL) {
+                avatarImg.src = currentUser.photoURL;
             } else {
-                localStorage.setItem('sukantara_thresholds_v2', JSON.stringify(thresholds));
+                avatarImg.src = `https://placehold.co/32x32/1e3a8a/ffffff?text=${currentUser.displayName.charAt(0)}`;
             }
-            updateThresholdInputsUI();
-            setupThresholdListeners();
+            document.getElementById('userName').textContent = currentUser.displayName;
+            document.getElementById('userEmail').textContent = currentUser.email;
 
-            const localHouses = localStorage.getItem('sukantara_houses');
-            const localStudents = localStorage.getItem('sukantara_students');
-            if (localHouses) {
-                houses = JSON.parse(localHouses);
+            // Check Admin Status
+            const isAdmin = (currentUser.email === "sekolah-7608@moe-dl.edu.my");
+            const roleText = document.getElementById('roleText');
+            const roleBadge = document.getElementById('roleBadge');
+            const roleIndicator = document.getElementById('roleIndicator');
+
+            if (isAdmin) {
+                roleText.textContent = "Admin Utama 👑";
+                roleBadge.className = "px-2 py-1 text-[8px] sm:text-[10px] font-bold rounded-full bg-amber-500 text-white border border-amber-600 flex items-center gap-1 shadow-sm animate-pulse";
+                roleIndicator.className = "w-1.5 h-1.5 rounded-full bg-yellow-200";
+                
+                // Show Admin Controls
+                document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('hidden'));
+                document.querySelectorAll('.threshold-input').forEach(el => el.disabled = false);
             } else {
-                houses = [
-                    { id: "h1", name: "Merah" },
-                    { id: "h2", name: "Biru" },
-                    { id: "h3", name: "Kuning" },
-                    { id: "h4", name: "Hijau" }
-                ];
-                localStorage.setItem('sukantara_houses', JSON.stringify(houses));
+                // Determine if DELIMa user
+                const isDelima = currentUser.email.endsWith('@moe-dl.edu.my') || currentUser.email.endsWith('@moe.edu.my');
+                if (isDelima) {
+                    roleText.textContent = "Penyelaras KPM 🎓";
+                    roleBadge.className = "px-2 py-1 text-[8px] sm:text-[10px] font-bold rounded-full bg-blue-600 text-white border border-blue-700 flex items-center gap-1 shadow-sm";
+                    roleIndicator.className = "w-1.5 h-1.5 rounded-full bg-blue-300";
+                } else {
+                    roleText.textContent = "Penyelaras Sukan";
+                    roleBadge.className = "px-2 py-1 text-[8px] sm:text-[10px] font-bold rounded-full bg-slate-100 text-slate-700 border border-slate-200 flex items-center gap-1 shadow-sm";
+                    roleIndicator.className = "w-1.5 h-1.5 rounded-full bg-slate-400";
+                }
+
+                // Hide Admin Controls
+                document.querySelectorAll('.admin-only').forEach(el => el.classList.add('hidden'));
+                document.querySelectorAll('.threshold-input').forEach(el => el.disabled = true);
             }
-
-            if (localStudents) {
-                students = JSON.parse(localStudents);
-                normalizeAllStoredData();
-            } else {
-                students = [];
-            }
-
-            seedMockStudentsIfEmpty();
-
-            if (houses.length > 0) {
-                activeHouseTab = houses[0].name;
-            }
-
-            applyThresholdVisibility();
-            syncData();
-
-            updateDbStatus(false, "Sedia (Tempatan)");
         }
 
         const studentForm = document.getElementById('studentForm');
@@ -1819,7 +1090,7 @@
         const saveThresholdConfigBtn = document.getElementById('saveThresholdConfigBtn');
         const resetThresholdsBtn = document.getElementById('resetThresholdsBtn');
 
-        // New Features Event Listeners
+        // Interactive Event Buttons
         const printReportBtn = document.getElementById('printReportBtn');
         const resetHouseRecordsBtn = document.getElementById('resetHouseRecordsBtn');
         const pilihWakilBtn = document.getElementById('pilihWakilBtn');
@@ -2290,7 +1561,803 @@
             });
         }
 
+        function normalizeGender(g) {
+            const raw = g.toString().toUpperCase().trim();
+            if (raw.startsWith("P") || raw.startsWith("W") || raw === "PEREMPUAN") return "P";
+            return "L";
+        }
+
+        function normalizeClass(c) {
+            const raw = c.toString().toUpperCase().trim();
+            if (raw.includes("PRA") || raw.includes("PRE")) return "Pra Sekolah";
+            if (raw.includes("1") || raw.includes("T1")) return "T1";
+            if (raw.includes("2") || raw.includes("T2")) return "T2";
+            if (raw.includes("3") || raw.includes("T3")) return "T3";
+            if (raw.includes("4") || raw.includes("T4")) return "T4";
+            if (raw.includes("5") || raw.includes("T5")) return "T5";
+            if (raw.includes("6") || raw.includes("T6")) return "T6";
+            return "T1";
+        }
+
+        // Database Helpers
+        async function saveStudentToDb(student) {
+            try {
+                await setDoc(doc(db, "artifacts/sukantara-sekolah-2026/public/data/students", student.id), student);
+                sendToGoogleSheets("saveStudent", student).catch(console.error);
+            } catch (err) {
+                console.error("Firestore error saving student:", err);
+            }
+        }
+
+        async function deleteStudentFromDb(id) {
+            try {
+                await deleteDoc(doc(db, "artifacts/sukantara-sekolah-2026/public/data/students", id));
+                sendToGoogleSheets("deleteStudent", id).catch(console.error);
+            } catch (err) {
+                console.error("Firestore error deleting student:", err);
+            }
+        }
+
+        async function saveHouseToDb(house) {
+            try {
+                await setDoc(doc(db, "artifacts/sukantara-sekolah-2026/public/data/houses", house.id), house);
+                sendToGoogleSheets("saveHouse", house).catch(console.error);
+            } catch (err) {
+                console.error("Firestore error saving house:", err);
+            }
+        }
+
+        async function deleteHouseFromDb(id) {
+            try {
+                await deleteDoc(doc(db, "artifacts/sukantara-sekolah-2026/public/data/houses", id));
+            } catch (err) {
+                console.error("Firestore error deleting house:", err);
+            }
+        }
+
+        async function sendToGoogleSheets(action, payload) {
+            if (!googleScriptUrl) return;
+            try {
+                const response = await fetch(googleScriptUrl, {
+                    method: "POST",
+                    mode: "no-cors",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ action: action, data: payload })
+                });
+                updateDbStatus(true, "Berjaya Diselaraskan");
+            } catch (e) {
+                console.warn("GScript request failed:", e);
+                updateDbStatus(false, "Sedia (Tempatan)");
+            }
+        }
+
+        async function fetchFromGoogleSheets() {
+            if (!googleScriptUrl) return null;
+            try {
+                const response = await fetch(`${googleScriptUrl}?action=getAll`);
+                if (response.ok) {
+                    const data = await response.json();
+                    return data;
+                }
+            } catch (e) {
+                console.error("Failed to fetch from Google Sheets:", e);
+            }
+            return null;
+        }
+
+        function updateDbStatus(isConnected, text) {
+            const badge = document.getElementById('dbStatusBadge');
+            const ind = document.getElementById('dbStatusIndicator');
+            const statusText = document.getElementById('dbStatusText');
+            
+            if (!badge) return;
+
+            if (isConnected) {
+                badge.className = "px-2 py-1 text-[8px] sm:text-[10px] font-bold rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100 flex items-center gap-1 shadow-sm";
+                ind.className = "w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse";
+                statusText.textContent = text;
+            } else {
+                badge.className = "px-2 py-1 text-[8px] sm:text-[10px] font-bold rounded-full bg-amber-50 text-amber-700 border border-amber-100 flex items-center gap-1 shadow-sm";
+                ind.className = "w-1.5 h-1.5 rounded-full bg-amber-400";
+                statusText.textContent = text;
+            }
+        }
+
+        // Realtime sync changes to interface
+        function syncData() {
+            // Save to localStorage
+            localStorage.setItem('sukantara_students', JSON.stringify(students));
+            localStorage.setItem('sukantara_houses', JSON.stringify(houses));
+
+            // Render components
+            renderHouseTabs();
+            renderWorksheetTable();
+        }
+
+        function setupThresholdListeners() {
+            const inputs = document.querySelectorAll('.threshold-input');
+            inputs.forEach(input => {
+                input.addEventListener('change', (e) => {
+                    const category = e.target.dataset.category;
+                    const field = e.target.dataset.field;
+                    const val = e.target.value.trim();
+                    
+                    if (category && field && val) {
+                        thresholds[category][field] = val;
+                        localStorage.setItem('sukantara_thresholds_v2', JSON.stringify(thresholds));
+                        updateThresholdInputsUI();
+                        reEvaluateAllStudents();
+                        syncData();
+                        showToast(`Had Min '${field}' bagi Kategori '${category}' dikemaskini!`, "info");
+                    }
+                });
+            });
+        }
+
+        function renderHouseTabs() {
+            const container = document.getElementById('houseTabsContainer');
+            if (!container) return;
+
+            container.innerHTML = "";
+
+            houses.forEach(house => {
+                const normName = house.name.toLowerCase();
+                const colors = houseColorMap[normName] || houseColorMap['slate'];
+                
+                const memberCount = students.filter(s => s.house === house.name).length;
+                const isActive = activeHouseTab === house.name;
+                
+                const btn = document.createElement('button');
+                btn.className = `flex-shrink-0 px-3 py-1.5 text-[9px] font-bold rounded-xl border transition-all flex items-center gap-1.5 outline-none ${isActive ? colors.activeBtn : colors.inactiveBtn}`;
+                
+                btn.innerHTML = `
+                    <span class="w-1.5 h-1.5 rounded-full ${isActive ? 'bg-white' : 'bg-' + normName + '-500'}" style="background-color: ${normName === 'kuning' ? '#d97706' : ''}"></span>
+                    <span class="uppercase tracking-wide leading-none">${house.name}</span>
+                    <span class="px-1.5 py-0.5 rounded-md text-[8px] font-extrabold ${isActive ? colors.activeBadge : colors.inactiveBadge}">${memberCount}</span>
+                `;
+
+                btn.addEventListener('click', () => {
+                    activeHouseTab = house.name;
+                    syncData();
+                });
+
+                container.appendChild(btn);
+            });
+        }
+
+        function renderWorksheetTable() {
+            const body = document.getElementById('worksheetBody');
+            if (!body) return;
+
+            body.innerHTML = "";
+
+            // Filter by Active House
+            let filtered = students.filter(s => s.house === activeHouseTab);
+
+            // House Stats Summary
+            const totalPointsHouse = filtered.reduce((acc, curr) => acc + (curr.totalPoints || 0), 0);
+            const totalMembersHouse = filtered.length;
+
+            document.getElementById('houseTotalMembers').textContent = totalMembersHouse;
+            document.getElementById('houseTotalPoints').textContent = totalPointsHouse;
+
+            // Sorting
+            if (currentSortOption === "name_asc") {
+                filtered.sort((a, b) => a.name.localeCompare(b.name));
+            } else if (currentSortOption === "class_asc") {
+                filtered.sort((a, b) => a.studentClass.localeCompare(b.studentClass));
+            } else if (currentSortOption === "gender_l_p") {
+                filtered.sort((a, b) => a.gender.localeCompare(b.gender));
+            }
+
+            if (filtered.length === 0) {
+                body.innerHTML = `
+                    <tr>
+                        <td colspan="11" class="py-6 text-center text-slate-400 font-medium">
+                            <i class="fa-solid fa-folder-open text-base mb-1.5 block text-slate-300"></i>
+                            Tiada murid berdaftar di bawah Rumah ${activeHouseTab}. Klik butang Gear (⚙️) untuk mendaftar murid baru.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            filtered.forEach((student, index) => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50/50 transition-colors border-b border-slate-100";
+                
+                const cat = getCategory(student.studentClass);
+
+                // Row Construction
+                tr.innerHTML = `
+                    <td class="py-2 px-1 text-center font-bold text-slate-400">${index + 1}</td>
+                    <td class="py-2 px-2 font-bold text-slate-800 leading-tight uppercase truncate max-w-[200px]" title="${student.name}">${student.name}</td>
+                    <td class="py-2 px-0.5 text-center font-bold text-slate-500">${student.gender}</td>
+                    <td class="py-2 px-0.5 text-center font-bold text-slate-500">${student.studentClass}</td>
+                    
+                    <!-- LOMPAT JAUH -->
+                    <td class="py-1 px-1 bg-blue-50/10 border-r border-slate-100/80">
+                        <div class="flex items-center gap-1 justify-center">
+                            <input type="checkbox" class="w-3.5 h-3.5 rounded border-slate-300 text-blue-600 focus:ring-0 event-checkbox" data-student-id="${student.id}" data-field="longJump" ${student.longJumpEligible ? 'checked' : ''}>
+                            <input type="text" class="w-16 px-1.5 py-1 text-center bg-white border border-slate-200 rounded font-bold text-slate-800 text-[10px] event-record-input" data-student-id="${student.id}" data-field="longJump" placeholder="${thresholds[cat].longJump}m" value="${student.longJumpRecord || ''}">
+                        </div>
+                    </td>
+
+                    <!-- LOMPAT TINGGI -->
+                    <td class="py-1 px-1 bg-teal-50/10 border-r border-slate-100/80">
+                        <div class="flex items-center gap-1 justify-center">
+                            <input type="checkbox" class="w-3.5 h-3.5 rounded border-slate-300 text-teal-600 focus:ring-0 event-checkbox" data-student-id="${student.id}" data-field="highJump" ${student.highJumpEligible ? 'checked' : ''}>
+                            <input type="text" class="w-16 px-1.5 py-1 text-center bg-white border border-slate-200 rounded font-bold text-slate-800 text-[10px] event-record-input" data-student-id="${student.id}" data-field="highJump" placeholder="${thresholds[cat].highJump}m" value="${student.highJumpRecord || ''}">
+                        </div>
+                    </td>
+
+                    <!-- LARIAN -->
+                    <td class="py-1 px-1 bg-indigo-50/10 border-r border-slate-100/80">
+                        <div class="flex items-center gap-1 justify-center">
+                            <input type="checkbox" class="w-3.5 h-3.5 rounded border-slate-300 text-indigo-600 focus:ring-0 event-checkbox" data-student-id="${student.id}" data-field="running" ${student.runningEligible ? 'checked' : ''}>
+                            <input type="text" class="w-16 px-1.5 py-1 text-center bg-white border border-slate-200 rounded font-bold text-slate-800 text-[10px] event-record-input" data-student-id="${student.id}" data-field="running" placeholder="${thresholds[cat].running}s" value="${student.runningRecord || ''}">
+                        </div>
+                    </td>
+
+                    <!-- LONTAR PELURU -->
+                    <td class="py-1 px-1 bg-purple-50/10 border-r border-slate-100/80">
+                        <div class="flex items-center gap-1 justify-center">
+                            <input type="checkbox" class="w-3.5 h-3.5 rounded border-slate-300 text-purple-600 focus:ring-0 event-checkbox" data-student-id="${student.id}" data-field="shotPut" ${student.shotPutEligible ? 'checked' : ''}>
+                            <input type="text" class="w-16 px-1.5 py-1 text-center bg-white border border-slate-200 rounded font-bold text-slate-800 text-[10px] event-record-input" data-student-id="${student.id}" data-field="shotPut" placeholder="${thresholds[cat].shotPut}m" value="${student.shotPutRecord || ''}">
+                        </div>
+                    </td>
+
+                    <!-- JUMLAH & CATATAN -->
+                    <td class="py-2 px-0.5 text-center font-extrabold text-slate-900 bg-slate-50/40 text-xs">${student.totalPoints || 0}</td>
+                    <td class="py-1 px-1.5">
+                        <input type="text" class="w-full px-2 py-1 bg-white hover:bg-slate-50 focus:bg-white border border-slate-100 rounded text-[9px] font-medium text-slate-600 outline-none event-notes-input" data-student-id="${student.id}" placeholder="Catatan..." value="${student.notes || ''}">
+                    </td>
+                    <td class="py-2 px-1 text-center">
+                        <button class="p-1 text-slate-300 hover:text-rose-600 transition-colors delete-student-row-btn" data-student-id="${student.id}">
+                            <i class="fa-solid fa-trash-can text-[10px]"></i>
+                        </button>
+                    </td>
+                `;
+
+                // Realtime Auto-Tick Evaluation on Record Change
+                const recordInputs = tr.querySelectorAll('.event-record-input');
+                recordInputs.forEach(inp => {
+                    inp.addEventListener('change', (e) => {
+                        const field = e.target.dataset.field;
+                        let rawVal = e.target.value.trim();
+                        
+                        // Strip trailing letters (m, s)
+                        let numericStr = rawVal.replace(/[^\d.-]/g, '');
+                        let numericVal = parseFloat(numericStr);
+                        
+                        if (!isNaN(numericVal)) {
+                            // Format neatly back to input box
+                            const unit = (field === 'running') ? 's' : 'm';
+                            student[`${field}Record`] = numericVal.toFixed(2) + unit;
+                            e.target.value = student[`${field}Record`];
+                            
+                            // Check eligibility thresholds
+                            const thresholdVal = parseFloat(thresholds[cat][field]);
+                            const isEligible = (field === 'running') ? (numericVal <= thresholdVal) : (numericVal >= thresholdVal);
+                            
+                            student[`${field}Eligible`] = isEligible;
+                            const chk = tr.querySelector(`.event-checkbox[data-field="${field}"]`);
+                            if (chk) chk.checked = isEligible;
+                        } else {
+                            student[`${field}Record`] = "";
+                            e.target.value = "";
+                        }
+                        
+                        updateTotalPoints(student, tr);
+                        saveStudentToDb(student);
+                    });
+                });
+
+                // Manual Toggle Box Override
+                const checkboxes = tr.querySelectorAll('.event-checkbox');
+                checkboxes.forEach(chk => {
+                    chk.addEventListener('change', (e) => {
+                        const field = e.target.dataset.field;
+                        student[`${field}Eligible`] = e.target.checked;
+                        
+                        updateTotalPoints(student, tr);
+                        saveStudentToDb(student);
+                    });
+                });
+
+                // Notes Change
+                const notesInp = tr.querySelector('.event-notes-input');
+                notesInp.addEventListener('change', (e) => {
+                    student.notes = e.target.value.trim();
+                    saveStudentToDb(student);
+                });
+
+                // Row Delete Trigger
+                const delBtn = tr.querySelector('.delete-student-row-btn');
+                delBtn.addEventListener('click', () => {
+                    showConfirm(
+                        "Padam Ahli Murid",
+                        `Adakah anda pasti mahu mengeluarkan '${student.name}' dari pengkalan data sekolah?`,
+                        true,
+                        "Ya, Padam",
+                        () => {
+                            students = students.filter(s => s.id !== student.id);
+                            deleteStudentFromDb(student.id);
+                            syncData();
+                            showToast(`Murid '${student.name}' dipadam secara kekal.`, "success");
+                        }
+                    );
+                });
+
+                body.appendChild(tr);
+            });
+        }
+
+        function updateTotalPoints(student, tr) {
+            student.totalPoints = (student.longJumpEligible ? 1 : 0) + 
+                                 (student.highJumpEligible ? 1 : 0) + 
+                                 (student.runningEligible ? 1 : 0) + 
+                                 (student.shotPutEligible ? 1 : 0);
+            
+            // Re-render only stats bar & point cell to avoid rebuilding tree mid-focus
+            const pointCell = tr.querySelector('td:nth-last-child(3)');
+            if (pointCell) pointCell.textContent = student.totalPoints;
+            
+            // Live stats updates
+            let filtered = students.filter(s => s.house === activeHouseTab);
+            const totalPointsHouse = filtered.reduce((acc, curr) => acc + (curr.totalPoints || 0), 0);
+            document.getElementById('houseTotalPoints').textContent = totalPointsHouse;
+        }
+
+        // Universal UX Toast alerts
+        function showToast(message, type = "info") {
+            const container = document.getElementById('toastContainer');
+            if (!container) return;
+
+            const toast = document.createElement('div');
+            toast.className = "animate-fadeIn flex items-center gap-2 px-3 py-2.5 rounded-xl border text-[10px] font-bold shadow-lg max-w-sm transition-all duration-300 bg-white border-slate-100 text-slate-800";
+            
+            let icon = '<i class="fa-solid fa-circle-info text-blue-500"></i>';
+            if (type === "success") {
+                toast.classList.add("border-emerald-100", "bg-emerald-50/50", "text-emerald-800");
+                icon = '<i class="fa-solid fa-circle-check text-emerald-600"></i>';
+            } else if (type === "warning") {
+                toast.classList.add("border-amber-100", "bg-amber-50/50", "text-amber-800");
+                icon = '<i class="fa-solid fa-triangle-exclamation text-amber-500"></i>';
+            } else if (type === "danger") {
+                toast.classList.add("border-rose-100", "bg-rose-50/50", "text-rose-800");
+                icon = '<i class="fa-solid fa-circle-exclamation text-rose-600"></i>';
+            }
+
+            toast.innerHTML = `${icon} <span class="flex-1 leading-normal">${message}</span>`;
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.add("opacity-0", "translate-y-2");
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
+
+        // System Safe Confirmation Box
+        function showConfirm(title, message, isDangerous, actionText, callback) {
+            const modal = document.getElementById('confirmModal');
+            const confirmTitle = document.getElementById('confirmTitle');
+            const confirmMsg = document.getElementById('confirmMessage');
+            const yesBtn = document.getElementById('confirmYesBtn');
+            const iconContainer = document.getElementById('confirmIconContainer');
+            const icon = document.getElementById('confirmIcon');
+
+            if (!modal) return;
+
+            confirmTitle.textContent = title;
+            confirmMsg.textContent = message;
+            yesBtn.textContent = actionText;
+
+            if (isDangerous) {
+                yesBtn.className = "px-2.5 py-1.5 text-[10px] font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-lg transition-colors shadow-md";
+                iconContainer.className = "w-8 h-8 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center text-sm mb-2.5 animate-bounce";
+                icon.className = "fa-solid fa-circle-exclamation";
+            } else {
+                yesBtn.className = "px-2.5 py-1.5 text-[10px] font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors shadow-md";
+                iconContainer.className = "w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-sm mb-2.5";
+                icon.className = "fa-solid fa-circle-question";
+            }
+
+            confirmCallback = callback;
+            modal.classList.remove('hidden');
+        }
+
+        const confirmCancelBtn = document.getElementById('confirmCancelBtn');
+        const confirmYesBtn = document.getElementById('confirmYesBtn');
+
+        if (confirmCancelBtn) {
+            confirmCancelBtn.addEventListener('click', () => {
+                document.getElementById('confirmModal').classList.add('hidden');
+                confirmCallback = null;
+            });
+        }
+
+        if (confirmYesBtn) {
+            confirmYesBtn.addEventListener('click', () => {
+                if (confirmCallback) confirmCallback();
+                document.getElementById('confirmModal').classList.add('hidden');
+                confirmCallback = null;
+            });
+        }
+
+        function getRepresentativesData(selectedHouse) {
+            let activePool = students;
+            if (selectedHouse && selectedHouse !== "ALL") {
+                activePool = students.filter(s => s.house === selectedHouse);
+            }
+
+            const classes = ["Pra Sekolah", "T1", "T2", "T3", "T4", "T5", "T6"];
+            const events = ["longJump", "highJump", "running", "shotPut"];
+            let rankedData = {};
+
+            classes.forEach(cls => {
+                rankedData[cls] = {};
+                
+                events.forEach(event => {
+                    // Filter students in class with valid records
+                    let list = activePool.filter(s => {
+                        if (s.studentClass !== cls) return false;
+                        const rec = s[`${event}Record`] || "";
+                        const val = parseFloat(rec);
+                        return !isNaN(val);
+                    });
+
+                    // Sort: running is ascending (smaller is better), others are descending (larger is better)
+                    list.sort((a, b) => {
+                        const valA = parseFloat(a[`${event}Record`]);
+                        const valB = parseFloat(b[`${event}Record`]);
+                        if (event === 'running') {
+                            return valA - valB;
+                        } else {
+                            return valB - valA;
+                        }
+                    });
+
+                    // Grab Top 2
+                    rankedData[cls][event] = list.slice(0, 2);
+                });
+            });
+
+            return rankedData;
+        }
+
+        function renderRepresentativeView() {
+            const container = document.getElementById('wakilResultsContainer');
+            if (!container) return;
+
+            container.innerHTML = "";
+
+            // Populate Houses Filter dropdown in Modal
+            const filterDropdown = document.getElementById('wakilHouseFilter');
+            if (filterDropdown && filterDropdown.options.length <= 1) {
+                houses.forEach(h => {
+                    const opt = document.createElement('option');
+                    opt.value = h.name;
+                    opt.textContent = `Rumah ${h.name}`;
+                    filterDropdown.appendChild(opt);
+                });
+            }
+
+            const selectedHouse = filterDropdown.value;
+            const data = getRepresentativesData(selectedHouse);
+
+            const classes = ["Pra Sekolah", "T1", "T2", "T3", "T4", "T5", "T6"];
+            const eventLabels = {
+                longJump: { title: "Lompat Jauh", icon: "fa-person-running", color: "blue" },
+                highJump: { title: "Lompat Tinggi", icon: "fa-arrows-up-down", color: "teal" },
+                running: { title: "Larian Akhir", icon: "fa-stopwatch", color: "indigo" },
+                shotPut: { title: "Lontar Peluru", icon: "fa-circle-dot", color: "purple" }
+            };
+
+            classes.forEach(cls => {
+                const card = document.createElement('div');
+                card.className = "bg-slate-50 border border-slate-100 rounded-2xl p-3 space-y-2.5 shadow-sm";
+                
+                card.innerHTML = `
+                    <div class="border-b border-slate-200 pb-1.5 flex items-center justify-between">
+                        <h3 class="text-xs font-black text-slate-800 flex items-center gap-1.5 uppercase tracking-wide">
+                            <i class="fa-solid fa-graduation-cap text-indigo-600"></i>
+                            Kategori: ${cls}
+                        </h3>
+                        <span class="px-2 py-0.5 bg-indigo-50 border border-indigo-100 text-indigo-700 font-bold rounded-full text-[8px] uppercase">Wakil Elit</span>
+                    </div>
+                    <div class="space-y-2" id="eventsList_${cls.replace(/\s+/g, '')}"></div>
+                `;
+
+                container.appendChild(card);
+                const listContainer = document.getElementById(`eventsList_${cls.replace(/\s+/g, '')}`);
+
+                Object.keys(eventLabels).forEach(event => {
+                    const label = eventLabels[event];
+                    const topList = data[cls][event] || [];
+                    
+                    const eventBlock = document.createElement('div');
+                    eventBlock.className = "space-y-1 bg-white p-2 rounded-xl border border-slate-100";
+                    
+                    let rowsHtml = "";
+                    if (topList.length === 0) {
+                        rowsHtml = `<div class="text-[8px] font-semibold text-slate-400 italic">Tiada data kelayakan dicatatkan</div>`;
+                    } else {
+                        topList.forEach((stud, i) => {
+                            const badgeColor = i === 0 ? "bg-amber-500 text-white shadow-sm" : "bg-slate-200 text-slate-700";
+                            rowsHtml += `
+                                <div class="flex items-center justify-between text-[9px] gap-2">
+                                    <div class="flex items-center gap-1.5 min-w-0">
+                                        <span class="w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-black ${badgeColor}">${i + 1}</span>
+                                        <span class="font-extrabold text-slate-700 truncate uppercase" title="${stud.name}">${stud.name}</span>
+                                        <span class="text-[7px] font-extrabold px-1 py-0.5 bg-slate-100 text-slate-400 border border-slate-100 rounded">${stud.house}</span>
+                                    </div>
+                                    <span class="font-black text-slate-900 bg-slate-50 border border-slate-100 rounded px-1.5 py-0.5">${stud[`${event}Record`]}</span>
+                                </div>
+                            `;
+                        });
+                    }
+
+                    eventBlock.innerHTML = `
+                        <div class="flex items-center gap-1 text-[9px] font-black text-${label.color}-700 uppercase tracking-wider mb-1.5">
+                            <i class="fa-solid ${label.icon} text-${label.color}-500"></i>
+                            <span>${label.title}</span>
+                        </div>
+                        <div class="space-y-1">${rowsHtml}</div>
+                    `;
+                    listContainer.appendChild(eventBlock);
+                });
+            });
+        }
+
+        // Official print system
+        function printReport() {
+            const printWindow = window.open('', '_blank');
+            if (!printWindow) {
+                showToast("Sila benarkan pop-up pada pelayar untuk mencetak.", "warning");
+                return;
+            }
+
+            let filtered = students.filter(s => s.house === activeHouseTab);
+            
+            if (currentSortOption === "name_asc") {
+                filtered.sort((a, b) => a.name.localeCompare(b.name));
+            } else if (currentSortOption === "class_asc") {
+                filtered.sort((a, b) => a.studentClass.localeCompare(b.studentClass));
+            } else if (currentSortOption === "gender_l_p") {
+                filtered.sort((a, b) => a.gender.localeCompare(b.gender));
+            }
+
+            let rowsHtml = "";
+            filtered.forEach((s, i) => {
+                rowsHtml += `
+                    <tr>
+                        <td style="text-align:center;">${i + 1}</td>
+                        <td class="name-col">${s.name}</td>
+                        <td style="text-align:center;">${s.gender}</td>
+                        <td style="text-align:center;">${s.studentClass}</td>
+                        <td style="text-align:center; ${s.longJumpEligible ? 'font-weight:bold; color:#1e3a8a;' : 'color:#94a3b8;'}">${s.longJumpRecord || '-'}</td>
+                        <td style="text-align:center; ${s.highJumpEligible ? 'font-weight:bold; color:#0f766e;' : 'color:#94a3b8;'}">${s.highJumpRecord || '-'}</td>
+                        <td style="text-align:center; ${s.runningEligible ? 'font-weight:bold; color:#4338ca;' : 'color:#94a3b8;'}">${s.runningRecord || '-'}</td>
+                        <td style="text-align:center; ${s.shotPutEligible ? 'font-weight:bold; color:#6b21a8;' : 'color:#94a3b8;'}">${s.shotPutRecord || '-'}</td>
+                        <td style="text-align:center; font-weight:bold;">${s.totalPoints || 0}</td>
+                        <td>${s.notes || ''}</td>
+                    </tr>
+                `;
+            });
+
+            printWindow.document.write(`
+                <html>
+                <head>
+                    <title>Laporan Kejohanan Sukantara - Rumah ${activeHouseTab}</title>
+                    <style>
+                        body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 10px; color: #333; margin: 20px; }
+                        .header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #333; padding-bottom: 10px; }
+                        .header h1 { font-size: 16px; margin: 0; text-transform: uppercase; }
+                        .header h2 { font-size: 12px; margin: 5px 0 0 0; color: #555; }
+                        .meta { display: flex; justify-content: space-between; margin-bottom: 15px; font-weight: bold; font-size: 10px; }
+                        table { width: 100%; border-collapse: collapse; margin-bottom: 30px; font-size: 9px; }
+                        th, td { border: 1px solid #ddd; padding: 6px 4px; text-align: left; }
+                        th { background-color: #f5f5f5; font-weight: bold; text-transform: uppercase; font-size: 8px; }
+                        .name-col { font-weight: bold; text-transform: uppercase; }
+                        .signatures { display: flex; justify-content: space-between; margin-top: 50px; }
+                        .sig-box { width: 200px; text-align: center; border-top: 1px solid #000; padding-top: 5px; font-size: 9px; font-weight: bold; }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <h1>Kejohanan Sukantara Tahunan</h1>
+                        <h2>Laporan Lembaran Kerja Prestasi Rasmi & Kelayakan Ahli</h2>
+                    </div>
+                    <div class="meta">
+                        <div>RUMAH SUKAN: <span style="text-transform:uppercase;">${activeHouseTab}</span></div>
+                        <div>JUMLAH AHLI: ${filtered.length} Orang</div>
+                        <div>MATA KESELURUHAN: ${filtered.reduce((acc, curr) => acc + (curr.totalPoints || 0), 0)} Mata</div>
+                        <div>TARIKH CETAKAN: ${new Date().toLocaleDateString('ms-MY')}</div>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 4%;">Bil</th>
+                                <th style="width: 30%;">Nama Pelajar</th>
+                                <th style="width: 6%;">Jantina</th>
+                                <th style="width: 8%;">Kelas</th>
+                                <th style="width: 10%;">Lompat Jauh</th>
+                                <th style="width: 10%;">Lompat Tinggi</th>
+                                <th style="width: 10%;">Larian Akhir</th>
+                                <th style="width: 10%;">Lontar Peluru</th>
+                                <th style="width: 6%;">Mata</th>
+                                <th style="width: 15%;">Catatan</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${rowsHtml}
+                        </tbody>
+                    </table>
+                    <div class="signatures">
+                        <div class="sig-box" style="border-top: none;"></div>
+                        <div class="sig-box">Tandatangan Ketua Rumah Sukan</div>
+                    </div>
+                </body>
+                </html>
+            `);
+
+            printWindow.document.close();
+            setTimeout(() => {
+                printWindow.print();
+                printWindow.close();
+            }, 500);
+        }
+
+        function printRepresentativeReport(data, selectedHouse) {
+            const printWindow = window.open('', '_blank');
+            if (!printWindow) {
+                showToast("Sila benarkan pop-up pada pelayar untuk mencetak.", "warning");
+                return;
+            }
+
+            const classes = ["Pra Sekolah", "T1", "T2", "T3", "T4", "T5", "T6"];
+            const eventLabels = {
+                longJump: "LOMPAT JAUH",
+                highJump: "LOMPAT TINGGI",
+                running: "LARIAN AKHIR",
+                shotPut: "LONTAR PELURU"
+            };
+
+            let contentHtml = "";
+
+            classes.forEach(cls => {
+                let blocksHtml = "";
+                
+                Object.keys(eventLabels).forEach(event => {
+                    const list = data[cls][event] || [];
+                    let listHtml = "";
+
+                    if (list.length === 0) {
+                        listHtml = `<tr><td colspan="3" style="text-align:center; color:#999; italic">Tiada rekod data kelayakan</td></tr>`;
+                    } else {
+                        list.forEach((s, idx) => {
+                            listHtml += `
+                                <tr>
+                                    <td style="text-align:center; font-weight:bold; width:15%;">${idx + 1}</td>
+                                    <td style="font-weight:bold; text-transform:uppercase; width:65%;">${s.name} (${s.house})</td>
+                                    <td style="text-align:center; font-weight:black; background-color:#fafafa; width:20%;">${s[`${event}Record`]}</td>
+                                </tr>
+                            `;
+                        });
+                    }
+
+                    blocksHtml += `
+                        <div class="event-block">
+                            <h3>${eventLabels[event]}</h3>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th style="text-align:center;">Ked.</th>
+                                        <th>Nama Pelajar (Rumah)</th>
+                                        <th style="text-align:center;">Rekod Terbaik</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${listHtml}
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
+                });
+
+                contentHtml += `
+                    <div class="class-section">
+                        <h2>Kategori Umur: ${cls}</h2>
+                        <div class="events-grid">
+                            ${blocksHtml}
+                        </div>
+                    </div>
+                `;
+            });
+
+            printWindow.document.write(`
+                <html>
+                <head>
+                    <title>Laporan Senarai Elit Sukantara</title>
+                    <style>
+                        body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 10px; color: #333; margin: 25px; }
+                        .header { text-align: center; margin-bottom: 25px; border-bottom: 3px double #333; padding-bottom: 12px; }
+                        .header h1 { font-size: 18px; margin: 0; text-transform: uppercase; letter-spacing:1px; }
+                        .header h2 { font-size: 11px; margin: 5px 0 0 0; color: #555; }
+                        .meta { display: flex; justify-content: space-between; margin-bottom: 20px; font-weight: bold; font-size: 10px; background-color:#f9f9f9; padding:8px 12px; border-radius:5px; }
+                        .class-section { page-break-inside: avoid; margin-bottom: 30px; }
+                        .class-section h2 { font-size: 12px; margin: 0 0 10px 0; padding-bottom: 5px; border-bottom: 2px solid #4338ca; color:#4338ca; text-transform:uppercase; letter-spacing:0.5px; }
+                        .events-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+                        .event-block { background:#fff; border:1px solid #e2e8f0; border-radius:6px; padding:10px; box-sizing:border-box; page-break-inside: avoid; }
+                        .event-block h3 { font-size: 9px; margin: 0 0 8px 0; color:#1e293b; font-weight:900; border-bottom:1px solid #f1f5f9; padding-bottom:4px; letter-spacing:0.5px; }
+                        table { width: 100%; border-collapse: collapse; font-size: 8px; }
+                        th, td { border: 1px solid #e2e8f0; padding: 4px 6px; text-align: left; }
+                        th { background-color: #f8fafc; font-weight: bold; color:#475569; text-transform: uppercase; }
+                        .signatures { display: flex; justify-content: space-between; margin-top: 50px; page-break-inside: avoid; }
+                        .sig-box { width: 220px; text-align: center; border-top: 1px solid #000; padding-top: 5px; font-size: 9px; font-weight: bold; }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <h1>Kejohanan Sukantara Sekolah</h1>
+                        <h2>Senarai Akhir Peserta Elit (Top 2 Terbaik Setiap Kategori)</h2>
+                    </div>
+                    <div class="meta">
+                        <div>KUMPULAN RUMAH: ${selectedHouse === "ALL" ? "SEMUA RUMAH SUKAN" : `RUMAH ${selectedHouse.toUpperCase()}`}</div>
+                        <div>TARIKH ANALISIS: ${new Date().toLocaleDateString('ms-MY')}</div>
+                    </div>
+                    ${contentHtml}
+                    <div class="signatures">
+                        <div class="sig-box" style="border-top: none;"></div>
+                        <div class="sig-box">Tandatangan Penyelaras Kejohanan</div>
+                    </div>
+                </body>
+                </html>
+            `);
+
+            printWindow.document.close();
+            setTimeout(() => {
+                printWindow.print();
+                printWindow.close();
+            }, 500);
+        }
+
+        // Listen to Google Authentication Session Status
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                document.getElementById('loginScreen').classList.add('hidden');
+                initDatabase();
+            } else {
+                currentUser = null;
+                document.getElementById('loginScreen').classList.remove('hidden');
+            }
+        });
+
+        // Logout Event
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', () => {
+                showConfirm(
+                    "Log Keluar",
+                    "Adakah anda pasti mahu menamatkan sesi log masuk Google?",
+                    false,
+                    "Ya, Log Keluar",
+                    () => {
+                        signOut(auth).then(() => {
+                            showToast("Sesi log masuk ditamatkan.", "info");
+                            window.location.reload();
+                        }).catch(err => {
+                            showToast("Gagal log keluar: " + err.message, "danger");
+                        });
+                    }
+                );
+            });
+        }
+
         window.onload = function() {
+            // Wait for load and start initialization sequence
             initDatabase();
         };
     </script>
