@@ -246,7 +246,8 @@
                     <i class="fa-solid fa-circle-info text-blue-500 mt-0.5 text-xs"></i>
                     <div class="leading-relaxed">
                         <strong class="font-bold">💡 Petunjuk Kelayakan Pintar:</strong> 
-                        Tanda <strong class="text-blue-900">(✓) = Layak (1 Mata)</strong>. Tulis digit pencapaian di kotak teks kanan. Jika digit melepasi had kelayakan minima mengikut kategori umur (Pra, Tahap 1, Tahap 2), sistem akan <strong class="text-blue-900">auto-tick</strong>. Jika tiada digit, anda boleh menanda checkbox secara manual.
+                        Tanda <strong class="text-blue-900">(✓) = Layak (1 Mata)</strong>. Tulis digit pencapaian di kotak teks kanan. Jika digit melepasi had kelayakan minima, sistem akan <strong class="text-blue-900">auto-tick</strong>. 
+                        Anda juga boleh memasukkan status khas: <strong class="text-blue-900">0</strong> (Tidak Mencuba), <strong class="text-blue-900">TH</strong> (Tidak Hadir), <strong class="text-blue-900">DQ</strong> (Dibatalkan), dan <strong class="text-blue-900">X</strong> (Gagal Percubaan / Tidak Mencapai Target). Status khas ini akan mengosongkan kelayakan secara automatik.
                     </div>
                 </div>
                 
@@ -991,7 +992,7 @@
             });
         }
 
-        // Re-evaluate all students using gender-specific L/P thresholds (with support for 0, TH, DQ)
+        // Re-evaluate all students using gender-specific L/P thresholds (with support for 0, TH, DQ, X)
         function reEvaluateAllStudents() {
             students.forEach(student => {
                 const cat = getCategory(student.studentClass);
@@ -999,7 +1000,7 @@
                 
                 ['longJump', 'highJump', 'running', 'shotPut'].forEach(field => {
                     const recordStr = (student[`${field}Record`] || "").toString().trim().toUpperCase();
-                    if (recordStr === "0" || recordStr === "TH" || recordStr === "DQ") {
+                    if (recordStr === "0" || recordStr === "TH" || recordStr === "DQ" || recordStr === "X") {
                         student[`${field}Eligible`] = false;
                     } else {
                         const numericVal = parseFloat(recordStr.replace(/[^\d.-]/g, ''));
@@ -2225,15 +2226,15 @@
                     </td>
                 `;
 
-                // Realtime Auto-Tick Evaluation on Record Change based on L/P thresholds with TH, DQ, 0 handling
+                // Realtime Auto-Tick Evaluation on Record Change based on L/P thresholds with TH, DQ, 0, X handling
                 const recordInputs = tr.querySelectorAll('.event-record-input');
                 recordInputs.forEach(inp => {
                     inp.addEventListener('change', (e) => {
                         const field = e.target.dataset.field;
                         let rawVal = e.target.value.trim().toUpperCase();
                         
-                        if (rawVal === "0" || rawVal === "TH" || rawVal === "DQ") {
-                            // Set special status (Absent, Disqualified, or Did Not Attempt)
+                        if (rawVal === "0" || rawVal === "TH" || rawVal === "DQ" || rawVal === "X") {
+                            // Set special status (Absent, Disqualified, Did Not Attempt, Failed Attempt)
                             student[`${field}Record`] = rawVal;
                             student[`${field}Eligible`] = false;
                             e.target.value = rawVal;
@@ -2376,8 +2377,8 @@
                         
                         const rec = (s[`${event}Record`] || "").toString().trim().toUpperCase();
                         
-                        // Abaikan secara mutlak rekod kosong, TH (Tidak Hadir), DQ (Dibatalkan) atau 0 (Tidak Mencuba)
-                        if (!rec || rec === "TH" || rec === "DQ" || rec === "0") return false;
+                        // Abaikan secara mutlak rekod kosong, TH, DQ, 0, atau X (Gagal Percubaan)
+                        if (!rec || rec === "TH" || rec === "DQ" || rec === "0" || rec === "X") return false;
                         
                         // Ekstrak hanya nombor (abaikan simbol unit seperti 'm' atau 's')
                         const numericStr = rec.replace(/[^\d.]/g, '');
