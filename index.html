@@ -773,8 +773,8 @@
                         <i class="fa-solid fa-trophy text-xs"></i>
                     </span>
                     <div>
-                        <h2 class="text-xs font-bold text-slate-900 leading-none">Wakil Elit Sukantara (Top 2 Terbaik Setiap Kelas)</h2>
-                        <span class="text-[9px] text-slate-400 font-medium">Analisis automatik rekod terbaik bagi setiap kelas & kategori untuk kejohanan akhir.</span>
+                        <h2 class="text-xs font-bold text-slate-900 leading-none">Wakil Elit Sukantara (Top 2 Terbaik L & P Setiap Kelas)</h2>
+                        <span class="text-[9px] text-slate-400 font-medium">Analisis automatik rekod terbaik (2 Lelaki & 2 Perempuan) bagi setiap kelas & kategori untuk kejohanan akhir.</span>
                     </div>
                 </div>
                 <div class="flex items-center gap-1.5">
@@ -789,12 +789,22 @@
             </div>
 
             <div class="flex flex-col gap-2 overflow-y-auto pr-0.5 pb-2 flex-1 no-scrollbar">
-                <div class="flex flex-wrap items-center gap-2 bg-slate-50 p-2 rounded-xl border border-slate-100">
+                <div class="flex flex-wrap items-center gap-3 bg-slate-50 p-2 rounded-xl border border-slate-100">
                     <div class="flex items-center gap-1">
                         <label for="wakilHouseFilter" class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Rumah Sukan:</label>
                         <select id="wakilHouseFilter" class="px-2 py-1 bg-white border border-slate-200 rounded-lg text-[9px] text-slate-700 font-bold outline-none transition-all cursor-pointer">
                             <option value="ALL">Semua Rumah Sukan</option>
                             <!-- Dynamic options -->
+                        </select>
+                    </div>
+                    <div class="flex items-center gap-1">
+                        <label for="wakilEventFilter" class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Pilihan Acara:</label>
+                        <select id="wakilEventFilter" class="px-2 py-1 bg-white border border-slate-200 rounded-lg text-[9px] text-slate-700 font-bold outline-none transition-all cursor-pointer">
+                            <option value="ALL">Semua Acara</option>
+                            <option value="longJump">Lompat Jauh</option>
+                            <option value="highJump">Lompat Tinggi</option>
+                            <option value="running">Larian Akhir</option>
+                            <option value="shotPut">Lontar Peluru</option>
                         </select>
                     </div>
                 </div>
@@ -897,6 +907,7 @@
         let currentSortOption = "name_asc";
         let confirmCallback = null;
         let currentUser = null;
+        let highlightedStudentIds = new Set();
 
         // Structured Dwi-Jantina (Lelaki & Perempuan) Thresholds
         let thresholds = {
@@ -1236,7 +1247,6 @@
             }
         }
 
-        // Update User Profile Card & Admin Locks
         function updateUserHeaderAndPermissions() {
             if (!currentUser) {
                 document.getElementById('loginScreen').classList.remove('hidden');
@@ -1330,6 +1340,7 @@
         const pilihWakilModal = document.getElementById('pilihWakilModal');
         const closePilihWakilModalBtn = document.getElementById('closePilihWakilModalBtn');
         const wakilHouseFilter = document.getElementById('wakilHouseFilter');
+        const wakilEventFilter = document.getElementById('wakilEventFilter');
         const printWakilBtn = document.getElementById('printWakilBtn');
 
         if (printReportBtn) {
@@ -1375,8 +1386,34 @@
 
         if (pilihWakilBtn) {
             pilihWakilBtn.addEventListener('click', () => {
-                pilihWakilModal.classList.remove('hidden');
-                renderRepresentativeView();
+                highlightedStudentIds.clear();
+                
+                const activeHouseStudents = students.filter(s => s.house === activeHouseTab);
+                const unfilledStudents = activeHouseStudents.filter(s => 
+                    !s.longJumpRecord?.toString().trim() && 
+                    !s.highJumpRecord?.toString().trim() && 
+                    !s.runningRecord?.toString().trim() && 
+                    !s.shotPutRecord?.toString().trim()
+                );
+                
+                if (unfilledStudents.length > 0) {
+                    unfilledStudents.forEach(s => highlightedStudentIds.add(s.id));
+                    renderWorksheetTable();
+                    
+                    showConfirm(
+                        "Rekod Murid Belum Lengkap",
+                        `Terdapat ${unfilledStudents.length} orang murid dalam Rumah ${activeHouseTab} yang belum diisi data prestasinya. Nama mereka telah ditandakan MERAH pada jadual. Adakah anda mahu mengabaikan dan teruskan memilih wakil elit?`,
+                        true,
+                        "Ya, Abaikan & Teruskan",
+                        () => {
+                            pilihWakilModal.classList.remove('hidden');
+                            renderRepresentativeView();
+                        }
+                    );
+                } else {
+                    pilihWakilModal.classList.remove('hidden');
+                    renderRepresentativeView();
+                }
             });
         }
 
@@ -1388,6 +1425,12 @@
 
         if (wakilHouseFilter) {
             wakilHouseFilter.addEventListener('change', () => {
+                renderRepresentativeView();
+            });
+        }
+
+        if (wakilEventFilter) {
+            wakilEventFilter.addEventListener('change', () => {
                 renderRepresentativeView();
             });
         }
@@ -1534,6 +1577,73 @@
             });
         }
 
+        function resolveNextConflict() {
+            if (conflictQueue.length === 0) {
+                if (onConflictResolved) onConflictResolved();
+                return;
+            }
+
+            const candidate = conflictQueue[0];
+            const duplicate = students.find(s => s.name.toUpperCase() === candidate.name.toUpperCase());
+
+            if (duplicate) {
+                document.getElementById('conflictStudentName').textContent = candidate.name;
+                document.getElementById('conflictModal').classList.remove('hidden');
+                
+                // Unbind previous listeners to prevent leakage
+                const oldOverwrite = document.getElementById('conflictOverwriteBtn');
+                const oldDuplicate = document.getElementById('conflictDuplicateBtn');
+                const oldIgnore = document.getElementById('conflictIgnoreBtn');
+
+                const newOverwrite = oldOverwrite.cloneNode(true);
+                const newDuplicate = oldDuplicate.cloneNode(true);
+                const newIgnore = oldIgnore.cloneNode(true);
+
+                oldOverwrite.parentNode.replaceChild(newOverwrite, oldOverwrite);
+                oldDuplicate.parentNode.replaceChild(newDuplicate, oldDuplicate);
+                oldIgnore.parentNode.replaceChild(newIgnore, oldIgnore);
+
+                newOverwrite.addEventListener('click', () => {
+                    // Overwrite record
+                    candidate.id = duplicate.id; 
+                    const idx = students.findIndex(s => s.id === duplicate.id);
+                    if (idx !== -1) students[idx] = candidate;
+                    saveStudentToDb(candidate);
+                    document.getElementById('conflictModal').classList.add('hidden');
+                    conflictQueue.shift();
+                    showToast(`Rekod "${candidate.name}" telah dituliganti.`, "success");
+                    syncData();
+                    resolveNextConflict();
+                });
+
+                newDuplicate.addEventListener('click', () => {
+                    // Add duplicate
+                    students.push(candidate);
+                    saveStudentToDb(candidate);
+                    document.getElementById('conflictModal').classList.add('hidden');
+                    conflictQueue.shift();
+                    showToast(`Siswa pendua "${candidate.name}" berjaya disimpan.`, "success");
+                    syncData();
+                    resolveNextConflict();
+                });
+
+                newIgnore.addEventListener('click', () => {
+                    // Ignore candidate
+                    document.getElementById('conflictModal').classList.add('hidden');
+                    conflictQueue.shift();
+                    showToast(`Rekod "${candidate.name}" sedia ada dikekalkan.`, "info");
+                    resolveNextConflict();
+                });
+
+            } else {
+                students.push(candidate);
+                saveStudentToDb(candidate);
+                conflictQueue.shift();
+                syncData();
+                resolveNextConflict();
+            }
+        }
+
         if (studentForm) {
             studentForm.addEventListener('submit', (e) => {
                 e.preventDefault();
@@ -1601,6 +1711,22 @@
                 currentSortOption = e.target.value;
                 syncData();
             });
+        }
+
+        async function saveAllStudentsToFirestore(list) {
+            if (!currentUser) return;
+            try {
+                const appId = "sukantara-sekolah-2026";
+                const batch = writeBatch(db);
+                list.forEach(stud => {
+                    const docRef = doc(db, "artifacts", appId, "public", "data", "students", stud.id);
+                    batch.set(docRef, stud);
+                });
+                await batch.commit();
+                console.log("Bulk Firestore update completed successfully.");
+            } catch (err) {
+                console.error("Failed bulk import to Firestore:", err);
+            }
         }
 
         if (syncManualBtn) {
@@ -1987,6 +2113,7 @@
 
                 btn.addEventListener('click', () => {
                     activeHouseTab = house.name;
+                    highlightedStudentIds.clear();
                     syncData();
                 });
 
@@ -2038,10 +2165,19 @@
                 const cat = getCategory(student.studentClass);
                 const gender = student.gender === 'P' ? 'P' : 'L';
 
+                const isHighlighted = highlightedStudentIds.has(student.id);
+                const nameClass = isHighlighted 
+                    ? "py-2 px-2 font-extrabold text-rose-700 bg-rose-50 border border-rose-200 rounded leading-tight uppercase truncate max-w-[200px]" 
+                    : "py-2 px-2 font-bold text-slate-800 leading-tight uppercase truncate max-w-[200px]";
+                
+                const nameContent = isHighlighted
+                    ? `${student.name} <span class="text-[7px] text-rose-500 font-bold block animate-pulse">(DATA KOSONG!)</span>`
+                    : student.name;
+
                 // Row Construction (Uses target thresholds based on student gender)
                 tr.innerHTML = `
                     <td class="py-2 px-1 text-center font-bold text-slate-400">${index + 1}</td>
-                    <td class="py-2 px-2 font-bold text-slate-800 leading-tight uppercase truncate max-w-[200px]" title="${student.name}">${student.name}</td>
+                    <td class="${nameClass}" title="${student.name}">${nameContent}</td>
                     <td class="py-2 px-0.5 text-center font-bold text-slate-500">${student.gender}</td>
                     <td class="py-2 px-0.5 text-center font-bold text-slate-500">${student.studentClass}</td>
                     
@@ -2135,41 +2271,44 @@
                     });
                 });
 
-                // Manual Toggle Box Override
+                // Also we should listen to the manual checkbox toggle in real time!
                 const checkboxes = tr.querySelectorAll('.event-checkbox');
                 checkboxes.forEach(chk => {
                     chk.addEventListener('change', (e) => {
                         const field = e.target.dataset.field;
                         student[`${field}Eligible`] = e.target.checked;
-                        
                         updateTotalPoints(student, tr);
                         saveStudentToDb(student);
                     });
                 });
 
-                // Notes Change
-                const notesInp = tr.querySelector('.event-notes-input');
-                notesInp.addEventListener('change', (e) => {
-                    student.notes = e.target.value.trim();
-                    saveStudentToDb(student);
-                });
+                // And notes input
+                const notesInput = tr.querySelector('.event-notes-input');
+                if (notesInput) {
+                    notesInput.addEventListener('change', (e) => {
+                        student.notes = e.target.value.trim();
+                        saveStudentToDb(student);
+                    });
+                }
 
-                // Row Delete Trigger
-                const delBtn = tr.querySelector('.delete-student-row-btn');
-                delBtn.addEventListener('click', () => {
-                    showConfirm(
-                        "Padam Ahli Murid",
-                        `Adakah anda pasti mahu mengeluarkan '${student.name}' dari pengkalan data sekolah?`,
-                        true,
-                        "Ya, Padam",
-                        () => {
-                            students = students.filter(s => s.id !== student.id);
-                            deleteStudentFromDb(student.id);
-                            syncData();
-                            showToast(`Murid '${student.name}' dipadam secara kekal.`, "success");
-                        }
-                    );
-                });
+                // Delete student row button listener
+                const deleteBtn = tr.querySelector('.delete-student-row-btn');
+                if (deleteBtn) {
+                    deleteBtn.addEventListener('click', () => {
+                        showConfirm(
+                            "Padam Pelajar",
+                            `Adakah anda pasti mahu memadam rekod pelajar "${student.name}"?`,
+                            true,
+                            "Ya, Padam",
+                            () => {
+                                students = students.filter(s => s.id !== student.id);
+                                deleteStudentFromDb(student.id);
+                                syncData();
+                                showToast(`Rekod ${student.name} dipadam.`, "success");
+                            }
+                        );
+                    });
+                }
 
                 body.appendChild(tr);
             });
@@ -2216,6 +2355,185 @@
                 toast.classList.add("opacity-0", "translate-y-2");
                 setTimeout(() => toast.remove(), 300);
             }, 3500);
+        }
+
+        function getRepresentativesData(selectedHouse) {
+            let activePool = students;
+            if (selectedHouse && selectedHouse !== "ALL") {
+                activePool = students.filter(s => s.house === selectedHouse);
+            }
+
+            const classes = ["Pra Sekolah", "T1", "T2", "T3", "T4", "T5", "T6"];
+            const events = ["longJump", "highJump", "running", "shotPut"];
+            let rankedData = {};
+
+            classes.forEach(cls => {
+                rankedData[cls] = {};
+                
+                events.forEach(event => {
+                    let list = activePool.filter(s => {
+                        if (s.studentClass !== cls) return false;
+                        const rec = s[`${event}Record`] || "";
+                        const val = parseFloat(rec);
+                        return !isNaN(val);
+                    });
+
+                    // Susun: larian secara menaik (masa terpantas), acara lain secara menurun (jarak/tinggi tertinggi)
+                    list.sort((a, b) => {
+                        const valA = parseFloat(a[`${event}Record`]);
+                        const valB = parseFloat(b[`${event}Record`]);
+                        if (event === 'running') {
+                            return valA - valB;
+                        } else {
+                            return valB - valA;
+                        }
+                    });
+
+                    // Asingkan dwi-jantina (Lelaki dan Perempuan)
+                    let boys = list.filter(s => s.gender === 'L');
+                    let girls = list.filter(s => s.gender === 'P');
+
+                    // Ambil Top 2 untuk setiap kumpulan jantina
+                    rankedData[cls][event] = {
+                        L: boys.slice(0, 2),
+                        P: girls.slice(0, 2)
+                    };
+                });
+            });
+
+            return rankedData;
+        }
+
+        function renderRepresentativeView() {
+            const container = document.getElementById('wakilResultsContainer');
+            if (!container) return;
+
+            container.innerHTML = "";
+
+            // Isi pilihan Rumah Sukan dalam modal secara dinamik jika kosong
+            const filterDropdown = document.getElementById('wakilHouseFilter');
+            if (filterDropdown && filterDropdown.options.length <= 1) {
+                houses.forEach(h => {
+                    const opt = document.createElement('option');
+                    opt.value = h.name;
+                    opt.textContent = `Rumah ${h.name}`;
+                    filterDropdown.appendChild(opt);
+                });
+            }
+
+            const selectedHouse = filterDropdown.value;
+            const selectedEvent = document.getElementById('wakilEventFilter')?.value || "ALL";
+            const data = getRepresentativesData(selectedHouse);
+
+            const classes = ["Pra Sekolah", "T1", "T2", "T3", "T4", "T5", "T6"];
+            const eventLabels = {
+                longJump: { title: "Lompat Jauh", icon: "fa-person-running", color: "blue" },
+                highJump: { title: "Lompat Tinggi", icon: "fa-arrows-up-down", color: "teal" },
+                running: { title: "Larian Akhir", icon: "fa-stopwatch", color: "indigo" },
+                shotPut: { title: "Lontar Peluru", icon: "fa-circle-dot", color: "purple" }
+            };
+
+            classes.forEach(cls => {
+                const card = document.createElement('div');
+                card.className = "bg-slate-50 border border-slate-100 rounded-2xl p-3 space-y-2.5 shadow-sm";
+                
+                card.innerHTML = `
+                    <div class="border-b border-slate-200 pb-1.5 flex items-center justify-between">
+                        <h3 class="text-xs font-black text-slate-800 flex items-center gap-1.5 uppercase tracking-wide">
+                            <i class="fa-solid fa-graduation-cap text-indigo-600"></i>
+                            Kategori: ${cls}
+                        </h3>
+                        <span class="px-2 py-0.5 bg-indigo-50 border border-indigo-100 text-indigo-700 font-bold rounded-full text-[8px] uppercase">Wakil Elit</span>
+                    </div>
+                    <div class="space-y-2.5" id="eventsList_${cls.replace(/\s+/g, '')}"></div>
+                `;
+
+                container.appendChild(card);
+                const listContainer = document.getElementById(`eventsList_${cls.replace(/\s+/g, '')}`);
+
+                const eventsToRender = selectedEvent === "ALL" 
+                    ? Object.keys(eventLabels) 
+                    : [selectedEvent];
+
+                let visibleEventsCount = 0;
+
+                eventsToRender.forEach(event => {
+                    const label = eventLabels[event];
+                    const reps = data[cls][event] || { L: [], P: [] };
+                    const boysList = reps.L;
+                    const girlsList = reps.P;
+                    
+                    const eventBlock = document.createElement('div');
+                    eventBlock.className = "space-y-2 bg-white p-2.5 rounded-xl border border-slate-100";
+                    
+                    let boysHtml = "";
+                    if (boysList.length === 0) {
+                        boysHtml = `<div class="text-[8px] font-semibold text-slate-400 italic">Tiada data kelayakan lelaki</div>`;
+                    } else {
+                        boysList.forEach((stud, i) => {
+                            const badgeColor = i === 0 ? "bg-blue-600 text-white shadow-sm" : "bg-slate-200 text-slate-700";
+                            boysHtml += `
+                                <div class="flex items-center justify-between text-[9px] gap-2">
+                                    <div class="flex items-center gap-1.5 min-w-0">
+                                        <span class="w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-black ${badgeColor}">${i + 1}</span>
+                                        <span class="font-extrabold text-slate-700 truncate uppercase" title="${stud.name}">${stud.name}</span>
+                                        <span class="text-[7px] font-extrabold px-1 py-0.5 bg-slate-100 text-slate-400 border border-slate-100 rounded">${stud.house}</span>
+                                    </div>
+                                    <span class="font-black text-slate-900 bg-slate-50 border border-slate-100 rounded px-1.5 py-0.5">${stud[`${event}Record`]}</span>
+                                </div>
+                            `;
+                        });
+                    }
+
+                    let girlsHtml = "";
+                    if (girlsList.length === 0) {
+                        girlsHtml = `<div class="text-[8px] font-semibold text-slate-400 italic">Tiada data kelayakan perempuan</div>`;
+                    } else {
+                        girlsList.forEach((stud, i) => {
+                            const badgeColor = i === 0 ? "bg-pink-500 text-white shadow-sm" : "bg-slate-200 text-slate-700";
+                            girlsHtml += `
+                                <div class="flex items-center justify-between text-[9px] gap-2">
+                                    <div class="flex items-center gap-1.5 min-w-0">
+                                        <span class="w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-black ${badgeColor}">${i + 1}</span>
+                                        <span class="font-extrabold text-slate-700 truncate uppercase" title="${stud.name}">${stud.name}</span>
+                                        <span class="text-[7px] font-extrabold px-1 py-0.5 bg-slate-100 text-slate-400 border border-slate-100 rounded">${stud.house}</span>
+                                    </div>
+                                    <span class="font-black text-slate-900 bg-slate-50 border border-slate-100 rounded px-1.5 py-0.5">${stud[`${event}Record`]}</span>
+                                </div>
+                            `;
+                        });
+                    }
+
+                    eventBlock.innerHTML = `
+                        <div class="flex items-center gap-1 text-[9px] font-black text-${label.color}-700 uppercase tracking-wider border-b border-slate-100 pb-1">
+                            <i class="fa-solid ${label.icon} text-${label.color}-500"></i>
+                            <span>${label.title}</span>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+                            <div class="space-y-1 bg-blue-50/20 p-1.5 rounded-lg border border-blue-100/30">
+                                <span class="text-[8px] font-extrabold text-blue-600 block mb-1 uppercase tracking-wider flex items-center gap-1">
+                                    <i class="fa-solid fa-mars text-[8px]"></i> Lelaki (Top 2)
+                                </span>
+                                ${boysHtml}
+                            </div>
+                            <div class="space-y-1 bg-pink-50/20 p-1.5 rounded-lg border border-pink-100/30">
+                                <span class="text-[8px] font-extrabold text-pink-600 block mb-1 uppercase tracking-wider flex items-center gap-1">
+                                    <i class="fa-solid fa-venus text-[8px]"></i> Perempuan (Top 2)
+                                </span>
+                                ${girlsHtml}
+                            </div>
+                        </div>
+                    `;
+                    listContainer.appendChild(eventBlock);
+                    visibleEventsCount++;
+                });
+
+                if (visibleEventsCount === 0) {
+                    card.classList.add('hidden');
+                } else {
+                    card.classList.remove('hidden');
+                }
+            });
         }
 
         // System Safe Confirmation Box
@@ -2265,131 +2583,6 @@
             });
         }
 
-        function getRepresentativesData(selectedHouse) {
-            let activePool = students;
-            if (selectedHouse && selectedHouse !== "ALL") {
-                activePool = students.filter(s => s.house === selectedHouse);
-            }
-
-            const classes = ["Pra Sekolah", "T1", "T2", "T3", "T4", "T5", "T6"];
-            const events = ["longJump", "highJump", "running", "shotPut"];
-            let rankedData = {};
-
-            classes.forEach(cls => {
-                rankedData[cls] = {};
-                
-                events.forEach(event => {
-                    let list = activePool.filter(s => {
-                        if (s.studentClass !== cls) return false;
-                        const rec = s[`${event}Record`] || "";
-                        const val = parseFloat(rec);
-                        return !isNaN(val);
-                    });
-
-                    // Sort: running is ascending (smaller is better), others are descending (larger is better)
-                    list.sort((a, b) => {
-                        const valA = parseFloat(a[`${event}Record`]);
-                        const valB = parseFloat(b[`${event}Record`]);
-                        if (event === 'running') {
-                            return valA - valB;
-                        } else {
-                            return valB - valA;
-                        }
-                    });
-
-                    // Grab Top 2
-                    rankedData[cls][event] = list.slice(0, 2);
-                });
-            });
-
-            return rankedData;
-        }
-
-        function renderRepresentativeView() {
-            const container = document.getElementById('wakilResultsContainer');
-            if (!container) return;
-
-            container.innerHTML = "";
-
-            // Populate Houses Filter dropdown in Modal
-            const filterDropdown = document.getElementById('wakilHouseFilter');
-            if (filterDropdown && filterDropdown.options.length <= 1) {
-                houses.forEach(h => {
-                    const opt = document.createElement('option');
-                    opt.value = h.name;
-                    opt.textContent = `Rumah ${h.name}`;
-                    filterDropdown.appendChild(opt);
-                });
-            }
-
-            const selectedHouse = filterDropdown.value;
-            const data = getRepresentativesData(selectedHouse);
-
-            const classes = ["Pra Sekolah", "T1", "T2", "T3", "T4", "T5", "T6"];
-            const eventLabels = {
-                longJump: { title: "Lompat Jauh", icon: "fa-person-running", color: "blue" },
-                highJump: { title: "Lompat Tinggi", icon: "fa-arrows-up-down", color: "teal" },
-                running: { title: "Larian Akhir", icon: "fa-stopwatch", color: "indigo" },
-                shotPut: { title: "Lontar Peluru", icon: "fa-circle-dot", color: "purple" }
-            };
-
-            classes.forEach(cls => {
-                const card = document.createElement('div');
-                card.className = "bg-slate-50 border border-slate-100 rounded-2xl p-3 space-y-2.5 shadow-sm";
-                
-                card.innerHTML = `
-                    <div class="border-b border-slate-200 pb-1.5 flex items-center justify-between">
-                        <h3 class="text-xs font-black text-slate-800 flex items-center gap-1.5 uppercase tracking-wide">
-                            <i class="fa-solid fa-graduation-cap text-indigo-600"></i>
-                            Kategori: ${cls}
-                        </h3>
-                        <span class="px-2 py-0.5 bg-indigo-50 border border-indigo-100 text-indigo-700 font-bold rounded-full text-[8px] uppercase">Wakil Elit</span>
-                    </div>
-                    <div class="space-y-2" id="eventsList_${cls.replace(/\s+/g, '')}"></div>
-                `;
-
-                container.appendChild(card);
-                const listContainer = document.getElementById(`eventsList_${cls.replace(/\s+/g, '')}`);
-
-                Object.keys(eventLabels).forEach(event => {
-                    const label = eventLabels[event];
-                    const topList = data[cls][event] || [];
-                    
-                    const eventBlock = document.createElement('div');
-                    eventBlock.className = "space-y-1 bg-white p-2 rounded-xl border border-slate-100";
-                    
-                    let rowsHtml = "";
-                    if (topList.length === 0) {
-                        rowsHtml = `<div class="text-[8px] font-semibold text-slate-400 italic">Tiada data kelayakan dicatatkan</div>`;
-                    } else {
-                        topList.forEach((stud, i) => {
-                            const badgeColor = i === 0 ? "bg-amber-500 text-white shadow-sm" : "bg-slate-200 text-slate-700";
-                            rowsHtml += `
-                                <div class="flex items-center justify-between text-[9px] gap-2">
-                                    <div class="flex items-center gap-1.5 min-w-0">
-                                        <span class="w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-black ${badgeColor}">${i + 1}</span>
-                                        <span class="font-extrabold text-slate-700 truncate uppercase" title="${stud.name}">${stud.name}</span>
-                                        <span class="text-[7px] font-extrabold px-1 py-0.5 bg-slate-100 text-slate-400 border border-slate-100 rounded">${stud.house}</span>
-                                    </div>
-                                    <span class="font-black text-slate-900 bg-slate-50 border border-slate-100 rounded px-1.5 py-0.5">${stud[`${event}Record`]}</span>
-                                </div>
-                            `;
-                        });
-                    }
-
-                    eventBlock.innerHTML = `
-                        <div class="flex items-center gap-1 text-[9px] font-black text-${label.color}-700 uppercase tracking-wider mb-1.5">
-                            <i class="fa-solid ${label.icon} text-${label.color}-500"></i>
-                            <span>${label.title}</span>
-                        </div>
-                        <div class="space-y-1">${rowsHtml}</div>
-                    `;
-                    listContainer.appendChild(eventBlock);
-                });
-            });
-        }
-
-        // Official print system
         function printReport() {
             const printWindow = window.open('', '_blank');
             if (!printWindow) {
@@ -2412,13 +2605,13 @@
                 rowsHtml += `
                     <tr>
                         <td style="text-align:center;">${i + 1}</td>
-                        <td class="name-col">${s.name}</td>
+                        <td style="font-weight:bold; text-transform:uppercase;">${s.name}</td>
                         <td style="text-align:center;">${s.gender}</td>
                         <td style="text-align:center;">${s.studentClass}</td>
-                        <td style="text-align:center; ${s.longJumpEligible ? 'font-weight:bold; color:#1e3a8a;' : 'color:#94a3b8;'}">${s.longJumpRecord || '-'}</td>
-                        <td style="text-align:center; ${s.highJumpEligible ? 'font-weight:bold; color:#0f766e;' : 'color:#94a3b8;'}">${s.highJumpRecord || '-'}</td>
-                        <td style="text-align:center; ${s.runningEligible ? 'font-weight:bold; color:#4338ca;' : 'color:#94a3b8;'}">${s.runningRecord || '-'}</td>
-                        <td style="text-align:center; ${s.shotPutEligible ? 'font-weight:bold; color:#6b21a8;' : 'color:#94a3b8;'}">${s.shotPutRecord || '-'}</td>
+                        <td style="text-align:center;">${s.longJumpRecord || '-'} ${s.longJumpEligible ? '<b>(L)</b>' : ''}</td>
+                        <td style="text-align:center;">${s.highJumpRecord || '-'} ${s.highJumpEligible ? '<b>(L)</b>' : ''}</td>
+                        <td style="text-align:center;">${s.runningRecord || '-'} ${s.runningEligible ? '<b>(L)</b>' : ''}</td>
+                        <td style="text-align:center;">${s.shotPutRecord || '-'} ${s.shotPutEligible ? '<b>(L)</b>' : ''}</td>
                         <td style="text-align:center; font-weight:bold;">${s.totalPoints || 0}</td>
                         <td>${s.notes || ''}</td>
                     </tr>
@@ -2428,59 +2621,52 @@
             printWindow.document.write(`
                 <html>
                 <head>
-                    <title>Laporan Kejohanan Sukantara - Rumah ${activeHouseTab}</title>
+                    <title>Borang Sukantara - Rumah ${activeHouseTab}</title>
                     <style>
-                        body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 10px; color: #333; margin: 20px; }
-                        .header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #333; padding-bottom: 10px; }
-                        .header h1 { font-size: 16px; margin: 0; text-transform: uppercase; }
-                        .header h2 { font-size: 12px; margin: 5px 0 0 0; color: #555; }
-                        .meta { display: flex; justify-content: space-between; margin-bottom: 15px; font-weight: bold; font-size: 10px; }
-                        table { width: 100%; border-collapse: collapse; margin-bottom: 30px; font-size: 9px; }
-                        th, td { border: 1px solid #ddd; padding: 6px 4px; text-align: left; }
-                        th { background-color: #f5f5f5; font-weight: bold; text-transform: uppercase; font-size: 8px; }
-                        .name-col { font-weight: bold; text-transform: uppercase; }
-                        .signatures { display: flex; justify-content: space-between; margin-top: 50px; }
-                        .sig-box { width: 200px; text-align: center; border-top: 1px solid #000; padding-top: 5px; font-size: 9px; font-weight: bold; }
+                        body { font-family: Arial, sans-serif; font-size: 10px; margin: 20px; }
+                        h1 { text-align: center; font-size: 14px; margin-bottom: 2px; }
+                        h2 { text-align: center; font-size: 11px; margin-top: 0; color: #555; }
+                        .meta { display: flex; justify-content: space-between; margin-bottom: 15px; font-weight: bold; }
+                        table { width: 100%; border-collapse: collapse; margin-top: 5px; }
+                        th, td { border: 1px solid #000; padding: 5px; text-align: left; }
+                        th { background-color: #f2f2f2; font-weight: bold; text-align: center; }
+                        .sig { display: flex; justify-content: space-between; margin-top: 40px; }
+                        .sig-box { width: 200px; text-align: center; border-top: 1px solid #000; padding-top: 5px; font-weight: bold; }
                     </style>
                 </head>
                 <body>
-                    <div class="header">
-                        <h1>Kejohanan Sukantara Tahunan</h1>
-                        <h2>Laporan Lembaran Kerja Prestasi Rasmi & Kelayakan Ahli</h2>
-                    </div>
+                    <h1>KEJOHANAN SUKANTARA SEKOLAH</h1>
+                    <h2>LEMBARAN REKOD RASMI - RUMAH ${activeHouseTab.toUpperCase()}</h2>
                     <div class="meta">
-                        <div>RUMAH SUKAN: <span style="text-transform:uppercase;">${activeHouseTab}</span></div>
-                        <div>JUMLAH AHLI: ${filtered.length} Orang</div>
-                        <div>MATA KESELURUHAN: ${filtered.reduce((acc, curr) => acc + (curr.totalPoints || 0), 0)} Mata</div>
-                        <div>TARIKH CETAKAN: ${new Date().toLocaleDateString('ms-MY')}</div>
+                        <div>KUMPULAN: RUMAH ${activeHouseTab.toUpperCase()}</div>
+                        <div>TARIKH: ${new Date().toLocaleDateString('ms-MY')}</div>
                     </div>
                     <table>
                         <thead>
                             <tr>
-                                <th style="width: 4%;">Bil</th>
-                                <th style="width: 30%;">Nama Pelajar</th>
-                                <th style="width: 6%;">Jantina</th>
-                                <th style="width: 8%;">Kelas</th>
-                                <th style="width: 10%;">Lompat Jauh</th>
-                                <th style="width: 10%;">Lompat Tinggi</th>
-                                <th style="width: 10%;">Larian Akhir</th>
-                                <th style="width: 10%;">Lontar Peluru</th>
-                                <th style="width: 6%;">Mata</th>
-                                <th style="width: 15%;">Catatan</th>
+                                <th style="width:3%">Bil</th>
+                                <th style="width:25%">Nama Pelajar</th>
+                                <th style="width:5%">Jantina</th>
+                                <th style="width:5%">Kelas</th>
+                                <th style="width:12%">Lompat Jauh</th>
+                                <th style="width:12%">Lompat Tinggi</th>
+                                <th style="width:12%">Larian Akhir</th>
+                                <th style="width:12%">Lontar Peluru</th>
+                                <th style="width:6%">Mata</th>
+                                <th style="width:10%">Catatan</th>
                             </tr>
                         </thead>
                         <tbody>
                             ${rowsHtml}
                         </tbody>
                     </table>
-                    <div class="signatures">
-                        <div class="sig-box" style="border-top: none;"></div>
-                        <div class="sig-box">Tandatangan Ketua Rumah Sukan</div>
+                    <div class="sig">
+                        <div class="sig-box" style="border:none"></div>
+                        <div class="sig-box">Ketua Rumah Sukan / Penyelaras</div>
                     </div>
                 </body>
                 </html>
             `);
-
             printWindow.document.close();
             setTimeout(() => {
                 printWindow.print();
@@ -2496,6 +2682,7 @@
             }
 
             const classes = ["Pra Sekolah", "T1", "T2", "T3", "T4", "T5", "T6"];
+            const selectedEvent = document.getElementById('wakilEventFilter')?.value || "ALL";
             const eventLabels = {
                 longJump: "LOMPAT JAUH",
                 highJump: "LOMPAT TINGGI",
@@ -2507,16 +2694,36 @@
 
             classes.forEach(cls => {
                 let blocksHtml = "";
+                const eventsToRender = selectedEvent === "ALL" 
+                    ? Object.keys(eventLabels) 
+                    : [selectedEvent];
                 
-                Object.keys(eventLabels).forEach(event => {
-                    const list = data[cls][event] || [];
-                    let listHtml = "";
-
-                    if (list.length === 0) {
-                        listHtml = `<tr><td colspan="3" style="text-align:center; color:#999; italic">Tiada rekod data kelayakan</td></tr>`;
+                eventsToRender.forEach(event => {
+                    const reps = data[cls][event] || { L: [], P: [] };
+                    const boys = reps.L;
+                    const girls = reps.P;
+                    
+                    let boysHtml = "";
+                    if (boys.length === 0) {
+                        boysHtml = `<tr><td colspan="3" style="text-align:center; color:#999; font-style:italic">Tiada rekod kelayakan lelaki</td></tr>`;
                     } else {
-                        list.forEach((s, idx) => {
-                            listHtml += `
+                        boys.forEach((s, idx) => {
+                            boysHtml += `
+                                <tr>
+                                    <td style="text-align:center; font-weight:bold; width:15%;">${idx + 1}</td>
+                                    <td style="font-weight:bold; text-transform:uppercase; width:65%;">${s.name} (${s.house})</td>
+                                    <td style="text-align:center; font-weight:black; background-color:#fafafa; width:20%;">${s[`${event}Record`]}</td>
+                                </tr>
+                            `;
+                        });
+                    }
+
+                    let girlsHtml = "";
+                    if (girls.length === 0) {
+                        girlsHtml = `<tr><td colspan="3" style="text-align:center; color:#999; font-style:italic">Tiada rekod kelayakan perempuan</td></tr>`;
+                    } else {
+                        girls.forEach((s, idx) => {
+                            girlsHtml += `
                                 <tr>
                                     <td style="text-align:center; font-weight:bold; width:15%;">${idx + 1}</td>
                                     <td style="font-weight:bold; text-transform:uppercase; width:65%;">${s.name} (${s.house})</td>
@@ -2529,18 +2736,38 @@
                     blocksHtml += `
                         <div class="event-block">
                             <h3>${eventLabels[event]}</h3>
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th style="text-align:center;">Ked.</th>
-                                        <th>Nama Pelajar (Rumah)</th>
-                                        <th style="text-align:center;">Rekod Terbaik</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    ${listHtml}
-                                </tbody>
-                            </table>
+                            <div style="display: flex; gap: 15px; margin-top: 5px;">
+                                <div style="flex: 1;">
+                                    <h4 style="margin: 0 0 5px 0; font-size: 8px; color: #1d4ed8; border-bottom: 1.5px solid #1d4ed8; padding-bottom: 2px;">LELAKI (TOP 2)</h4>
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th style="text-align:center; width:15%;">Ked.</th>
+                                                <th>Nama Pelajar (Rumah)</th>
+                                                <th style="text-align:center; width:25%;">Rekod Terbaik</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            ${boysHtml}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div style="flex: 1;">
+                                    <h4 style="margin: 0 0 5px 0; font-size: 8px; color: #db2777; border-bottom: 1.5px solid #db2777; padding-bottom: 2px;">PEREMPUAN (TOP 2)</h4>
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th style="text-align:center; width:15%;">Ked.</th>
+                                                <th>Nama Pelajar (Rumah)</th>
+                                                <th style="text-align:center; width:25%;">Rekod Terbaik</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            ${girlsHtml}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
                         </div>
                     `;
                 });
@@ -2567,9 +2794,9 @@
                         .meta { display: flex; justify-content: space-between; margin-bottom: 20px; font-weight: bold; font-size: 10px; background-color:#f9f9f9; padding:8px 12px; border-radius:5px; }
                         .class-section { page-break-inside: avoid; margin-bottom: 30px; }
                         .class-section h2 { font-size: 12px; margin: 0 0 10px 0; padding-bottom: 5px; border-bottom: 2px solid #4338ca; color:#4338ca; text-transform:uppercase; letter-spacing:0.5px; }
-                        .events-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+                        .events-grid { display: flex; flex-direction: column; gap: 15px; }
                         .event-block { background:#fff; border:1px solid #e2e8f0; border-radius:6px; padding:10px; box-sizing:border-box; page-break-inside: avoid; }
-                        .event-block h3 { font-size: 9px; margin: 0 0 8px 0; color:#1e293b; font-weight:900; border-bottom:1px solid #f1f5f9; padding-bottom:4px; letter-spacing:0.5px; }
+                        .event-block h3 { font-size: 9px; margin: 0 0 8px 0; color:#1e293b; font-weight:900; border-bottom:1px solid #f1f5f9; padding-bottom:4px; letter-spacing:0.5px; text-transform: uppercase; }
                         table { width: 100%; border-collapse: collapse; font-size: 8px; }
                         th, td { border: 1px solid #e2e8f0; padding: 4px 6px; text-align: left; }
                         th { background-color: #f8fafc; font-weight: bold; color:#475569; text-transform: uppercase; }
@@ -2580,10 +2807,11 @@
                 <body>
                     <div class="header">
                         <h1>Kejohanan Sukantara Sekolah</h1>
-                        <h2>Senarai Akhir Peserta Elit (Top 2 Terbaik Setiap Kategori)</h2>
+                        <h2>Senarai Akhir Peserta Elit (Top 2 Terbaik Setiap Kategori & Jantina)</h2>
                     </div>
                     <div class="meta">
                         <div>KUMPULAN RUMAH: ${selectedHouse === "ALL" ? "SEMUA RUMAH SUKAN" : `RUMAH ${selectedHouse.toUpperCase()}`}</div>
+                        <div>ACARA: ${selectedEvent === "ALL" ? "SEMUA ACARA" : eventLabels[selectedEvent]}</div>
                         <div>TARIKH ANALISIS: ${new Date().toLocaleDateString('ms-MY')}</div>
                     </div>
                     ${contentHtml}
