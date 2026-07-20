@@ -1003,9 +1003,16 @@
                 document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('hidden'));
                 document.querySelectorAll('.threshold-input').forEach(el => el.disabled = false);
             } else {
-                // Determine if DELIMa user
-                const isDelima = currentUser.email.endsWith('@moe-dl.edu.my') || currentUser.email.endsWith('@moe.edu.my');
-                if (isDelima) {
+                // Determine role based on DELIMa email format
+                const email = currentUser.email.toLowerCase();
+                const isDelimaTeacher = email.startsWith('g-') && email.endsWith('@moe-dl.edu.my');
+                const isDelimaOther = (email.endsWith('@moe-dl.edu.my') || email.endsWith('@moe.edu.my')) && !isDelimaTeacher;
+
+                if (isDelimaTeacher) {
+                    roleText.textContent = "Guru DELIMa 🧑‍🏫";
+                    roleBadge.className = "px-2 py-1 text-[8px] sm:text-[10px] font-bold rounded-full bg-teal-600 text-white border border-teal-700 flex items-center gap-1 shadow-sm";
+                    roleIndicator.className = "w-1.5 h-1.5 rounded-full bg-teal-300";
+                } else if (isDelimaOther) {
                     roleText.textContent = "Penyelaras KPM 🎓";
                     roleBadge.className = "px-2 py-1 text-[8px] sm:text-[10px] font-bold rounded-full bg-blue-600 text-white border border-blue-700 flex items-center gap-1 shadow-sm";
                     roleIndicator.className = "w-1.5 h-1.5 rounded-full bg-blue-300";
