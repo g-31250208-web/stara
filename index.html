@@ -395,6 +395,71 @@
 
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'sps-skb-d8256';
         
+        // PETA WARNA RUMAH SUKAN UNTUK PRESET TEMA TAILWIND
+        const houseColorMap = {
+            rose: {
+                activeBtn: "bg-rose-600 text-white border-rose-600 shadow-md shadow-rose-500/20",
+                activeBadge: "bg-rose-800 text-rose-100",
+                inactiveBtn: "bg-white text-rose-600 hover:bg-rose-50 border-rose-200 hover:border-rose-300",
+                inactiveBadge: "bg-rose-50 text-rose-600 border border-rose-100"
+            },
+            blue: {
+                activeBtn: "bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-500/20",
+                activeBadge: "bg-blue-800 text-blue-100",
+                inactiveBtn: "bg-white text-blue-600 hover:bg-blue-50 border-blue-200 hover:border-blue-300",
+                inactiveBadge: "bg-blue-50 text-blue-600 border border-blue-100"
+            },
+            amber: {
+                activeBtn: "bg-amber-500 text-slate-900 border-amber-500 shadow-md shadow-amber-500/20",
+                activeBadge: "bg-amber-600 text-amber-950",
+                inactiveBtn: "bg-white text-amber-600 hover:bg-amber-50 border-amber-200 hover:border-amber-300",
+                inactiveBadge: "bg-amber-50 text-amber-600 border border-amber-100"
+            },
+            emerald: {
+                activeBtn: "bg-emerald-600 text-white border-emerald-600 shadow-md shadow-emerald-500/20",
+                activeBadge: "bg-emerald-800 text-emerald-100",
+                inactiveBtn: "bg-white text-emerald-600 hover:bg-emerald-50 border-emerald-200 hover:border-emerald-300",
+                inactiveBadge: "bg-emerald-50 text-emerald-600 border border-emerald-100"
+            },
+            purple: {
+                activeBtn: "bg-purple-600 text-white border-purple-600 shadow-md shadow-purple-500/20",
+                activeBadge: "bg-purple-800 text-purple-100",
+                inactiveBtn: "bg-white text-purple-600 hover:bg-purple-50 border-purple-200 hover:border-purple-300",
+                inactiveBadge: "bg-purple-50 text-purple-600 border border-purple-100"
+            },
+            orange: {
+                activeBtn: "bg-orange-600 text-white border-orange-600 shadow-md shadow-orange-500/20",
+                activeBadge: "bg-orange-800 text-orange-100",
+                inactiveBtn: "bg-white text-orange-600 hover:bg-orange-50 border-orange-200 hover:border-orange-300",
+                inactiveBadge: "bg-orange-50 text-orange-600 border border-orange-100"
+            },
+            pink: {
+                activeBtn: "bg-pink-600 text-white border-pink-600 shadow-md shadow-pink-500/20",
+                activeBadge: "bg-pink-800 text-pink-100",
+                inactiveBtn: "bg-white text-pink-600 hover:bg-pink-50 border-pink-200 hover:border-pink-300",
+                inactiveBadge: "bg-pink-50 text-pink-600 border border-pink-100"
+            },
+            slate: {
+                activeBtn: "bg-slate-700 text-white border-slate-700 shadow-md shadow-slate-500/20",
+                activeBadge: "bg-slate-800 text-slate-100",
+                inactiveBtn: "bg-white text-slate-600 hover:bg-slate-50 border-slate-200 hover:border-slate-300",
+                inactiveBadge: "bg-slate-100 text-slate-500 border border-slate-200"
+            }
+        };
+
+        // PENGESAN KATA KUNCI WARNA DARI NAMA RUMAH SUKAN
+        function getHouseColorTheme(houseName) {
+            const name = (houseName || "").toLowerCase().trim();
+            if (name.includes("merah") || name.includes("red")) return "rose";
+            if (name.includes("biru") || name.includes("blue")) return "blue";
+            if (name.includes("kuning") || name.includes("yellow")) return "amber";
+            if (name.includes("hijau") || name.includes("green")) return "emerald";
+            if (name.includes("ungu") || name.includes("purple") || name.includes("violet")) return "purple";
+            if (name.includes("oren") || name.includes("orange")) return "orange";
+            if (name.includes("pink") || name.includes("jambu")) return "pink";
+            return "slate";
+        }
+
         // Konfigurasi Firebase Projek sps-skb-d8256
         const firebaseConfig = {
             apiKey: "AIzaSyAJ5LrENOSzRkClehZmu3dy3JKrt6QvtcU",
@@ -734,15 +799,19 @@
                 const tab = document.createElement('button');
                 const isActive = activeHouseTab === h.name;
                 
-                tab.className = `px-3 py-1 text-[10px] font-bold rounded-lg transition-all duration-200 flex items-center gap-1.5 ${
-                    isActive 
-                    ? 'bg-slate-900 text-white shadow-sm' 
-                    : 'bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900 border border-slate-200'
+                // Dapatkan tema warna berdasarkan nama rumah sukan
+                const themeKey = getHouseColorTheme(h.name);
+                const theme = houseColorMap[themeKey];
+                
+                tab.className = `px-3 py-1 text-[10px] font-bold rounded-lg border transition-all duration-200 flex items-center gap-1.5 ${
+                    isActive ? theme.activeBtn : theme.inactiveBtn
                 }`;
                 
                 tab.innerHTML = `
                     <span>Rumah ${h.name}</span>
-                    <span class="px-1 py-0.2 text-[8px] rounded ${isActive ? 'bg-slate-800 text-slate-200' : 'bg-slate-100 text-slate-500'} font-semibold">${count}</span>
+                    <span class="px-1 py-0.2 text-[8px] rounded font-semibold ${
+                        isActive ? theme.activeBadge : theme.inactiveBadge
+                    }">${count}</span>
                 `;
                 
                 tab.addEventListener('click', () => {
