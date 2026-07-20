@@ -747,10 +747,20 @@
         let confirmCallback = null;
         let currentUser = null;
 
+        // Structured Dwi-Jantina (Lelaki & Perempuan) Thresholds
         let thresholds = {
-            pra: { longJump: "2.00", highJump: "0.80", running: "15.0", shotPut: "3.00" },
-            tahap1: { longJump: "2.50", highJump: "0.90", running: "13.5", shotPut: "4.00" },
-            tahap2: { longJump: "3.00", highJump: "1.00", running: "12.0", shotPut: "5.00" }
+            pra: {
+                L: { longJump: "2.00", highJump: "0.80", running: "15.0", shotPut: "3.00" },
+                P: { longJump: "1.80", highJump: "0.75", running: "16.0", shotPut: "2.50" }
+            },
+            tahap1: {
+                L: { longJump: "2.50", highJump: "0.90", running: "13.5", shotPut: "4.00" },
+                P: { longJump: "2.30", highJump: "0.85", running: "14.5", shotPut: "3.50" }
+            },
+            tahap2: {
+                L: { longJump: "3.00", highJump: "1.00", running: "12.0", shotPut: "5.00" },
+                P: { longJump: "2.80", highJump: "0.95", running: "13.0", shotPut: "4.50" }
+            }
         };
 
         const houseColorMap = {
@@ -786,17 +796,20 @@
             }
         };
 
+        // Update UI Threshold Inputs for L & P
         function updateThresholdInputsUI() {
             ['pra', 'tahap1', 'tahap2'].forEach(category => {
-                ['longJump', 'highJump', 'running', 'shotPut'].forEach(field => {
-                    const headerInput = document.getElementById(`threshold_${category}_${field}`);
-                    if (headerInput) {
-                        headerInput.value = thresholds[category][field];
-                    }
-                    const modalInput = document.getElementById(`modal_threshold_${category}_${field}`);
-                    if (modalInput) {
-                        modalInput.value = thresholds[category][field];
-                    }
+                ['L', 'P'].forEach(gender => {
+                    ['longJump', 'highJump', 'running', 'shotPut'].forEach(field => {
+                        const headerInput = document.getElementById(`threshold_${category}_${field}_${gender}`);
+                        if (headerInput) {
+                            headerInput.value = thresholds[category][gender][field];
+                        }
+                        const modalInput = document.getElementById(`modal_threshold_${category}_${field}_${gender}`);
+                        if (modalInput) {
+                            modalInput.value = thresholds[category][gender][field];
+                        }
+                    });
                 });
             });
         }
@@ -807,15 +820,17 @@
             return "tahap2";
         }
 
+        // Re-evaluate all students using gender-specific L/P thresholds
         function reEvaluateAllStudents() {
             students.forEach(student => {
                 const cat = getCategory(student.studentClass);
+                const gender = student.gender === 'P' ? 'P' : 'L';
                 
                 ['longJump', 'highJump', 'running', 'shotPut'].forEach(field => {
                     const recordStr = student[`${field}Record`] || "";
                     const numericVal = parseFloat(recordStr);
                     if (!isNaN(numericVal)) {
-                        const thresholdVal = parseFloat(thresholds[cat][field]);
+                        const thresholdVal = parseFloat(thresholds[cat][gender][field]);
                         if (field === 'running') {
                             student[`${field}Eligible`] = numericVal <= thresholdVal;
                         } else {
@@ -861,7 +876,15 @@
 
             const savedThresholds = localStorage.getItem('sukantara_thresholds_v2');
             if (savedThresholds) {
-                thresholds = JSON.parse(savedThresholds);
+                try {
+                    const parsed = JSON.parse(savedThresholds);
+                    // Ensure the parsed values contain the L/P gender keys, otherwise fallback to defaults
+                    if (parsed.pra && parsed.pra.L) {
+                        thresholds = parsed;
+                    }
+                } catch(e) {
+                    console.warn("Parsing thresholds failed, resetting.", e);
+                }
             } else {
                 localStorage.setItem('sukantara_thresholds_v2', JSON.stringify(thresholds));
             }
@@ -1190,11 +1213,13 @@
         if (saveThresholdConfigBtn) {
             saveThresholdConfigBtn.addEventListener('click', () => {
                 ['pra', 'tahap1', 'tahap2'].forEach(category => {
-                    ['longJump', 'highJump', 'running', 'shotPut'].forEach(field => {
-                        const modalEl = document.getElementById(`modal_threshold_${category}_${field}`);
-                        if (modalEl) {
-                            thresholds[category][field] = modalEl.value.trim();
-                        }
+                    ['L', 'P'].forEach(gender => {
+                        ['longJump', 'highJump', 'running', 'shotPut'].forEach(field => {
+                            const modalEl = document.getElementById(`modal_threshold_${category}_${field}_${gender}`);
+                            if (modalEl) {
+                                thresholds[category][gender][field] = modalEl.value.trim();
+                            }
+                        });
                     });
                 });
 
@@ -1203,7 +1228,7 @@
                 reEvaluateAllStudents();
                 syncData();
                 thresholdConfigModal.classList.add('hidden');
-                showToast("Had kelayakan mengikut kategori berjaya disimpan!", "success");
+                showToast("Had kelayakan dwi-jantina (L/P) berjaya disimpan!", "success");
             });
         }
 
@@ -1211,20 +1236,29 @@
             resetThresholdsBtn.addEventListener('click', () => {
                 showConfirm(
                     "Set Semula Had Kelayakan",
-                    "Adakah anda pasti mahu menetapkan had kelayakan minima sukan kembali kepada nilai asal?",
+                    "Adakah anda pasti mahu menetapkan had kelayakan minima sukan (L & P) kembali kepada nilai asal?",
                     false,
                     "Ya, Teruskan",
                     () => {
                         thresholds = {
-                            pra: { longJump: "2.00", highJump: "0.80", running: "15.0", shotPut: "3.00" },
-                            tahap1: { longJump: "2.50", highJump: "0.90", running: "13.5", shotPut: "4.00" },
-                            tahap2: { longJump: "3.00", highJump: "1.00", running: "12.0", shotPut: "5.00" }
+                            pra: {
+                                L: { longJump: "2.00", highJump: "0.80", running: "15.0", shotPut: "3.00" },
+                                P: { longJump: "1.80", highJump: "0.75", running: "16.0", shotPut: "2.50" }
+                            },
+                            tahap1: {
+                                L: { longJump: "2.50", highJump: "0.90", running: "13.5", shotPut: "4.00" },
+                                P: { longJump: "2.30", highJump: "0.85", running: "14.5", shotPut: "3.50" }
+                            },
+                            tahap2: {
+                                L: { longJump: "3.00", highJump: "1.00", running: "12.0", shotPut: "5.00" },
+                                P: { longJump: "2.80", highJump: "0.95", running: "13.0", shotPut: "4.50" }
+                            }
                         };
                         localStorage.setItem('sukantara_thresholds_v2', JSON.stringify(thresholds));
                         updateThresholdInputsUI();
                         reEvaluateAllStudents();
                         syncData();
-                        showToast("Had kelayakan telah diset semula kepada asal.", "success");
+                        showToast("Had kelayakan dwi-jantina diset semula kepada asal.", "success");
                     }
                 );
             });
@@ -1645,16 +1679,17 @@
             inputs.forEach(input => {
                 input.addEventListener('change', (e) => {
                     const category = e.target.dataset.category;
+                    const gender = e.target.dataset.gender;
                     const field = e.target.dataset.field;
                     const val = e.target.value.trim();
                     
-                    if (category && field && val) {
-                        thresholds[category][field] = val;
+                    if (category && gender && field && val) {
+                        thresholds[category][gender][field] = val;
                         localStorage.setItem('sukantara_thresholds_v2', JSON.stringify(thresholds));
                         updateThresholdInputsUI();
                         reEvaluateAllStudents();
                         syncData();
-                        showToast(`Had Min '${field}' bagi Kategori '${category}' dikemaskini!`, "info");
+                        showToast(`Had Min '${field}' (${gender}) bagi Kategori '${category}' dikemaskini!`, "info");
                     }
                 });
             });
@@ -1733,8 +1768,9 @@
                 tr.className = "hover:bg-slate-50/50 transition-colors border-b border-slate-100";
                 
                 const cat = getCategory(student.studentClass);
+                const gender = student.gender === 'P' ? 'P' : 'L';
 
-                // Row Construction
+                // Row Construction (Uses target thresholds based on student gender)
                 tr.innerHTML = `
                     <td class="py-2 px-1 text-center font-bold text-slate-400">${index + 1}</td>
                     <td class="py-2 px-2 font-bold text-slate-800 leading-tight uppercase truncate max-w-[200px]" title="${student.name}">${student.name}</td>
@@ -1745,7 +1781,7 @@
                     <td class="py-1 px-1 bg-blue-50/10 border-r border-slate-100/80">
                         <div class="flex items-center gap-1 justify-center">
                             <input type="checkbox" class="w-3.5 h-3.5 rounded border-slate-300 text-blue-600 focus:ring-0 event-checkbox" data-student-id="${student.id}" data-field="longJump" ${student.longJumpEligible ? 'checked' : ''}>
-                            <input type="text" class="w-16 px-1.5 py-1 text-center bg-white border border-slate-200 rounded font-bold text-slate-800 text-[10px] event-record-input" data-student-id="${student.id}" data-field="longJump" placeholder="${thresholds[cat].longJump}m" value="${student.longJumpRecord || ''}">
+                            <input type="text" class="w-16 px-1.5 py-1 text-center bg-white border border-slate-200 rounded font-bold text-slate-800 text-[10px] event-record-input" data-student-id="${student.id}" data-field="longJump" placeholder="${thresholds[cat][gender].longJump}m" value="${student.longJumpRecord || ''}">
                         </div>
                     </td>
 
@@ -1753,7 +1789,7 @@
                     <td class="py-1 px-1 bg-teal-50/10 border-r border-slate-100/80">
                         <div class="flex items-center gap-1 justify-center">
                             <input type="checkbox" class="w-3.5 h-3.5 rounded border-slate-300 text-teal-600 focus:ring-0 event-checkbox" data-student-id="${student.id}" data-field="highJump" ${student.highJumpEligible ? 'checked' : ''}>
-                            <input type="text" class="w-16 px-1.5 py-1 text-center bg-white border border-slate-200 rounded font-bold text-slate-800 text-[10px] event-record-input" data-student-id="${student.id}" data-field="highJump" placeholder="${thresholds[cat].highJump}m" value="${student.highJumpRecord || ''}">
+                            <input type="text" class="w-16 px-1.5 py-1 text-center bg-white border border-slate-200 rounded font-bold text-slate-800 text-[10px] event-record-input" data-student-id="${student.id}" data-field="highJump" placeholder="${thresholds[cat][gender].highJump}m" value="${student.highJumpRecord || ''}">
                         </div>
                     </td>
 
@@ -1761,7 +1797,7 @@
                     <td class="py-1 px-1 bg-indigo-50/10 border-r border-slate-100/80">
                         <div class="flex items-center gap-1 justify-center">
                             <input type="checkbox" class="w-3.5 h-3.5 rounded border-slate-300 text-indigo-600 focus:ring-0 event-checkbox" data-student-id="${student.id}" data-field="running" ${student.runningEligible ? 'checked' : ''}>
-                            <input type="text" class="w-16 px-1.5 py-1 text-center bg-white border border-slate-200 rounded font-bold text-slate-800 text-[10px] event-record-input" data-student-id="${student.id}" data-field="running" placeholder="${thresholds[cat].running}s" value="${student.runningRecord || ''}">
+                            <input type="text" class="w-16 px-1.5 py-1 text-center bg-white border border-slate-200 rounded font-bold text-slate-800 text-[10px] event-record-input" data-student-id="${student.id}" data-field="running" placeholder="${thresholds[cat][gender].running}s" value="${student.runningRecord || ''}">
                         </div>
                     </td>
 
@@ -1769,7 +1805,7 @@
                     <td class="py-1 px-1 bg-purple-50/10 border-r border-slate-100/80">
                         <div class="flex items-center gap-1 justify-center">
                             <input type="checkbox" class="w-3.5 h-3.5 rounded border-slate-300 text-purple-600 focus:ring-0 event-checkbox" data-student-id="${student.id}" data-field="shotPut" ${student.shotPutEligible ? 'checked' : ''}>
-                            <input type="text" class="w-16 px-1.5 py-1 text-center bg-white border border-slate-200 rounded font-bold text-slate-800 text-[10px] event-record-input" data-student-id="${student.id}" data-field="shotPut" placeholder="${thresholds[cat].shotPut}m" value="${student.shotPutRecord || ''}">
+                            <input type="text" class="w-16 px-1.5 py-1 text-center bg-white border border-slate-200 rounded font-bold text-slate-800 text-[10px] event-record-input" data-student-id="${student.id}" data-field="shotPut" placeholder="${thresholds[cat][gender].shotPut}m" value="${student.shotPutRecord || ''}">
                         </div>
                     </td>
 
@@ -1785,7 +1821,7 @@
                     </td>
                 `;
 
-                // Realtime Auto-Tick Evaluation on Record Change
+                // Realtime Auto-Tick Evaluation on Record Change based on L/P thresholds
                 const recordInputs = tr.querySelectorAll('.event-record-input');
                 recordInputs.forEach(inp => {
                     inp.addEventListener('change', (e) => {
@@ -1802,8 +1838,8 @@
                             student[`${field}Record`] = numericVal.toFixed(2) + unit;
                             e.target.value = student[`${field}Record`];
                             
-                            // Check eligibility thresholds
-                            const thresholdVal = parseFloat(thresholds[cat][field]);
+                            // Check eligibility thresholds against L/P gender values
+                            const thresholdVal = parseFloat(thresholds[cat][gender][field]);
                             const isEligible = (field === 'running') ? (numericVal <= thresholdVal) : (numericVal >= thresholdVal);
                             
                             student[`${field}Eligible`] = isEligible;
