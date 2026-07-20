@@ -100,11 +100,15 @@
                             <i id="gearIcon" class="fa-solid fa-cog text-xs transform transition-transform duration-500"></i>
                         </button>
                         <!-- Dropdown Options -->
-                        <div id="gearDropdown" class="hidden absolute left-0 mt-2 w-52 bg-white rounded-xl shadow-lg border border-slate-100 z-50 animate-fadeIn overflow-hidden">
+                        <div id="gearDropdown" class="hidden absolute left-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-slate-100 z-50 animate-fadeIn overflow-hidden">
                             <div class="p-1 space-y-0.5">
                                 <button id="registerStudentLinkBtn" class="w-full text-left px-3 py-1.5 text-[10px] font-semibold text-slate-700 hover:bg-slate-50 hover:text-blue-600 rounded-lg transition-colors flex items-center gap-2">
                                     <i class="fa-solid fa-user-plus text-blue-500"></i>
                                     <span>Daftar Murid Baru</span>
+                                </button>
+                                <button id="thresholdConfigLinkBtn" class="w-full text-left px-3 py-1.5 text-[10px] font-semibold text-slate-700 hover:bg-slate-50 hover:text-blue-600 rounded-lg transition-colors flex items-center gap-2">
+                                    <i class="fa-solid fa-sliders text-amber-500"></i>
+                                    <span>Urus Had Kelayakan</span>
                                 </button>
                                 <button id="dbConfigLinkBtn" class="w-full text-left px-3 py-1.5 text-[10px] font-semibold text-slate-700 hover:bg-slate-50 hover:text-blue-600 rounded-lg transition-colors flex items-center gap-2">
                                     <i class="fa-solid fa-database text-indigo-500"></i>
@@ -114,7 +118,7 @@
                                     <i class="fa-solid fa-file-import text-blue-500"></i>
                                     <span>Import Data JSON</span>
                                 </button>
-                                <button id="exportBtn" class="w-full text-left px-3 py-1.5 text-[10px] font-semibold text-slate-700 hover:bg-slate-50 hover:text-blue-600 rounded-lg transition-colors flex items-center gap-2">
+                                <button id="exportBtn" class="w-full text-left px-3 py-1.5 text-[10px] font-semibold text-slate-700 hover:bg-slate-50 hover:text-emerald-600 rounded-lg transition-colors flex items-center gap-2">
                                     <i class="fa-solid fa-file-export text-emerald-500"></i>
                                     <span>Eksport Data JSON</span>
                                 </button>
@@ -143,7 +147,7 @@
                     <i class="fa-solid fa-circle-info text-blue-500 animate-pulse text-xs"></i>
                     <div>
                         <strong class="font-bold">💡 Petunjuk Sistem Kelayakan Pintar:</strong> 
-                        Tanda <strong class="text-blue-900">(✓) = Layak (1 Mata)</strong>. Tulis digit pencapaian di kotak teks kanan. Jika digit melepasi had kelayakan minima, sistem akan <strong class="text-blue-900">auto-tick</strong>. Jika tiada digit (atau tidak melepasi tetapi mahu dilayakkan secara khas), anda boleh menanda checkbox secara manual.
+                        Tanda <strong class="text-blue-900">(✓) = Layak (1 Mata)</strong>. Tulis digit pencapaian di kotak teks kanan. Jika digit melepasi had kelayakan minima mengikut kategori umur (Pra, Tahap 1, Tahap 2), sistem akan <strong class="text-blue-900">auto-tick</strong>. Jika tiada digit, anda boleh menanda checkbox secara manual.
                     </div>
                 </div>
                 
@@ -191,35 +195,104 @@
                             <th class="py-2 px-1 w-[7%]">Catatan</th>
                             <th id="actionColumnHeader" class="py-2 px-0.5 text-center w-[3%]"></th>
                         </tr>
-                        <!-- Header Row 2: Threshold Configurations -->
+                        
+                        <!-- Header Row 2: Pra Sekolah Thresholds -->
                         <tr class="bg-slate-800 text-white font-semibold text-[9px] border-b border-slate-700 shadow-sm">
-                            <th colspan="4" class="py-1 px-2 text-right text-slate-300 uppercase tracking-wider">Had Kelayakan Minima:</th>
-                            <th class="py-1 px-1 bg-blue-900/90 border-r border-slate-700 text-left">
+                            <th colspan="4" class="py-1 px-2 text-right text-pink-300 uppercase tracking-wider">Had Min Pra Sekolah:</th>
+                            <th class="py-1 px-1 bg-pink-950/40 border-r border-slate-700 text-left">
                                 <div class="flex items-center gap-1 justify-start pl-2">
-                                    <span class="text-blue-200 font-bold">Min >=</span>
-                                    <input type="text" id="threshold_longJump" class="w-12 px-1 py-0.5 bg-slate-950 text-white text-center font-bold border border-slate-700 rounded text-[9px]" placeholder="3.00">
-                                    <span class="text-blue-200 font-bold">m</span>
+                                    <span class="text-pink-300 font-bold">Min >=</span>
+                                    <input type="text" id="threshold_pra_longJump" class="w-10 px-1 py-0.5 bg-slate-950 text-white text-center font-bold border border-slate-700 rounded text-[9px] threshold-input" data-category="pra" data-field="longJump" placeholder="2.00">
+                                    <span class="text-pink-300 font-bold">m</span>
                                 </div>
                             </th>
-                            <th class="py-1 px-1 bg-teal-900/90 border-r border-slate-700 text-left">
+                            <th class="py-1 px-1 bg-pink-950/40 border-r border-slate-700 text-left">
                                 <div class="flex items-center gap-1 justify-start pl-2">
-                                    <span class="text-teal-200 font-bold">Min >=</span>
-                                    <input type="text" id="threshold_highJump" class="w-12 px-1 py-0.5 bg-slate-950 text-white text-center font-bold border border-slate-700 rounded text-[9px]" placeholder="1.00">
-                                    <span class="text-teal-200 font-bold">m</span>
+                                    <span class="text-pink-300 font-bold">Min >=</span>
+                                    <input type="text" id="threshold_pra_highJump" class="w-10 px-1 py-0.5 bg-slate-950 text-white text-center font-bold border border-slate-700 rounded text-[9px] threshold-input" data-category="pra" data-field="highJump" placeholder="0.80">
+                                    <span class="text-pink-300 font-bold">m</span>
                                 </div>
                             </th>
-                            <th class="py-1 px-1 bg-indigo-900/90 border-r border-slate-700 text-left">
+                            <th class="py-1 px-1 bg-pink-950/40 border-r border-slate-700 text-left">
                                 <div class="flex items-center gap-1 justify-start pl-2">
-                                    <span class="text-indigo-200 font-bold">Laju <=</span>
-                                    <input type="text" id="threshold_running" class="w-12 px-1 py-0.5 bg-slate-950 text-white text-center font-bold border border-slate-700 rounded text-[9px]" placeholder="12.0">
-                                    <span class="text-indigo-200 font-bold">s</span>
+                                    <span class="text-pink-300 font-bold">Laju <=</span>
+                                    <input type="text" id="threshold_pra_running" class="w-10 px-1 py-0.5 bg-slate-950 text-white text-center font-bold border border-slate-700 rounded text-[9px] threshold-input" data-category="pra" data-field="running" placeholder="15.0">
+                                    <span class="text-pink-300 font-bold">s</span>
                                 </div>
                             </th>
-                            <th class="py-1 px-1 bg-purple-900/90 border-r border-slate-700 text-left">
+                            <th class="py-1 px-1 bg-pink-950/40 border-r border-slate-700 text-left">
                                 <div class="flex items-center gap-1 justify-start pl-2">
-                                    <span class="text-purple-200 font-bold">Min >=</span>
-                                    <input type="text" id="threshold_shotPut" class="w-12 px-1 py-0.5 bg-slate-950 text-white text-center font-bold border border-slate-700 rounded text-[9px]" placeholder="5.00">
-                                    <span class="text-purple-200 font-bold">m</span>
+                                    <span class="text-pink-300 font-bold">Min >=</span>
+                                    <input type="text" id="threshold_pra_shotPut" class="w-10 px-1 py-0.5 bg-slate-950 text-white text-center font-bold border border-slate-700 rounded text-[9px] threshold-input" data-category="pra" data-field="shotPut" placeholder="3.00">
+                                    <span class="text-pink-300 font-bold">m</span>
+                                </div>
+                            </th>
+                            <th colspan="3" class="bg-slate-800"></th>
+                        </tr>
+
+                        <!-- Header Row 3: Tahap 1 (T1, T2, T3) Thresholds -->
+                        <tr class="bg-slate-800 text-white font-semibold text-[9px] border-b border-slate-700 shadow-sm">
+                            <th colspan="4" class="py-1 px-2 text-right text-teal-300 uppercase tracking-wider">Had Min Tahap 1 (T1-T3):</th>
+                            <th class="py-1 px-1 bg-teal-950/40 border-r border-slate-700 text-left">
+                                <div class="flex items-center gap-1 justify-start pl-2">
+                                    <span class="text-teal-300 font-bold">Min >=</span>
+                                    <input type="text" id="threshold_tahap1_longJump" class="w-10 px-1 py-0.5 bg-slate-950 text-white text-center font-bold border border-slate-700 rounded text-[9px] threshold-input" data-category="tahap1" data-field="longJump" placeholder="2.50">
+                                    <span class="text-teal-300 font-bold">m</span>
+                                </div>
+                            </th>
+                            <th class="py-1 px-1 bg-teal-950/40 border-r border-slate-700 text-left">
+                                <div class="flex items-center gap-1 justify-start pl-2">
+                                    <span class="text-teal-300 font-bold">Min >=</span>
+                                    <input type="text" id="threshold_tahap1_highJump" class="w-10 px-1 py-0.5 bg-slate-950 text-white text-center font-bold border border-slate-700 rounded text-[9px] threshold-input" data-category="tahap1" data-field="highJump" placeholder="0.90">
+                                    <span class="text-teal-300 font-bold">m</span>
+                                </div>
+                            </th>
+                            <th class="py-1 px-1 bg-teal-950/40 border-r border-slate-700 text-left">
+                                <div class="flex items-center gap-1 justify-start pl-2">
+                                    <span class="text-teal-300 font-bold">Laju <=</span>
+                                    <input type="text" id="threshold_tahap1_running" class="w-10 px-1 py-0.5 bg-slate-950 text-white text-center font-bold border border-slate-700 rounded text-[9px] threshold-input" data-category="tahap1" data-field="running" placeholder="13.5">
+                                    <span class="text-teal-300 font-bold">s</span>
+                                </div>
+                            </th>
+                            <th class="py-1 px-1 bg-teal-950/40 border-r border-slate-700 text-left">
+                                <div class="flex items-center gap-1 justify-start pl-2">
+                                    <span class="text-teal-300 font-bold">Min >=</span>
+                                    <input type="text" id="threshold_tahap1_shotPut" class="w-10 px-1 py-0.5 bg-slate-950 text-white text-center font-bold border border-slate-700 rounded text-[9px] threshold-input" data-category="tahap1" data-field="shotPut" placeholder="4.00">
+                                    <span class="text-teal-300 font-bold">m</span>
+                                </div>
+                            </th>
+                            <th colspan="3" class="bg-slate-800"></th>
+                        </tr>
+
+                        <!-- Header Row 4: Tahap 2 (T4, T5, T6) Thresholds -->
+                        <tr class="bg-slate-800 text-white font-semibold text-[9px] border-b border-slate-700 shadow-sm">
+                            <th colspan="4" class="py-1 px-2 text-right text-indigo-300 uppercase tracking-wider">Had Min Tahap 2 (T4-T6):</th>
+                            <th class="py-1 px-1 bg-indigo-950/40 border-r border-slate-700 text-left">
+                                <div class="flex items-center gap-1 justify-start pl-2">
+                                    <span class="text-indigo-300 font-bold">Min >=</span>
+                                    <input type="text" id="threshold_tahap2_longJump" class="w-10 px-1 py-0.5 bg-slate-950 text-white text-center font-bold border border-slate-700 rounded text-[9px] threshold-input" data-category="tahap2" data-field="longJump" placeholder="3.00">
+                                    <span class="text-indigo-300 font-bold">m</span>
+                                </div>
+                            </th>
+                            <th class="py-1 px-1 bg-indigo-950/40 border-r border-slate-700 text-left">
+                                <div class="flex items-center gap-1 justify-start pl-2">
+                                    <span class="text-indigo-300 font-bold">Min >=</span>
+                                    <input type="text" id="threshold_tahap2_highJump" class="w-10 px-1 py-0.5 bg-slate-950 text-white text-center font-bold border border-slate-700 rounded text-[9px] threshold-input" data-category="tahap2" data-field="highJump" placeholder="1.00">
+                                    <span class="text-indigo-300 font-bold">m</span>
+                                </div>
+                            </th>
+                            <th class="py-1 px-1 bg-indigo-950/40 border-r border-slate-700 text-left">
+                                <div class="flex items-center gap-1 justify-start pl-2">
+                                    <span class="text-indigo-300 font-bold">Laju <=</span>
+                                    <input type="text" id="threshold_tahap2_running" class="w-10 px-1 py-0.5 bg-slate-950 text-white text-center font-bold border border-slate-700 rounded text-[9px] threshold-input" data-category="tahap2" data-field="running" placeholder="12.0">
+                                    <span class="text-indigo-300 font-bold">s</span>
+                                </div>
+                            </th>
+                            <th class="py-1 px-1 bg-indigo-950/40 border-r border-slate-700 text-left">
+                                <div class="flex items-center gap-1 justify-start pl-2">
+                                    <span class="text-indigo-300 font-bold">Min >=</span>
+                                    <input type="text" id="threshold_tahap2_shotPut" class="w-10 px-1 py-0.5 bg-slate-950 text-white text-center font-bold border border-slate-700 rounded text-[9px] threshold-input" data-category="tahap2" data-field="shotPut" placeholder="5.00">
+                                    <span class="text-indigo-300 font-bold">m</span>
                                 </div>
                             </th>
                             <th colspan="3" class="bg-slate-800"></th>
@@ -295,6 +368,111 @@
                     </button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- THRESHOLD CONFIGURATION MODAL -->
+    <div id="thresholdConfigModal" class="hidden fixed inset-0 z-50 bg-slate-950/45 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-4 shadow-xl border border-slate-100 relative overflow-hidden animate-fadeIn">
+            <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 to-orange-500"></div>
+            
+            <div class="flex items-center justify-between mb-3 border-b border-slate-100 pb-2">
+                <h2 class="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                    <i class="fa-solid fa-sliders text-amber-600"></i>
+                    Urus Had Kelayakan Minima Sukan
+                </h2>
+                <button id="closeThresholdConfigModalBtn" class="p-1 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-50 transition-colors">
+                    <i class="fa-solid fa-xmark text-xs"></i>
+                </button>
+            </div>
+
+            <div class="space-y-3 max-h-[350px] overflow-y-auto pr-1">
+                <!-- Pra Sekolah Form Section -->
+                <div class="bg-pink-50/50 p-2.5 rounded-xl border border-pink-100 space-y-2">
+                    <h3 class="text-[10px] font-bold text-pink-800 flex items-center gap-1">
+                        <i class="fa-solid fa-child"></i> Had Pra Sekolah
+                    </h3>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="text-[8px] font-bold text-slate-400 block mb-0.5">LOMPAT JAUH (>= m)</label>
+                            <input type="text" id="modal_threshold_pra_longJump" class="w-full px-2 py-1 bg-white border border-slate-200 rounded text-[10px] font-bold">
+                        </div>
+                        <div>
+                            <label class="text-[8px] font-bold text-slate-400 block mb-0.5">LOMPAT TINGGI (>= m)</label>
+                            <input type="text" id="modal_threshold_pra_highJump" class="w-full px-2 py-1 bg-white border border-slate-200 rounded text-[10px] font-bold">
+                        </div>
+                        <div>
+                            <label class="text-[8px] font-bold text-slate-400 block mb-0.5">LARIAN (<= s)</label>
+                            <input type="text" id="modal_threshold_pra_running" class="w-full px-2 py-1 bg-white border border-slate-200 rounded text-[10px] font-bold">
+                        </div>
+                        <div>
+                            <label class="text-[8px] font-bold text-slate-400 block mb-0.5">LONTAR PELURU (>= m)</label>
+                            <input type="text" id="modal_threshold_pra_shotPut" class="w-full px-2 py-1 bg-white border border-slate-200 rounded text-[10px] font-bold">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tahap 1 Form Section -->
+                <div class="bg-teal-50/50 p-2.5 rounded-xl border border-teal-100 space-y-2">
+                    <h3 class="text-[10px] font-bold text-teal-800 flex items-center gap-1">
+                        <i class="fa-solid fa-graduation-cap"></i> Had Tahap 1 (T1-T3)
+                    </h3>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="text-[8px] font-bold text-slate-400 block mb-0.5">LOMPAT JAUH (>= m)</label>
+                            <input type="text" id="modal_threshold_tahap1_longJump" class="w-full px-2 py-1 bg-white border border-slate-200 rounded text-[10px] font-bold">
+                        </div>
+                        <div>
+                            <label class="text-[8px] font-bold text-slate-400 block mb-0.5">LOMPAT TINGGI (>= m)</label>
+                            <input type="text" id="modal_threshold_tahap1_highJump" class="w-full px-2 py-1 bg-white border border-slate-200 rounded text-[10px] font-bold">
+                        </div>
+                        <div>
+                            <label class="text-[8px] font-bold text-slate-400 block mb-0.5">LARIAN (<= s)</label>
+                            <input type="text" id="modal_threshold_tahap1_running" class="w-full px-2 py-1 bg-white border border-slate-200 rounded text-[10px] font-bold">
+                        </div>
+                        <div>
+                            <label class="text-[8px] font-bold text-slate-400 block mb-0.5">LONTAR PELURU (>= m)</label>
+                            <input type="text" id="modal_threshold_tahap1_shotPut" class="w-full px-2 py-1 bg-white border border-slate-200 rounded text-[10px] font-bold">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tahap 2 Form Section -->
+                <div class="bg-indigo-50/50 p-2.5 rounded-xl border border-indigo-100 space-y-2">
+                    <h3 class="text-[10px] font-bold text-indigo-800 flex items-center gap-1">
+                        <i class="fa-solid fa-medal"></i> Had Tahap 2 (T4-T6)
+                    </h3>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="text-[8px] font-bold text-slate-400 block mb-0.5">LOMPAT JAUH (>= m)</label>
+                            <input type="text" id="modal_threshold_tahap2_longJump" class="w-full px-2 py-1 bg-white border border-slate-200 rounded text-[10px] font-bold">
+                        </div>
+                        <div>
+                            <label class="text-[8px] font-bold text-slate-400 block mb-0.5">LOMPAT TINGGI (>= m)</label>
+                            <input type="text" id="modal_threshold_tahap2_highJump" class="w-full px-2 py-1 bg-white border border-slate-200 rounded text-[10px] font-bold">
+                        </div>
+                        <div>
+                            <label class="text-[8px] font-bold text-slate-400 block mb-0.5">LARIAN (<= s)</label>
+                            <input type="text" id="modal_threshold_tahap2_running" class="w-full px-2 py-1 bg-white border border-slate-200 rounded text-[10px] font-bold">
+                        </div>
+                        <div>
+                            <label class="text-[8px] font-bold text-slate-400 block mb-0.5">LONTAR PELURU (>= m)</label>
+                            <input type="text" id="modal_threshold_tahap2_shotPut" class="w-full px-2 py-1 bg-white border border-slate-200 rounded text-[10px] font-bold">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Action Buttons -->
+            <div class="pt-3 border-t border-slate-100 flex justify-end gap-1.5 mt-3">
+                <button type="button" id="resetThresholdsBtn" class="px-2.5 py-1.5 text-[10px] font-bold text-slate-500 hover:bg-slate-100 rounded-lg transition-colors flex items-center gap-1">
+                    <i class="fa-solid fa-arrows-rotate"></i> Set Semula Asal
+                </button>
+                <button type="button" id="saveThresholdConfigBtn" class="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-[10px] font-bold shadow-md transition-all flex items-center justify-center gap-1">
+                    <i class="fa-solid fa-check"></i>
+                    <span>Simpan & Terapkan</span>
+                </button>
+            </div>
         </div>
     </div>
 
@@ -382,7 +560,6 @@
 
     <!-- JAVASCRIPT & DATABASE INTEGRATION -->
     <script type="module">
-        // Tetapan Pangkalan Data Google Apps Script Lalai daripada Pengguna
         let googleScriptUrl = "https://script.google.com/macros/s/AKfycbzbolOQP6QjsQrOdAkomAFVBL5iZAuCPp_KlxWKui4QsgoGwvcqRMdbgL-jpWCw1_DARw/exec";
 
         let houses = [];
@@ -391,12 +568,26 @@
         let currentSortOption = "name_asc";
         let confirmCallback = null;
 
-        // Had kelayakan lalai
+        // Had kelayakan berbilang peringkat mengikut kategori umur
         let thresholds = {
-            longJump: "3.00",
-            highJump: "1.00",
-            running: "12.0",
-            shotPut: "5.00"
+            pra: {
+                longJump: "2.00",
+                highJump: "0.80",
+                running: "15.0",
+                shotPut: "3.00"
+            },
+            tahap1: {
+                longJump: "2.50",
+                highJump: "0.90",
+                running: "13.5",
+                shotPut: "4.00"
+            },
+            tahap2: {
+                longJump: "3.00",
+                highJump: "1.00",
+                running: "12.0",
+                shotPut: "5.00"
+            }
         };
 
         const houseColorMap = {
@@ -442,10 +633,18 @@
             return 'slate';
         }
 
-        // Menukarkan fungsi simpan & padam murid kepada mod optimistik (UI serta-merta tanpa sekat)
+        // Mengesan kategori had berdasarkan kelas pelajar
+        function getStudentCategory(studentClass) {
+            if (!studentClass) return "tahap1";
+            const clean = studentClass.toString().trim();
+            if (clean === "Pra Sekolah") return "pra";
+            if (["T1", "T2", "T3"].includes(clean)) return "tahap1";
+            if (["T4", "T5", "T6"].includes(clean)) return "tahap2";
+            return "tahap1";
+        }
+
         function saveStudentToDb(student) {
             localStorage.setItem('sukantara_students', JSON.stringify(students));
-            // Penyelarasan Google Sheets berjalan di latar belakang secara asinkron
             sendToGoogleSheets("saveStudent", student).catch(err => {
                 console.error("Gagal menyelaraskan kemas kini murid ke Google Sheets:", err);
             });
@@ -459,14 +658,9 @@
         }
 
         function deleteStudentFromDb(studentId) {
-            // 1. Kemas kini data lokal secara serta-merta untuk respons pantas
             students = students.filter(s => s.id !== studentId);
             localStorage.setItem('sukantara_students', JSON.stringify(students));
-            
-            // 2. Kemas kini paparan jadual
             syncData();
-            
-            // 3. Selaraskan pemadaman di Google Sheets di latar belakang
             sendToGoogleSheets("deleteStudent", studentId).catch(err => {
                 console.error("Gagal memadam murid di Google Sheets:", err);
             });
@@ -482,9 +676,7 @@
                 localStorage.setItem('sukantara_students', JSON.stringify(students));
             }
             
-            // Kemas kini paparan serta-merta
             syncData();
-            
             sendToGoogleSheets("deleteHouse", houseId).catch(err => {
                 console.error("Gagal memadam rumah di Google Sheets:", err);
             });
@@ -604,36 +796,54 @@
         }
 
         function updateThresholdInputsUI() {
-            ['longJump', 'highJump', 'running', 'shotPut'].forEach(field => {
-                const el = document.getElementById(`threshold_${field}`);
-                if (el) {
-                    el.value = thresholds[field] || "";
-                }
-            });
-        }
-
-        function setupThresholdListeners() {
-            ['longJump', 'highJump', 'running', 'shotPut'].forEach(field => {
-                const input = document.getElementById(`threshold_${field}`);
-                if (!input) return;
-                input.addEventListener('change', async (e) => {
-                    thresholds[field] = e.target.value.trim();
-                    localStorage.setItem('sukantara_thresholds', JSON.stringify(thresholds));
-                    
-                    showToast("Had kelayakan minima berjaya dikemaskini!", "success");
-                    reEvaluateAllStudents();
-                    syncData();
+            ['pra', 'tahap1', 'tahap2'].forEach(category => {
+                ['longJump', 'highJump', 'running', 'shotPut'].forEach(field => {
+                    // Update main table header inputs
+                    const el = document.getElementById(`threshold_${category}_${field}`);
+                    if (el) {
+                        el.value = thresholds[category][field] || "";
+                    }
+                    // Update modal config inputs
+                    const modalEl = document.getElementById(`modal_threshold_${category}_${field}`);
+                    if (modalEl) {
+                        modalEl.value = thresholds[category][field] || "";
+                    }
                 });
             });
         }
 
+        function setupThresholdListeners() {
+            // Setup listeners for inline threshold inputs in the main table
+            document.querySelectorAll('.threshold-input').forEach(input => {
+                input.addEventListener('change', (e) => {
+                    const category = e.target.getAttribute('data-category');
+                    const field = e.target.getAttribute('data-field');
+                    const value = e.target.value.trim();
+
+                    if (category && field) {
+                        thresholds[category][field] = value;
+                        localStorage.setItem('sukantara_thresholds_v2', JSON.stringify(thresholds));
+                        showToast(`Had kelayakan ${category.toUpperCase()} (${field}) dikemaskini!`, "success");
+                        updateThresholdInputsUI();
+                        reEvaluateAllStudents();
+                        syncData();
+                    }
+                });
+            });
+        }
+
+        // Menilai semula kelayakan murid berdasarkan had semasa
         function reEvaluateAllStudents() {
             students.forEach(s => {
+                const category = getStudentCategory(s.studentClass);
+                const catThresholds = thresholds[category] || thresholds["tahap1"];
+
                 ['longJump', 'highJump', 'running', 'shotPut'].forEach(field => {
                     const recordVal = s[`${field}Record`] || "";
                     const parsedVal = parseFloat(recordVal.replace(/[^0-9.]/g, ''));
+                    
                     if (recordVal !== "" && !isNaN(parsedVal)) {
-                        const threshold = parseFloat(thresholds[field]);
+                        const threshold = parseFloat(catThresholds[field]);
                         if (!isNaN(threshold) && threshold > 0) {
                             if (field === 'running') {
                                 s[`${field}Eligible`] = (parsedVal <= threshold);
@@ -643,13 +853,13 @@
                         }
                     }
                 });
+
                 s.totalPoints = (s.longJumpEligible ? 1 : 0) + 
                                  (s.highJumpEligible ? 1 : 0) + 
                                  (s.runningEligible ? 1 : 0) + 
                                  (s.shotPutEligible ? 1 : 0);
             });
             localStorage.setItem('sukantara_students', JSON.stringify(students));
-            // Hantar data murid yang dinilai semula ke Google Sheets secara berkelompok (pukal)
             sendToGoogleSheets("bulkImport", students);
         }
 
@@ -705,7 +915,6 @@
                     ? '<span class="px-1.5 py-0.5 bg-blue-50 text-blue-700 rounded text-[9px] font-bold"><i class="fa-solid fa-mars"></i> L</span>'
                     : '<span class="px-1.5 py-0.5 bg-pink-50 text-pink-700 rounded text-[9px] font-bold"><i class="fa-solid fa-venus"></i> P</span>';
 
-                // Rekabentuk grid sel dengan Checkbox paling kiri, baki ruang kanan adalah Kotak Rekod
                 const inputsHtml = ['longJump', 'highJump', 'running', 'shotPut'].map(field => {
                     const isChecked = stud[`${field}Eligible`] ? 'checked' : '';
                     const recordVal = stud[`${field}Record`] || '';
@@ -746,7 +955,7 @@
                     </td>
                 `;
 
-                // Listener untuk menukar status kelayakan secara manual
+                // Listener kelayakan manual
                 tr.querySelectorAll('.student-score-checkbox').forEach(chk => {
                     chk.addEventListener('change', (e) => {
                         const sId = e.target.getAttribute('data-id');
@@ -766,7 +975,6 @@
                     });
                 });
 
-                // Listener untuk mengisi rekod dan auto-tick berdasarkan had minima kelayakan
                 tr.querySelectorAll('.student-record-input').forEach(input => {
                     input.addEventListener('change', (e) => {
                         const sId = e.target.getAttribute('data-id');
@@ -777,12 +985,15 @@
                         if (current) {
                             current[`${field}Record`] = valText;
                             
-                            // Logik Auto-Ticking Pintar
+                            // Auto-ticking mengikut kategori umur
+                            const category = getStudentCategory(current.studentClass);
+                            const catThresholds = thresholds[category] || thresholds["tahap1"];
                             const parsedVal = parseFloat(valText.replace(/[^0-9.]/g, ''));
+
                             if (valText === "") {
-                                // Biarkan checkbox manual
+                                // Biarkan kosong/manual
                             } else if (!isNaN(parsedVal)) {
-                                const threshold = parseFloat(thresholds[field]);
+                                const threshold = parseFloat(catThresholds[field]);
                                 if (!isNaN(threshold) && threshold > 0) {
                                     if (field === 'running') {
                                         current[`${field}Eligible`] = (parsedVal <= threshold);
@@ -802,7 +1013,6 @@
                     });
                 });
 
-                // Catatan kemas kini
                 const noteInput = tr.querySelector('.student-note-input');
                 if (noteInput) {
                     noteInput.addEventListener('change', (e) => {
@@ -816,7 +1026,6 @@
                     });
                 }
 
-                // Padam Murid secara individu
                 const deleteBtn = tr.querySelector('.delete-student-btn');
                 if (deleteBtn) {
                     deleteBtn.addEventListener('click', () => {
@@ -830,7 +1039,7 @@
                                 "Ya, Padam",
                                 () => {
                                     deleteStudentFromDb(sId);
-                                    showToast(`Rekod '${current.name}' berjaya dipadam secara lokal. Menyelaras dengan Google Sheets...`, "success");
+                                    showToast(`Rekod '${current.name}' dipadam secara lokal. Menyelaras...`, "success");
                                 }
                             );
                         }
@@ -864,12 +1073,12 @@
                 pill.querySelector('.delete-house-btn').addEventListener('click', () => {
                     showConfirm(
                         "Padam Rumah Sukan",
-                        `Adakah anda pasti mahu memadam Rumah ${h.name}? Seterusnya ini juga akan memadam KESEMUA ahli murid di bawah rumah tersebut secara kekal!`,
+                        `Adakah anda pasti mahu memadam Rumah ${h.name}? Ini juga memadam SEMUA ahli di bawahnya!`,
                         true,
                         "Ya, Padam",
                         () => {
                             deleteHouseFromDb(h.id);
-                            showToast(`Rumah ${h.name} berjaya dipadam secara lokal. Menyelaras dengan Google Sheets...`, "success");
+                            showToast(`Rumah ${h.name} berjaya dipadam secara lokal. Menyelaras...`, "success");
                         }
                     );
                 });
@@ -949,6 +1158,7 @@
             }
         }
 
+        // Normalisasi format pangkalan data murid
         function normalizeAllStoredData() {
             students.forEach(s => {
                 ['longJump', 'highJump', 'running', 'shotPut'].forEach(field => {
@@ -1010,15 +1220,20 @@
             const savedUrl = localStorage.getItem('sukantara_gscript_url');
             if (savedUrl) {
                 googleScriptUrl = savedUrl;
+            } else {
+                localStorage.setItem('sukantara_gscript_url', googleScriptUrl);
             }
+            
             const urlInput = document.getElementById('gscriptUrlInput');
             if (urlInput) {
                 urlInput.value = googleScriptUrl;
             }
 
-            const savedThresholds = localStorage.getItem('sukantara_thresholds');
+            const savedThresholds = localStorage.getItem('sukantara_thresholds_v2');
             if (savedThresholds) {
                 thresholds = JSON.parse(savedThresholds);
+            } else {
+                localStorage.setItem('sukantara_thresholds_v2', JSON.stringify(thresholds));
             }
             updateThresholdInputsUI();
             setupThresholdListeners();
@@ -1094,6 +1309,13 @@
         const saveGscriptUrlBtn = document.getElementById('saveGscriptUrlBtn');
         const gscriptUrlInput = document.getElementById('gscriptUrlInput');
 
+        // Threshold Modal References
+        const thresholdConfigLinkBtn = document.getElementById('thresholdConfigLinkBtn');
+        const thresholdConfigModal = document.getElementById('thresholdConfigModal');
+        const closeThresholdConfigModalBtn = document.getElementById('closeThresholdConfigModalBtn');
+        const saveThresholdConfigBtn = document.getElementById('saveThresholdConfigBtn');
+        const resetThresholdsBtn = document.getElementById('resetThresholdsBtn');
+
         if (gearBtn && gearDropdown) {
             gearBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -1131,6 +1353,63 @@
         if (closeHouseSettingsBtn) {
             closeHouseSettingsBtn.addEventListener('click', () => {
                 houseSettingsModal.classList.add('hidden');
+            });
+        }
+
+        if (thresholdConfigLinkBtn) {
+            thresholdConfigLinkBtn.addEventListener('click', () => {
+                updateThresholdInputsUI();
+                thresholdConfigModal.classList.remove('hidden');
+                gearDropdown.classList.add('hidden');
+            });
+        }
+
+        if (closeThresholdConfigModalBtn) {
+            closeThresholdConfigModalBtn.addEventListener('click', () => {
+                thresholdConfigModal.classList.add('hidden');
+            });
+        }
+
+        if (saveThresholdConfigBtn) {
+            saveThresholdConfigBtn.addEventListener('click', () => {
+                ['pra', 'tahap1', 'tahap2'].forEach(category => {
+                    ['longJump', 'highJump', 'running', 'shotPut'].forEach(field => {
+                        const modalEl = document.getElementById(`modal_threshold_${category}_${field}`);
+                        if (modalEl) {
+                            thresholds[category][field] = modalEl.value.trim();
+                        }
+                    });
+                });
+
+                localStorage.setItem('sukantara_thresholds_v2', JSON.stringify(thresholds));
+                updateThresholdInputsUI();
+                reEvaluateAllStudents();
+                syncData();
+                thresholdConfigModal.classList.add('hidden');
+                showToast("Had kelayakan mengikut kategori berjaya disimpan!", "success");
+            });
+        }
+
+        if (resetThresholdsBtn) {
+            resetThresholdsBtn.addEventListener('click', () => {
+                showConfirm(
+                    "Set Semula Had Kelayakan",
+                    "Adakah anda pasti mahu menetapkan had kelayakan minima sukan kembali kepada nilai asal?",
+                    false,
+                    "Ya, Teruskan",
+                    () => {
+                        thresholds = {
+                            pra: { longJump: "2.00", highJump: "0.80", running: "15.0", shotPut: "3.00" },
+                            tahap1: { longJump: "2.50", highJump: "0.90", running: "13.5", shotPut: "4.00" },
+                            tahap2: { longJump: "3.00", highJump: "1.00", running: "12.0", shotPut: "5.00" }
+                        };
+                        localStorage.setItem('sukantara_thresholds_v2', JSON.stringify(thresholds));
+                        updateThresholdInputsUI();
+                        reEvaluateAllStudents();
+                        syncData();
+                        showToast("Had kelayakan telah diset semula kepada asal.", "success");
+                    }
+                );
             });
         }
 
@@ -1179,7 +1458,7 @@
 
                 students.push(newStudent);
                 saveStudentToDb(newStudent);
-                showToast(`Murid '${name}' berjaya didaftarkan ke dalam Rumah ${newStudent.house}!`, "success");
+                showToast(`Murid '${name}' didaftarkan ke Rumah ${newStudent.house}!`, "success");
                 
                 closeRegModal();
                 syncData();
@@ -1235,7 +1514,7 @@
                     syncData();
                     showToast("Data Google Sheets berjaya dikemaskini!", "success");
                 } else {
-                    showToast("Gagal memuat turun data dari Google Sheets. Membaca storan lokal.", "danger");
+                    showToast("Gagal memuat turun data dari Google Sheets.", "danger");
                 }
             });
         }
@@ -1249,7 +1528,7 @@
                 }
                 showConfirm(
                     "Padam Ahli Rumah Sukan", 
-                    `Adakah anda pasti mahu memadam KESEMUA ${count} ahli murid di dalam Rumah ${activeHouseTab}? Rekod markah akan dipadam secara kekal!`, 
+                    `Adakah anda pasti mahu memadam KESEMUA ${count} ahli murid di dalam Rumah ${activeHouseTab}?`, 
                     true,
                     "Ya, Padam",
                     () => {
@@ -1257,10 +1536,10 @@
                         students = students.filter(s => s.house !== activeHouseTab);
                         localStorage.setItem('sukantara_students', JSON.stringify(students));
                         syncData();
-                        showToast(`Kesemua ahli Rumah ${activeHouseTab} berjaya dipadam secara lokal. Menyelaras dengan Google Sheets...`, "success");
+                        showToast(`Ahli Rumah ${activeHouseTab} dipadam secara lokal. Menyelaras...`, "success");
                         toDelete.forEach(s => {
                             sendToGoogleSheets("deleteStudent", s.id).catch(err => {
-                                console.error("Gagal menyelaraskan pemadaman ahli ke Google Sheets:", err);
+                                console.error("Gagal menyelaraskan pemadaman ke Google Sheets:", err);
                             });
                         });
                     }
@@ -1272,7 +1551,7 @@
             clearAllBtn.addEventListener('click', () => {
                 showConfirm(
                     "Padam Keseluruhan Rekod", 
-                    "AMARAN! Tindakan ini akan membuang SEMUA murid dan rumah sukan daripada sistem secara kekal!", 
+                    "AMARAN! Tindakan ini akan membuang SEMUA murid dan rumah sukan daripada sistem!", 
                     true,
                     "Ya, Teruskan",
                     async () => {
@@ -1307,7 +1586,7 @@
                     dlAnchorElem.setAttribute("href", dataStr);
                     dlAnchorElem.setAttribute("download", `sukantara_backup_${Date.now()}.json`);
                     dlAnchorElem.click();
-                    showToast("Fail sandaran JSON berjaya dijana & dimuat turun.", "success");
+                    showToast("Fail sandaran JSON berjaya dimuat turun.", "success");
                 } catch(e) {
                     showToast("Eksport gagal: " + e.message, "danger");
                 }
@@ -1338,13 +1617,13 @@
                             const hasNameField = ('nama' in sample) || ('nama_pelajar' in sample) || ('name' in sample);
                             
                             if (!hasNameField) {
-                                showToast("Format fail tidak dikenali. Tiada lajur nama pelajar dikesan.", "danger");
+                                showToast("Format fail tidak dikesan.", "danger");
                                 return;
                             }
 
                             showConfirm(
                                 "Import Senarai Ahli",
-                                `Sistem mengesan fail ini mengandungi senarai ahli sukan (${parsed.length} orang). Adakah anda mahu mendaftarkan mereka ke dalam Rumah ${activeHouseTab}?`,
+                                `Adakah anda mahu mendaftarkan ${parsed.length} orang ahli baru ke dalam Rumah ${activeHouseTab}?`,
                                 false,
                                 "Ya, Teruskan",
                                 async () => {
@@ -1386,7 +1665,7 @@
 
                                     await sendToGoogleSheets("bulkImport", newImportedStudents);
                                     localStorage.setItem('sukantara_students', JSON.stringify(students));
-                                    showToast(`Berjaya membawa masuk ${importCount} ahli baharu ke dalam Rumah ${activeHouseTab}!`, "success");
+                                    showToast(`Berjaya membawa masuk ${importCount} ahli baharu!`, "success");
                                     syncData();
                                 }
                             );
@@ -1394,7 +1673,7 @@
                         } else if (parsed.houses && parsed.students) {
                             showConfirm(
                                 "Import Fail Sandaran",
-                                `Sistem mengesan fail ini mengandungi data sistem penuh (${parsed.houses.length} rumah sukan, ${parsed.students.length} murid). Mengimport fail ini akan menimpa seluruh pangkalan data sedia ada anda. Teruskan?`,
+                                "Mengimport fail sandaran penuh akan menimpa seluruh pangkalan data sedia ada anda. Teruskan?",
                                 false,
                                 "Ya, Teruskan",
                                 async () => {
@@ -1414,12 +1693,12 @@
                                         activeHouseTab = houses[0].name;
                                     }
 
-                                    showToast("Pangkalan data sistem berjaya dipulihkan sepenuhnya.", "success");
+                                    showToast("Pangkalan data sistem berjaya dipulihkan.", "success");
                                     syncData();
                                 }
                             );
                         } else {
-                            showToast("Format fail tidak sah. Sila pilih fail JSON yang betul.", "danger");
+                            showToast("Format fail tidak sah.", "danger");
                         }
 
                     } catch(err) {
