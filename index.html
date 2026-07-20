@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sistem Sukantara Sekolah</title>
+    <title>Sistem Sukantara Sekolah (Masa Nyata)</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts Inter -->
@@ -24,7 +24,7 @@
                             100: '#e9edf5',
                             500: '#1e3a8a',
                             900: '#0f172a',
-                            950: '#0b0f19',
+                            955: '#0b0f19',
                         }
                     }
                 }
@@ -32,7 +32,6 @@
         }
     </script>
     <style>
-        /* Sembunyikan skrolbar lalai pada navigasi tab telefon pintas */
         .no-scrollbar::-webkit-scrollbar {
             display: none;
         }
@@ -47,7 +46,6 @@
         .animate-fadeIn {
             animation: fadeIn 0.2s ease-out forwards;
         }
-        /* Mengelakkan heretan skrin liar di Chrome Android semasa skrol jadual */
         body {
             overscroll-behavior-y: none;
         }
@@ -74,21 +72,18 @@
                     </div>
                     <div class="truncate">
                         <span class="text-[8px] font-bold text-blue-600 tracking-wider uppercase block leading-none mb-0.5">Kejohanan Tahunan</span>
-                        <h1 class="text-xs font-extrabold text-slate-900 tracking-tight leading-none truncate">Sistem Sukantara Sekolah</h1>
+                        <h1 class="text-xs font-extrabold text-slate-900 tracking-tight leading-none truncate">Sistem Sukantara Sekolah (Online)</h1>
                     </div>
                 </div>
                 
-                <!-- Ruang Auth Google, Status Sheets dan Peranan Pengguna -->
+                <!-- Status Sambungan & Profil Pembekal Firebase -->
                 <div class="flex items-center gap-2 flex-shrink-0">
-                    <!-- Status Sambungan Google Sheets -->
                     <span id="dbStatusBadge" class="px-2 py-1 text-[8px] sm:text-[10px] font-bold rounded-full bg-amber-50 text-amber-700 border border-amber-100 flex items-center gap-1 shadow-sm transition-all duration-300">
                         <span id="dbStatusIndicator" class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
                         <span id="dbStatusText" class="hidden sm:inline">Menyambung...</span>
                     </span>
 
-                    <!-- Google Authenticated Profile Info & Login Buttons -->
                     <div id="authContainer" class="flex items-center gap-1.5">
-                        <!-- Dimuatkan secara dinamik menerusi Firebase JS -->
                         <span class="px-2.5 py-1 text-[9px] font-bold rounded-full bg-slate-100 text-slate-500 border border-slate-200 animate-pulse">Sila tunggu...</span>
                     </div>
                 </div>
@@ -98,265 +93,296 @@
 
     <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-3 flex-1 w-full space-y-3">
         
-        <!-- CORE ACTIVITIES & SPREADSHEET PANEL -->
-        <section class="bg-white rounded-xl border border-slate-100 shadow-sm p-3 relative overflow-hidden">
+        <!-- PANDUAN PERSEDIAAN FIREBASE (Dipaparkan jika config tiada) -->
+        <section id="firebaseSetupPanel" class="hidden bg-white rounded-xl border border-blue-100 shadow-md p-5 relative overflow-hidden text-center max-w-md mx-auto my-8">
             <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-indigo-500"></div>
+            <span class="w-12 h-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-lg mx-auto mb-3">
+                <i class="fa-solid fa-cloud"></i>
+            </span>
+            <h2 class="text-sm font-bold text-slate-900 mb-1">Sambungkan Projek Firebase Anda</h2>
+            <p class="text-[10px] text-slate-500 leading-relaxed mb-4">
+                Sistem ini kini beroperasi sepenuhnya secara dalam talian (Masa Nyata). Sila hubungkan konfigurasi Firebase Web SDK (JSON) projek sekolah anda di bawah untuk memulakan pangkalan data awan.
+            </p>
+            <div class="space-y-2 text-left">
+                <textarea id="setupFirebaseConfigInput" rows="5" placeholder='Tampal JSON di sini...&#10;Contoh:&#10;{&#10;  "apiKey": "AIzaSy...",&#10;  "authDomain": "sekolah.firebaseapp.com",&#10;  "projectId": "sekolah-id",&#10;  "appId": "1:..."&#10;}' class="w-full px-2.5 py-2 bg-slate-50 border border-slate-200 focus:border-blue-500 rounded-lg text-[9px] font-mono outline-none"></textarea>
+                <button id="setupFirebaseConnectBtn" class="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-[10px] font-bold transition-all shadow-md active:scale-95">
+                    Hubungkan & Aktifkan Sistem
+                </button>
+            </div>
+        </section>
+
+        <!-- PAPARAN UTAMA AKTIVITI DAN JADUAL -->
+        <main id="mainAppContent" class="space-y-3">
             
-            <div class="flex items-center justify-between gap-4 border-b border-slate-100 pb-2">
-                <div class="flex items-center gap-2">
-                    <h2 class="text-xs font-extrabold text-slate-900 flex items-center gap-1.5">
-                        <i class="fa-solid fa-clipboard-list text-blue-600"></i>
-                        Borang Aktiviti Rumah Sukan (Lembaran Kerja)
-                    </h2>
-                    
-                    <div class="relative inline-block text-left" id="gearDropdownContainer">
-                        <button id="gearBtn" class="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-slate-50 border border-slate-200 rounded-lg transition-all focus:outline-none flex items-center justify-center active:scale-95" title="Tetapan & Sandaran Sistem">
-                            <i id="gearIcon" class="fa-solid fa-cog text-xs transform transition-transform duration-500"></i>
-                        </button>
-                        <!-- Dropdown Options -->
-                        <div id="gearDropdown" class="hidden absolute left-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-slate-100 z-50 animate-fadeIn overflow-hidden">
-                            <div class="p-1 space-y-0.5">
-                                <button id="registerStudentLinkBtn" class="w-full text-left px-3 py-2 text-[10px] font-semibold text-slate-700 hover:bg-slate-50 hover:text-blue-600 rounded-lg transition-colors flex items-center gap-2 active:bg-slate-50">
-                                    <i class="fa-solid fa-user-plus text-blue-500"></i>
-                                    <span>Daftar Murid Baru</span>
-                                </button>
-                                <button id="thresholdConfigLinkBtn" class="w-full text-left px-3 py-2 text-[10px] font-semibold text-slate-700 hover:bg-slate-50 hover:text-blue-600 rounded-lg transition-colors flex items-center gap-2 active:bg-slate-50">
-                                    <i class="fa-solid fa-sliders text-amber-500"></i>
-                                    <span>Urus Had Kelayakan</span>
-                                </button>
-                                <button id="dbConfigLinkBtn" class="w-full text-left px-3 py-2 text-[10px] font-semibold text-slate-700 hover:bg-slate-50 hover:text-blue-600 rounded-lg transition-colors flex items-center gap-2 active:bg-slate-50">
-                                    <i class="fa-solid fa-database text-indigo-500"></i>
-                                    <span>Urus Rumah & Google Sheets</span>
-                                </button>
-                                <button id="importBtn" class="w-full text-left px-3 py-2 text-[10px] font-semibold text-slate-700 hover:bg-slate-50 hover:text-blue-600 rounded-lg transition-colors flex items-center gap-2 active:bg-slate-50">
-                                    <i class="fa-solid fa-file-import text-blue-500"></i>
-                                    <span>Import Data JSON</span>
-                                </button>
-                                <button id="exportBtn" class="w-full text-left px-3 py-2 text-[10px] font-semibold text-slate-700 hover:bg-slate-50 hover:text-emerald-600 rounded-lg transition-colors flex items-center gap-2 active:bg-emerald-50">
-                                    <i class="fa-solid fa-file-export text-emerald-500"></i>
-                                    <span>Eksport Data JSON</span>
-                                </button>
-                                <button id="syncManualBtn" class="w-full text-left px-3 py-2 text-[10px] font-bold text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors flex items-center gap-2 active:bg-emerald-50">
-                                    <i class="fa-solid fa-arrows-rotate text-emerald-500"></i>
-                                    <span>Muat Semula Google Sheets</span>
-                                </button>
-                                <div class="border-t border-slate-100 my-1"></div>
-                                <button id="clearAllBtn" class="w-full text-left px-3 py-2 text-[10px] font-bold text-rose-600 hover:bg-rose-50 rounded-lg transition-colors flex items-center gap-2 active:bg-rose-50">
-                                    <i class="fa-solid fa-trash-can text-rose-500"></i>
-                                    <span>Padam Semua Rekod</span>
-                                </button>
-                                <div class="border-t border-slate-100 my-1"></div>
-                                <div class="px-3 py-1.5 flex items-center justify-between" id="toggleContainer">
-                                    <span class="text-[9px] font-bold text-slate-700 flex items-center gap-1.5">
-                                        <i class="fa-solid fa-eye text-slate-400"></i>
-                                        <span>Papar Had Min di Header</span>
-                                    </span>
-                                    <label class="relative inline-flex items-center cursor-pointer">
-                                        <input type="checkbox" id="toggleHeaderThresholds" class="sr-only peer" checked>
-                                        <div class="w-7 h-4 bg-slate-200 rounded-full peer peer-checked:after:translate-x-3 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-blue-600"></div>
-                                    </label>
+            <!-- PANEL SKRIN HALANGAN JIKA BELUM LOG MASUK -->
+            <section id="loginOverlayPanel" class="bg-white rounded-xl border border-slate-100 shadow-md p-8 text-center max-w-md mx-auto my-8">
+                <span class="w-12 h-12 rounded-full bg-rose-50 text-rose-500 flex items-center justify-center text-lg mx-auto mb-3">
+                    <i class="fa-solid fa-lock"></i>
+                </span>
+                <h2 class="text-sm font-bold text-slate-900 mb-1">Sistem Dalam Talian Berkunci</h2>
+                <p class="text-[10px] text-slate-500 leading-relaxed mb-4">
+                    Sila log masuk menggunakan Akaun Google atau e-mel DELIMa KPM anda untuk mengakses jadual markah, pendaftaran ahli, dan analisis kelayakan masa nyata.
+                </p>
+                <button id="overlayLoginBtn" class="mx-auto px-5 py-2.5 bg-gradient-to-tr from-blue-600 to-indigo-600 text-white rounded-xl text-[10px] font-black tracking-wide shadow-md flex items-center justify-center gap-2 hover:scale-105 active:scale-95 transition-all">
+                    <i class="fa-brands fa-google text-yellow-300"></i>
+                    <span>Log Masuk Google / DELIMa KPM</span>
+                </button>
+            </section>
+
+            <!-- CORE ACTIVITIES & SPREADSHEET PANEL -->
+            <section id="dataActivityPanel" class="hidden bg-white rounded-xl border border-slate-100 shadow-sm p-3 relative overflow-hidden">
+                <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-indigo-500"></div>
+                
+                <div class="flex items-center justify-between gap-4 border-b border-slate-100 pb-2">
+                    <div class="flex items-center gap-2">
+                        <h2 class="text-xs font-extrabold text-slate-900 flex items-center gap-1.5">
+                            <i class="fa-solid fa-clipboard-list text-blue-600"></i>
+                            Borang Aktiviti Rumah Sukan (Lembaran Kerja)
+                        </h2>
+                        
+                        <div class="relative inline-block text-left" id="gearDropdownContainer">
+                            <button id="gearBtn" class="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-slate-50 border border-slate-200 rounded-lg transition-all focus:outline-none flex items-center justify-center active:scale-95" title="Tetapan & Sandaran Sistem">
+                                <i id="gearIcon" class="fa-solid fa-cog text-xs transform transition-transform duration-500"></i>
+                            </button>
+                            <!-- Dropdown Options -->
+                            <div id="gearDropdown" class="hidden absolute left-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-slate-100 z-50 animate-fadeIn overflow-hidden">
+                                <div class="p-1 space-y-0.5">
+                                    <button id="registerStudentLinkBtn" class="w-full text-left px-3 py-2 text-[10px] font-semibold text-slate-700 hover:bg-slate-50 hover:text-blue-600 rounded-lg transition-colors flex items-center gap-2 active:bg-slate-50">
+                                        <i class="fa-solid fa-user-plus text-blue-500"></i>
+                                        <span>Daftar Murid Baru</span>
+                                    </button>
+                                    <button id="thresholdConfigLinkBtn" class="w-full text-left px-3 py-2 text-[10px] font-semibold text-slate-700 hover:bg-slate-50 hover:text-blue-600 rounded-lg transition-colors flex items-center gap-2 active:bg-slate-50">
+                                        <i class="fa-solid fa-sliders text-amber-500"></i>
+                                        <span>Urus Had Kelayakan</span>
+                                    </button>
+                                    <button id="dbConfigLinkBtn" class="w-full text-left px-3 py-2 text-[10px] font-semibold text-slate-700 hover:bg-slate-50 hover:text-blue-600 rounded-lg transition-colors flex items-center gap-2 active:bg-slate-50">
+                                        <i class="fa-solid fa-database text-indigo-500"></i>
+                                        <span>Urus Rumah & Google Sheets</span>
+                                    </button>
+                                    <button id="importBtn" class="w-full text-left px-3 py-2 text-[10px] font-semibold text-slate-700 hover:bg-slate-50 hover:text-blue-600 rounded-lg transition-colors flex items-center gap-2 active:bg-slate-50">
+                                        <i class="fa-solid fa-file-import text-blue-500"></i>
+                                        <span>Import Data JSON</span>
+                                    </button>
+                                    <button id="exportBtn" class="w-full text-left px-3 py-2 text-[10px] font-semibold text-slate-700 hover:bg-slate-50 hover:text-emerald-600 rounded-lg transition-colors flex items-center gap-2 active:bg-emerald-50">
+                                        <i class="fa-solid fa-file-export text-emerald-500"></i>
+                                        <span>Eksport Data JSON</span>
+                                    </button>
+                                    <button id="syncManualBtn" class="w-full text-left px-3 py-2 text-[10px] font-bold text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors flex items-center gap-2 active:bg-emerald-50">
+                                        <i class="fa-solid fa-arrows-rotate text-emerald-500"></i>
+                                        <span>Muat Semula Google Sheets</span>
+                                    </button>
+                                    <div class="border-t border-slate-100 my-1"></div>
+                                    <button id="clearAllBtn" class="w-full text-left px-3 py-2 text-[10px] font-bold text-rose-600 hover:bg-rose-50 rounded-lg transition-colors flex items-center gap-2 active:bg-rose-50">
+                                        <i class="fa-solid fa-trash-can text-rose-500"></i>
+                                        <span>Padam Semua Rekod</span>
+                                    </button>
+                                    <div class="border-t border-slate-100 my-1"></div>
+                                    <div class="px-3 py-1.5 flex items-center justify-between" id="toggleContainer">
+                                        <span class="text-[9px] font-bold text-slate-700 flex items-center gap-1.5">
+                                            <i class="fa-solid fa-eye text-slate-400"></i>
+                                            <span>Papar Had Min di Header</span>
+                                        </span>
+                                        <label class="relative inline-flex items-center cursor-pointer">
+                                            <input type="checkbox" id="toggleHeaderThresholds" class="sr-only peer" checked>
+                                            <div class="w-7 h-4 bg-slate-200 rounded-full peer peer-checked:after:translate-x-3 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-blue-600"></div>
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="flex flex-col gap-2 mt-2">
-                <!-- Tab rumah sukan boleh disapu / skrol secara melintang di Android tanpa terputus -->
-                <div class="flex flex-nowrap md:flex-wrap items-center gap-1.5 overflow-x-auto pb-1.5 w-full no-scrollbar select-none" id="houseTabsContainer" style="-webkit-overflow-scrolling: touch;">
-                    <!-- Dynamic Tabs Rendered Here -->
-                </div>
-                
-                <!-- LEGEND INSTRUCTION BAR -->
-                <div class="bg-blue-50/50 border border-blue-100/50 rounded-xl px-2.5 py-2 flex items-start gap-2 text-[10px] font-medium text-blue-700 shadow-inner">
-                    <i class="fa-solid fa-circle-info text-blue-500 mt-0.5 text-xs"></i>
-                    <div class="leading-relaxed">
-                        <strong class="font-bold">💡 Petunjuk Sistem Kelayakan Pintar:</strong> 
-                        Tanda <strong class="text-blue-900">(✓) = Layak (1 Mata)</strong>. Tulis digit pencapaian di kotak teks kanan. Jika digit melepasi had kelayakan minima mengikut kategori umur (Pra, Tahap 1, Tahap 2), sistem akan <strong class="text-blue-900">auto-tick</strong>. Jika tiada digit, anda boleh menanda checkbox secara manual.
-                    </div>
-                </div>
-                
-                <div class="flex flex-wrap items-center justify-between gap-2 w-full bg-slate-50 p-1.5 rounded-xl border border-slate-100">
-                    <!-- Ringkasan Statistik Rumah Sukan Aktif -->
-                    <div id="houseStats" class="flex items-center gap-2 px-1 text-[10px] font-bold text-slate-500">
-                        <span>Jumlah Ahli: <strong id="houseTotalMembers" class="text-slate-800">0</strong> orang</span>
-                        <span class="w-1 h-1 bg-slate-300 rounded-full"></span>
-                        <span>Mata Kelayakan: <strong id="houseTotalPoints" class="text-emerald-600">0</strong></span>
+                <div class="flex flex-col gap-2 mt-2">
+                    <div class="flex flex-nowrap md:flex-wrap items-center gap-1.5 overflow-x-auto pb-1.5 w-full no-scrollbar select-none" id="houseTabsContainer" style="-webkit-overflow-scrolling: touch;">
+                        <!-- Dynamic Tabs Rendered Here -->
                     </div>
                     
-                    <div class="flex items-center gap-1.5 flex-wrap">
-                        <div class="flex items-center gap-1">
-                            <label for="sortDropdown" class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Susun:</label>
-                            <select id="sortDropdown" class="px-2 py-1 bg-white border border-slate-200 rounded-lg text-[9px] text-slate-700 font-bold focus:ring-1 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all cursor-pointer">
-                                <option value="name_asc">Nama (A-Z)</option>
-                                <option value="class_asc">Kelas (Pra ➡️ T6)</option>
-                                <option value="gender_l_p">Jantina (L ➡️ P)</option>
-                            </select>
+                    <!-- LEGEND INSTRUCTION BAR -->
+                    <div class="bg-blue-50/50 border border-blue-100/50 rounded-xl px-2.5 py-2 flex items-start gap-2 text-[10px] font-medium text-blue-700 shadow-inner">
+                        <i class="fa-solid fa-circle-info text-blue-500 mt-0.5 text-xs"></i>
+                        <div class="leading-relaxed">
+                            <strong class="font-bold">💡 Petunjuk Sistem Kelayakan Pintar (Masa Nyata):</strong> 
+                            Tanda <strong class="text-blue-900">(✓) = Layak (1 Mata)</strong>. Tulis digit pencapaian di kotak teks kanan. Jika digit melepasi had kelayakan minima mengikut kategori umur (Pra, Tahap 1, Tahap 2), sistem akan <strong class="text-blue-900">auto-tick</strong>. Jika tiada digit, anda boleh menanda checkbox secara manual.
                         </div>
-
-                        <!-- Butang Pilih Wakil Terbaik (Emas) -->
-                        <button id="pilihWakilBtn" class="px-2.5 py-1 bg-amber-500 hover:bg-amber-600 active:scale-95 text-white rounded-lg text-[9px] font-bold transition-all flex items-center gap-1 shadow-sm focus:outline-none" title="Analisis & Pilih 2 wakil sukan terbaik bagi setiap kategori umur">
-                            <i class="fa-solid fa-trophy text-yellow-200"></i>
-                            <span>Pilih Wakil Sukan</span>
-                        </button>
-
-                        <!-- Butang Cetak Laporan Lembaran Kerja (Biru) -->
-                        <button id="printReportBtn" class="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white rounded-lg text-[9px] font-bold transition-all flex items-center gap-1 shadow-sm focus:outline-none" title="Cetak laporan lembaran kerja rasmi rumah sukan aktif">
-                            <i class="fa-solid fa-print"></i>
-                            <span>Cetak Laporan</span>
-                        </button>
-
-                        <!-- Butang Set Semula Rekod Acara Aktif (Oren) -->
-                        <button id="resetHouseRecordsBtn" class="px-2.5 py-1 bg-orange-50 hover:bg-orange-100 active:scale-95 text-orange-600 rounded-lg text-[9px] font-bold transition-all flex items-center gap-1 focus:outline-none" title="Kosongkan semua rekod masa/jarak dan checkbox rumah sukan aktif">
-                            <i class="fa-solid fa-arrows-rotate text-orange-500 animate-spin-hover"></i>
-                            <span>Set Semula Markah</span>
-                        </button>
+                    </div>
+                    
+                    <div class="flex flex-wrap items-center justify-between gap-2 w-full bg-slate-50 p-1.5 rounded-xl border border-slate-100">
+                        <!-- Ringkasan Statistik Rumah Sukan Aktif -->
+                        <div id="houseStats" class="flex items-center gap-2 px-1 text-[10px] font-bold text-slate-500">
+                            <span>Jumlah Ahli: <strong id="houseTotalMembers" class="text-slate-800">0</strong> orang</span>
+                            <span class="w-1 h-1 bg-slate-300 rounded-full"></span>
+                            <span>Mata Kelayakan: <strong id="houseTotalPoints" class="text-emerald-600">0</strong></span>
+                        </div>
                         
-                        <!-- Butang Padam Semua Ahli Rumah Sukan Aktif -->
-                        <button id="deleteHouseMembersBtn" class="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 active:scale-95 text-rose-600 rounded-lg text-[9px] font-bold transition-all flex items-center gap-1 focus:outline-none" title="Padam semua ahli bagi rumah sukan yang sedang aktif">
-                            <i class="fa-solid fa-trash-can text-rose-500"></i>
-                            <span>Padam Semua Ahli Rumah</span>
-                        </button>
+                        <div class="flex items-center gap-1.5 flex-wrap">
+                            <div class="flex items-center gap-1">
+                                <label for="sortDropdown" class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Susun:</label>
+                                <select id="sortDropdown" class="px-2 py-1 bg-white border border-slate-200 rounded-lg text-[9px] text-slate-700 font-bold focus:ring-1 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all cursor-pointer">
+                                    <option value="name_asc">Nama (A-Z)</option>
+                                    <option value="class_asc">Kelas (Pra ➡️ T6)</option>
+                                    <option value="gender_l_p">Jantina (L ➡️ P)</option>
+                                </select>
+                            </div>
+
+                            <button id="pilihWakilBtn" class="px-2.5 py-1 bg-amber-500 hover:bg-amber-600 active:scale-95 text-white rounded-lg text-[9px] font-bold transition-all flex items-center gap-1 shadow-sm focus:outline-none" title="Analisis & Pilih 2 wakil sukan terbaik bagi setiap kategori umur">
+                                <i class="fa-solid fa-trophy text-yellow-200"></i>
+                                <span>Pilih Wakil Sukan</span>
+                            </button>
+
+                            <button id="printReportBtn" class="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white rounded-lg text-[9px] font-bold transition-all flex items-center gap-1 shadow-sm focus:outline-none" title="Cetak laporan lembaran kerja rasmi rumah sukan aktif">
+                                <i class="fa-solid fa-print"></i>
+                                <span>Cetak Laporan</span>
+                            </button>
+
+                            <button id="resetHouseRecordsBtn" class="px-2.5 py-1 bg-orange-50 hover:bg-orange-100 active:scale-95 text-orange-600 rounded-lg text-[9px] font-bold transition-all flex items-center gap-1 focus:outline-none" title="Kosongkan semua rekod masa/jarak dan checkbox rumah sukan aktif">
+                                <i class="fa-solid fa-arrows-rotate text-orange-500 animate-spin-hover"></i>
+                                <span>Set Semula Markah</span>
+                            </button>
+                            
+                            <button id="deleteHouseMembersBtn" class="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 active:scale-95 text-rose-600 rounded-lg text-[9px] font-bold transition-all flex items-center gap-1 focus:outline-none" title="Padam semua ahli bagi rumah sukan yang sedang aktif">
+                                <i class="fa-solid fa-trash-can text-rose-500"></i>
+                                <span>Padam Semua Ahli Rumah</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="mt-2 border border-slate-100 rounded-xl overflow-x-auto shadow-inner w-full" style="-webkit-overflow-scrolling: touch; overscroll-behavior-x: contain;">
-                <table id="worksheetTable" class="w-full text-left border-collapse text-[10px] min-w-[980px]">
-                    <thead>
-                        <!-- Header Row 1: Event Titles -->
-                        <tr class="bg-gradient-to-r from-navy-900 to-slate-900 text-white font-extrabold uppercase tracking-wider border-b border-slate-200">
-                            <th class="py-2.5 px-1 text-center w-[4%]">Bil</th>
-                            <th class="py-2.5 px-2 w-[20%]">Nama Pelajar</th>
-                            <th class="py-2.5 px-0.5 text-center w-[6%]">Jantina</th>
-                            <th class="py-2.5 px-0.5 text-center w-[6%]">Kelas</th>
-                            <th class="py-2.5 px-0.5 text-center w-[13%] bg-blue-950 text-blue-300 border-r border-slate-800">L. Jauh (Mata)</th>
-                            <th class="py-2.5 px-0.5 text-center w-[13%] bg-teal-950 text-teal-300 border-r border-slate-800">L. Tinggi (Mata)</th>
-                            <th class="py-2.5 px-0.5 text-center w-[13%] bg-indigo-950 text-indigo-300 border-r border-slate-800">Larian (Mata)</th>
-                            <th class="py-2.5 px-0.5 text-center w-[13%] bg-purple-950 text-purple-300 border-r border-slate-800">L. Peluru (Mata)</th>
-                            <th class="py-2.5 px-0.5 text-center w-[5%]">Jumlah</th>
-                            <th class="py-2.5 px-1.5 w-[7%]">Catatan</th>
-                            <th id="actionColumnHeader" class="py-2.5 px-0.5 text-center w-[3%]"></th>
-                        </tr>
-                        
-                        <!-- Header Row 2: Pra Sekolah Thresholds -->
-                        <tr id="row-threshold-pra" class="bg-slate-800 text-white font-semibold text-[9px] border-b border-slate-700 shadow-sm">
-                            <th colspan="4" class="py-1 px-2 text-right text-pink-300 uppercase tracking-wider">Had Min Pra Sekolah:</th>
-                            <th class="py-1 px-1 bg-pink-950/40 border-r border-slate-700 text-left">
-                                <div class="flex items-center gap-1 justify-start pl-2">
-                                    <span class="text-pink-300 font-bold">Min >=</span>
-                                    <input type="text" id="threshold_pra_longJump" class="w-10 px-1 py-0.5 bg-slate-950 text-white text-center font-bold border border-slate-700 rounded text-[9px] threshold-input" data-category="pra" data-field="longJump" placeholder="2.00">
-                                    <span class="text-pink-300 font-bold">m</span>
-                                </div>
-                            </th>
-                            <th class="py-1 px-1 bg-pink-950/40 border-r border-slate-700 text-left">
-                                <div class="flex items-center gap-1 justify-start pl-2">
-                                    <span class="text-pink-300 font-bold">Min >=</span>
-                                    <input type="text" id="threshold_pra_highJump" class="w-10 px-1 py-0.5 bg-slate-950 text-white text-center font-bold border border-slate-700 rounded text-[9px] threshold-input" data-category="pra" data-field="highJump" placeholder="0.80">
-                                    <span class="text-pink-300 font-bold">m</span>
-                                </div>
-                            </th>
-                            <th class="py-1 px-1 bg-pink-950/40 border-r border-slate-700 text-left">
-                                <div class="flex items-center gap-1 justify-start pl-2">
-                                    <span class="text-pink-300 font-bold">Laju <=</span>
-                                    <input type="text" id="threshold_pra_running" class="w-10 px-1 py-0.5 bg-slate-950 text-white text-center font-bold border border-slate-700 rounded text-[9px] threshold-input" data-category="pra" data-field="running" placeholder="15.0">
-                                    <span class="text-pink-300 font-bold">s</span>
-                                </div>
-                            </th>
-                            <th class="py-1 px-1 bg-pink-950/40 border-r border-slate-700 text-left">
-                                <div class="flex items-center gap-1 justify-start pl-2">
-                                    <span class="text-pink-300 font-bold">Min >=</span>
-                                    <input type="text" id="threshold_pra_shotPut" class="w-10 px-1 py-0.5 bg-slate-950 text-white text-center font-bold border border-slate-700 rounded text-[9px] threshold-input" data-category="pra" data-field="shotPut" placeholder="3.00">
-                                    <span class="text-pink-300 font-bold">m</span>
-                                </div>
-                            </th>
-                            <th colspan="3" class="bg-slate-800"></th>
-                        </tr>
+                <div class="mt-2 border border-slate-100 rounded-xl overflow-x-auto shadow-inner w-full" style="-webkit-overflow-scrolling: touch; overscroll-behavior-x: contain;">
+                    <table id="worksheetTable" class="w-full text-left border-collapse text-[10px] min-w-[980px]">
+                        <thead>
+                            <tr class="bg-gradient-to-r from-navy-900 to-slate-900 text-white font-extrabold uppercase tracking-wider border-b border-slate-200">
+                                <th class="py-2.5 px-1 text-center w-[4%]">Bil</th>
+                                <th class="py-2.5 px-2 w-[20%]">Nama Pelajar</th>
+                                <th class="py-2.5 px-0.5 text-center w-[6%]">Jantina</th>
+                                <th class="py-2.5 px-0.5 text-center w-[6%]">Kelas</th>
+                                <th class="py-2.5 px-0.5 text-center w-[13%] bg-blue-955 text-blue-300 border-r border-slate-800">L. Jauh (Mata)</th>
+                                <th class="py-2.5 px-0.5 text-center w-[13%] bg-teal-955 text-teal-300 border-r border-slate-800">L. Tinggi (Mata)</th>
+                                <th class="py-2.5 px-0.5 text-center w-[13%] bg-indigo-955 text-indigo-300 border-r border-slate-800">Larian (Mata)</th>
+                                <th class="py-2.5 px-0.5 text-center w-[13%] bg-purple-955 text-purple-300 border-r border-slate-800">L. Peluru (Mata)</th>
+                                <th class="py-2.5 px-0.5 text-center w-[5%]">Jumlah</th>
+                                <th class="py-2.5 px-1.5 w-[7%]">Catatan</th>
+                                <th id="actionColumnHeader" class="py-2.5 px-0.5 text-center w-[3%]"></th>
+                            </tr>
+                            
+                            <!-- Header Row 2: Pra Sekolah Thresholds -->
+                            <tr id="row-threshold-pra" class="bg-slate-800 text-white font-semibold text-[9px] border-b border-slate-700 shadow-sm">
+                                <th colspan="4" class="py-1 px-2 text-right text-pink-300 uppercase tracking-wider">Had Min Pra Sekolah:</th>
+                                <th class="py-1 px-1 bg-pink-950/40 border-r border-slate-700 text-left">
+                                    <div class="flex items-center gap-1 justify-start pl-2">
+                                        <span class="text-pink-300 font-bold">Min >=</span>
+                                        <input type="text" id="threshold_pra_longJump" class="w-10 px-1 py-0.5 bg-slate-955 text-white text-center font-bold border border-slate-700 rounded text-[9px] threshold-input" data-category="pra" data-field="longJump" placeholder="2.00">
+                                        <span class="text-pink-300 font-bold">m</span>
+                                    </div>
+                                </th>
+                                <th class="py-1 px-1 bg-pink-950/40 border-r border-slate-700 text-left">
+                                    <div class="flex items-center gap-1 justify-start pl-2">
+                                        <span class="text-pink-300 font-bold">Min >=</span>
+                                        <input type="text" id="threshold_pra_highJump" class="w-10 px-1 py-0.5 bg-slate-955 text-white text-center font-bold border border-slate-700 rounded text-[9px] threshold-input" data-category="pra" data-field="highJump" placeholder="0.80">
+                                        <span class="text-pink-300 font-bold">m</span>
+                                    </div>
+                                </th>
+                                <th class="py-1 px-1 bg-pink-950/40 border-r border-slate-700 text-left">
+                                    <div class="flex items-center gap-1 justify-start pl-2">
+                                        <span class="text-pink-300 font-bold">Laju <=</span>
+                                        <input type="text" id="threshold_pra_running" class="w-10 px-1 py-0.5 bg-slate-955 text-white text-center font-bold border border-slate-700 rounded text-[9px] threshold-input" data-category="pra" data-field="running" placeholder="15.0">
+                                        <span class="text-pink-300 font-bold">s</span>
+                                    </div>
+                                </th>
+                                <th class="py-1 px-1 bg-pink-950/40 border-r border-slate-700 text-left">
+                                    <div class="flex items-center gap-1 justify-start pl-2">
+                                        <span class="text-pink-300 font-bold">Min >=</span>
+                                        <input type="text" id="threshold_pra_shotPut" class="w-10 px-1 py-0.5 bg-slate-955 text-white text-center font-bold border border-slate-700 rounded text-[9px] threshold-input" data-category="pra" data-field="shotPut" placeholder="3.00">
+                                        <span class="text-pink-300 font-bold">m</span>
+                                    </div>
+                                </th>
+                                <th colspan="3" class="bg-slate-800"></th>
+                            </tr>
 
-                        <!-- Header Row 3: Tahap 1 (T1, T2, T3) Thresholds -->
-                        <tr id="row-threshold-tahap1" class="bg-slate-800 text-white font-semibold text-[9px] border-b border-slate-700 shadow-sm">
-                            <th colspan="4" class="py-1 px-2 text-right text-teal-300 uppercase tracking-wider">Had Min Tahap 1 (T1-T3):</th>
-                            <th class="py-1 px-1 bg-teal-950/40 border-r border-slate-700 text-left">
-                                <div class="flex items-center gap-1 justify-start pl-2">
-                                    <span class="text-teal-300 font-bold">Min >=</span>
-                                    <input type="text" id="threshold_tahap1_longJump" class="w-10 px-1 py-0.5 bg-slate-950 text-white text-center font-bold border border-slate-700 rounded text-[9px] threshold-input" data-category="tahap1" data-field="longJump" placeholder="2.50">
-                                    <span class="text-teal-300 font-bold">m</span>
-                                </div>
-                            </th>
-                            <th class="py-1 px-1 bg-teal-950/40 border-r border-slate-700 text-left">
-                                <div class="flex items-center gap-1 justify-start pl-2">
-                                    <span class="text-teal-300 font-bold">Min >=</span>
-                                    <input type="text" id="threshold_tahap1_highJump" class="w-10 px-1 py-0.5 bg-slate-950 text-white text-center font-bold border border-slate-700 rounded text-[9px] threshold-input" data-category="tahap1" data-field="highJump" placeholder="0.90">
-                                    <span class="text-teal-300 font-bold">m</span>
-                                </div>
-                            </th>
-                            <th class="py-1 px-1 bg-teal-950/40 border-r border-slate-700 text-left">
-                                <div class="flex items-center gap-1 justify-start pl-2">
-                                    <span class="text-teal-300 font-bold">Laju <=</span>
-                                    <input type="text" id="threshold_tahap1_running" class="w-10 px-1 py-0.5 bg-slate-950 text-white text-center font-bold border border-slate-700 rounded text-[9px] threshold-input" data-category="tahap1" data-field="running" placeholder="13.5">
-                                    <span class="text-teal-300 font-bold">s</span>
-                                </div>
-                            </th>
-                            <th class="py-1 px-1 bg-teal-950/40 border-r border-slate-700 text-left">
-                                <div class="flex items-center gap-1 justify-start pl-2">
-                                    <span class="text-teal-300 font-bold">Min >=</span>
-                                    <input type="text" id="threshold_tahap1_shotPut" class="w-10 px-1 py-0.5 bg-slate-950 text-white text-center font-bold border border-slate-700 rounded text-[9px] threshold-input" data-category="tahap1" data-field="shotPut" placeholder="4.00">
-                                    <span class="text-teal-300 font-bold">m</span>
-                                </div>
-                            </th>
-                            <th colspan="3" class="bg-slate-800"></th>
-                        </tr>
+                            <!-- Header Row 3: Tahap 1 (T1, T2, T3) Thresholds -->
+                            <tr id="row-threshold-tahap1" class="bg-slate-800 text-white font-semibold text-[9px] border-b border-slate-700 shadow-sm">
+                                <th colspan="4" class="py-1 px-2 text-right text-teal-300 uppercase tracking-wider">Had Min Tahap 1 (T1-T3):</th>
+                                <th class="py-1 px-1 bg-teal-950/40 border-r border-slate-700 text-left">
+                                    <div class="flex items-center gap-1 justify-start pl-2">
+                                        <span class="text-teal-300 font-bold">Min >=</span>
+                                        <input type="text" id="threshold_tahap1_longJump" class="w-10 px-1 py-0.5 bg-slate-955 text-white text-center font-bold border border-slate-700 rounded text-[9px] threshold-input" data-category="tahap1" data-field="longJump" placeholder="2.50">
+                                        <span class="text-teal-300 font-bold">m</span>
+                                    </div>
+                                </th>
+                                <th class="py-1 px-1 bg-teal-950/40 border-r border-slate-700 text-left">
+                                    <div class="flex items-center gap-1 justify-start pl-2">
+                                        <span class="text-teal-300 font-bold">Min >=</span>
+                                        <input type="text" id="threshold_tahap1_highJump" class="w-10 px-1 py-0.5 bg-slate-955 text-white text-center font-bold border border-slate-700 rounded text-[9px] threshold-input" data-category="tahap1" data-field="highJump" placeholder="0.90">
+                                        <span class="text-teal-300 font-bold">m</span>
+                                    </div>
+                                </th>
+                                <th class="py-1 px-1 bg-teal-950/40 border-r border-slate-700 text-left">
+                                    <div class="flex items-center gap-1 justify-start pl-2">
+                                        <span class="text-teal-300 font-bold">Laju <=</span>
+                                        <input type="text" id="threshold_tahap1_running" class="w-10 px-1 py-0.5 bg-slate-955 text-white text-center font-bold border border-slate-700 rounded text-[9px] threshold-input" data-category="tahap1" data-field="running" placeholder="13.5">
+                                        <span class="text-teal-300 font-bold">s</span>
+                                    </div>
+                                </th>
+                                <th class="py-1 px-1 bg-teal-950/40 border-r border-slate-700 text-left">
+                                    <div class="flex items-center gap-1 justify-start pl-2">
+                                        <span class="text-teal-300 font-bold">Min >=</span>
+                                        <input type="text" id="threshold_tahap1_shotPut" class="w-10 px-1 py-0.5 bg-slate-955 text-white text-center font-bold border border-slate-700 rounded text-[9px] threshold-input" data-category="tahap1" data-field="shotPut" placeholder="4.00">
+                                        <span class="text-teal-300 font-bold">m</span>
+                                    </div>
+                                </th>
+                                <th colspan="3" class="bg-slate-800"></th>
+                            </tr>
 
-                        <!-- Header Row 4: Tahap 2 (T4, T5, T6) Thresholds -->
-                        <tr id="row-threshold-tahap2" class="bg-slate-800 text-white font-semibold text-[9px] border-b border-slate-700 shadow-sm">
-                            <th colspan="4" class="py-1 px-2 text-right text-indigo-300 uppercase tracking-wider">Had Min Tahap 2 (T4-T6):</th>
-                            <th class="py-1 px-1 bg-indigo-950/40 border-r border-slate-700 text-left">
-                                <div class="flex items-center gap-1 justify-start pl-2">
-                                    <span class="text-indigo-300 font-bold">Min >=</span>
-                                    <input type="text" id="threshold_tahap2_longJump" class="w-10 px-1 py-0.5 bg-slate-950 text-white text-center font-bold border border-slate-700 rounded text-[9px] threshold-input" data-category="tahap2" data-field="longJump" placeholder="3.00">
-                                    <span class="text-indigo-300 font-bold">m</span>
-                                </div>
-                            </th>
-                            <th class="py-1 px-1 bg-indigo-950/40 border-r border-slate-700 text-left">
-                                <div class="flex items-center gap-1 justify-start pl-2">
-                                    <span class="text-indigo-300 font-bold">Min >=</span>
-                                    <input type="text" id="threshold_tahap2_highJump" class="w-10 px-1 py-0.5 bg-slate-950 text-white text-center font-bold border border-slate-700 rounded text-[9px] threshold-input" data-category="tahap2" data-field="highJump" placeholder="1.00">
-                                    <span class="text-indigo-300 font-bold">m</span>
-                                </div>
-                            </th>
-                            <th class="py-1 px-1 bg-indigo-950/40 border-r border-slate-700 text-left">
-                                <div class="flex items-center gap-1 justify-start pl-2">
-                                    <span class="text-indigo-300 font-bold">Laju <=</span>
-                                    <input type="text" id="threshold_tahap2_running" class="w-10 px-1 py-0.5 bg-slate-950 text-white text-center font-bold border border-slate-700 rounded text-[9px] threshold-input" data-category="tahap2" data-field="running" placeholder="12.0">
-                                    <span class="text-indigo-300 font-bold">s</span>
-                                </div>
-                            </th>
-                            <th class="py-1 px-1 bg-indigo-950/40 border-r border-slate-700 text-left">
-                                <div class="flex items-center gap-1 justify-start pl-2">
-                                    <span class="text-indigo-300 font-bold">Min >=</span>
-                                    <input type="text" id="threshold_tahap2_shotPut" class="w-10 px-1 py-0.5 bg-slate-950 text-white text-center font-bold border border-slate-700 rounded text-[9px] threshold-input" data-category="tahap2" data-field="shotPut" placeholder="5.00">
-                                    <span class="text-indigo-300 font-bold">m</span>
-                                </div>
-                            </th>
-                            <th colspan="3" class="bg-slate-800"></th>
-                        </tr>
-                    </thead>
-                    <tbody id="worksheetBody" class="divide-y divide-slate-100 text-slate-700 bg-white">
-                        <tr>
-                            <td colspan="11" class="py-4 text-center text-slate-400 font-medium">
-                                <i class="fa-solid fa-spinner animate-spin text-xs text-blue-500 mb-1 block"></i>
-                                Memuatkan data murid dari Google Sheets...
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
+                            <!-- Header Row 4: Tahap 2 (T4, T5, T6) Thresholds -->
+                            <tr id="row-threshold-tahap2" class="bg-slate-800 text-white font-semibold text-[9px] border-b border-slate-700 shadow-sm">
+                                <th colspan="4" class="py-1 px-2 text-right text-indigo-300 uppercase tracking-wider">Had Min Tahap 2 (T4-T6):</th>
+                                <th class="py-1 px-1 bg-indigo-950/40 border-r border-slate-700 text-left">
+                                    <div class="flex items-center gap-1 justify-start pl-2">
+                                        <span class="text-indigo-300 font-bold">Min >=</span>
+                                        <input type="text" id="threshold_tahap2_longJump" class="w-10 px-1 py-0.5 bg-slate-955 text-white text-center font-bold border border-slate-700 rounded text-[9px] threshold-input" data-category="tahap2" data-field="longJump" placeholder="3.00">
+                                        <span class="text-indigo-300 font-bold">m</span>
+                                    </div>
+                                </th>
+                                <th class="py-1 px-1 bg-indigo-950/40 border-r border-slate-700 text-left">
+                                    <div class="flex items-center gap-1 justify-start pl-2">
+                                        <span class="text-indigo-300 font-bold">Min >=</span>
+                                        <input type="text" id="threshold_tahap2_highJump" class="w-10 px-1 py-0.5 bg-slate-955 text-white text-center font-bold border border-slate-700 rounded text-[9px] threshold-input" data-category="tahap2" data-field="highJump" placeholder="1.00">
+                                        <span class="text-indigo-300 font-bold">m</span>
+                                    </div>
+                                </th>
+                                <th class="py-1 px-1 bg-indigo-950/40 border-r border-slate-700 text-left">
+                                    <div class="flex items-center gap-1 justify-start pl-2">
+                                        <span class="text-indigo-300 font-bold">Laju <=</span>
+                                        <input type="text" id="threshold_tahap2_running" class="w-10 px-1 py-0.5 bg-slate-955 text-white text-center font-bold border border-slate-700 rounded text-[9px] threshold-input" data-category="tahap2" data-field="running" placeholder="12.0">
+                                        <span class="text-indigo-300 font-bold">s</span>
+                                    </div>
+                                </th>
+                                <th class="py-1 px-1 bg-indigo-950/40 border-r border-slate-700 text-left">
+                                    <div class="flex items-center gap-1 justify-start pl-2">
+                                        <span class="text-indigo-300 font-bold">Min >=</span>
+                                        <input type="text" id="threshold_tahap2_shotPut" class="w-10 px-1 py-0.5 bg-slate-955 text-white text-center font-bold border border-slate-700 rounded text-[9px] threshold-input" data-category="tahap2" data-field="shotPut" placeholder="5.00">
+                                        <span class="text-indigo-300 font-bold">m</span>
+                                    </div>
+                                </th>
+                                <th colspan="3" class="bg-slate-800"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="worksheetBody" class="divide-y divide-slate-100 text-slate-700 bg-white">
+                            <tr>
+                                <td colspan="11" class="py-4 text-center text-slate-400 font-medium">
+                                    <i class="fa-solid fa-spinner animate-spin text-xs text-blue-500 mb-1 block"></i>
+                                    Sila tunggu, memuatkan pangkalan data dari pelayan Cloud...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
     </div>
 
     <!-- REGISTRATION MODAL -->
-    <div id="registrationModal" class="hidden fixed inset-0 z-50 bg-slate-950/45 backdrop-blur-sm flex items-center justify-center p-3">
+    <div id="registrationModal" class="hidden fixed inset-0 z-50 bg-slate-955/45 backdrop-blur-sm flex items-center justify-center p-3">
         <div class="bg-white rounded-2xl max-w-sm w-full p-4 shadow-xl border border-slate-100 transform scale-95 transition-all relative overflow-hidden animate-fadeIn max-h-[85vh] flex flex-col">
             <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-indigo-500"></div>
             
@@ -371,25 +397,22 @@
             </div>
             
             <form id="studentForm" class="space-y-3 overflow-y-auto pr-0.5 pb-2 flex-1 no-scrollbar">
-                <!-- Nama Pelajar -->
                 <div class="space-y-1">
                     <label for="studentName" class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Nama Pelajar</label>
                     <input type="text" id="studentName" required placeholder="Masukkan nama penuh pelajar" class="w-full px-2.5 py-2 bg-slate-50 hover:bg-slate-100/50 focus:bg-white border border-slate-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/10 rounded-lg text-xs outline-none transition-all placeholder:text-slate-400">
                 </div>
                 
-                <!-- Jantina -->
                 <div class="space-y-1">
                     <label for="studentGender" class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Jantina</label>
-                    <select id="studentGender" required class="w-full px-2 py-2 bg-slate-50 border border-slate-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/10 rounded-lg text-xs outline-none transition-all cursor-pointer">
+                    <select id="studentGender" required class="w-full px-2 py-2 bg-slate-50 border border-slate-200 focus:border-blue-500 rounded-lg text-xs outline-none cursor-pointer">
                         <option value="L">L (Lelaki)</option>
                         <option value="P">P (Perempuan)</option>
                     </select>
                 </div>
                 
-                <!-- Kelas -->
                 <div class="space-y-1">
                     <label for="studentClass" class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Kelas</label>
-                    <select id="studentClass" required class="w-full px-2 py-2 bg-slate-50 border border-slate-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/10 rounded-lg text-xs outline-none transition-all cursor-pointer">
+                    <select id="studentClass" required class="w-full px-2 py-2 bg-slate-50 border border-slate-200 focus:border-blue-500 rounded-lg text-xs outline-none cursor-pointer">
                         <option value="Pra Sekolah">Pra Sekolah</option>
                         <option value="T1">Tahun 1 (T1)</option>
                         <option value="T2">Tahun 2 (T2)</option>
@@ -400,10 +423,8 @@
                     </select>
                 </div>
 
-                <!-- Rumah Sukan -->
                 <input type="hidden" id="studentHouse" value="">
 
-                <!-- Butang Hantar -->
                 <div class="pt-3 border-t border-slate-100 flex justify-end gap-1.5 flex-shrink-0">
                     <button type="button" id="cancelRegistrationBtn" class="px-3 py-2 text-[10px] font-bold text-slate-500 hover:bg-slate-100 rounded-lg transition-colors">Batal</button>
                     <button type="submit" id="submitStudentBtn" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-[10px] font-bold tracking-wide shadow-md transition-all flex items-center justify-center gap-1 active:scale-95">
@@ -415,92 +436,9 @@
         </div>
     </div>
 
-    <!-- LOGIN SELECTION MODAL -->
-    <div id="loginSelectionModal" class="hidden fixed inset-0 z-50 bg-slate-950/45 backdrop-blur-sm flex items-center justify-center p-3 animate-fadeIn">
-        <div class="bg-white rounded-2xl max-w-sm w-full p-4 shadow-xl border border-slate-100 relative overflow-hidden flex flex-col">
-            <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-600 to-indigo-600"></div>
-            
-            <div class="flex items-center justify-between mb-3 border-b border-slate-100 pb-2 flex-shrink-0">
-                <h2 class="text-xs font-bold text-slate-900 flex items-center gap-1.5">
-                    <i class="fa-solid fa-right-to-bracket text-blue-600"></i>
-                    Pilih Kaedah Log Masuk
-                </h2>
-                <button id="closeLoginSelectionModalBtn" class="p-1 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-50 transition-colors">
-                    <i class="fa-solid fa-xmark text-xs"></i>
-                </button>
-            </div>
-            
-            <div class="space-y-3.5">
-                <!-- Pilihan 1: Simulasi Pantas -->
-                <div class="space-y-2">
-                    <div class="text-[9px] font-extrabold text-slate-400 uppercase tracking-wider">⚡ Simulasi Sesi (Syor untuk Pratonton ini)</div>
-                    <div class="space-y-1.5">
-                        <button id="simLoginAdminBtn" class="w-full text-left p-2.5 rounded-xl border border-amber-200 bg-amber-50/50 hover:bg-amber-50 transition-all flex items-center justify-between group active:scale-[0.98]">
-                            <div class="flex items-center gap-2.5 min-w-0">
-                                <span class="w-7 h-7 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center text-xs flex-shrink-0">
-                                    <i class="fa-solid fa-crown"></i>
-                                </span>
-                                <div class="truncate">
-                                    <h4 class="text-[10px] font-bold text-slate-800 leading-tight">Admin Utama Sekolah</h4>
-                                    <p class="text-[8px] text-slate-500 truncate">sekolah-7608@moe-dl.edu.my</p>
-                                </div>
-                            </div>
-                            <i class="fa-solid fa-chevron-right text-[8px] text-amber-400 group-hover:translate-x-0.5 transition-transform"></i>
-                        </button>
-                        
-                        <button id="simLoginDelimaBtn" class="w-full text-left p-2.5 rounded-xl border border-blue-200 bg-blue-50/50 hover:bg-blue-50 transition-all flex items-center justify-between group active:scale-[0.98]">
-                            <div class="flex items-center gap-2.5 min-w-0">
-                                <span class="w-7 h-7 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center text-xs flex-shrink-0">
-                                    <i class="fa-solid fa-graduation-cap"></i>
-                                </span>
-                                <div class="truncate">
-                                    <h4 class="text-[10px] font-bold text-slate-800 leading-tight">Guru DELIMa KPM</h4>
-                                    <p class="text-[8px] text-slate-500 truncate">guru.sukantara@moe-dl.edu.my</p>
-                                </div>
-                            </div>
-                            <i class="fa-solid fa-chevron-right text-[8px] text-blue-400 group-hover:translate-x-0.5 transition-transform"></i>
-                        </button>
-
-                        <button id="simLoginPersonalBtn" class="w-full text-left p-2.5 rounded-xl border border-slate-200 bg-slate-50/50 hover:bg-slate-100/50 transition-all flex items-center justify-between group active:scale-[0.98]">
-                            <div class="flex items-center gap-2.5 min-w-0">
-                                <span class="w-7 h-7 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center text-xs flex-shrink-0">
-                                    <i class="fa-solid fa-user"></i>
-                                </span>
-                                <div class="truncate">
-                                    <h4 class="text-[10px] font-bold text-slate-800 leading-tight">Guru Akaun Peribadi</h4>
-                                    <p class="text-[8px] text-slate-500 truncate">cikgu.peribadi@gmail.com</p>
-                                </div>
-                            </div>
-                            <i class="fa-solid fa-chevron-right text-[8px] text-slate-400 group-hover:translate-x-0.5 transition-transform"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Pembahagi -->
-                <div class="relative flex py-1 items-center">
-                    <div class="flex-grow border-t border-slate-100"></div>
-                    <span class="flex-shrink mx-2 text-[8px] text-slate-400 font-bold uppercase tracking-wider">Atau</span>
-                    <div class="flex-grow border-t border-slate-100"></div>
-                </div>
-
-                <!-- Pilihan 2: Google Sebenar -->
-                <div class="space-y-1.5">
-                    <div class="text-[9px] font-extrabold text-slate-400 uppercase tracking-wider">🌐 Google Auth Sebenar</div>
-                    <button id="realGoogleLoginBtn" class="w-full py-2 bg-gradient-to-tr from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl text-[10px] font-black tracking-wide shadow-md flex items-center justify-center gap-2 active:scale-95">
-                        <i class="fa-brands fa-google text-yellow-300 text-xs"></i>
-                        <span>Guna Akaun Google Sebenar</span>
-                    </button>
-                    <p class="text-[8px] text-slate-400 text-center leading-relaxed">
-                        Memerlukan konfigurasi Firebase disematkan di menu Gear (⚙️) dan domain pratonton ditambah dalam "Authorized Domains".
-                    </p>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- THRESHOLD CONFIGURATION MODAL -->
-    <div id="thresholdConfigModal" class="hidden fixed inset-0 z-50 bg-slate-950/45 backdrop-blur-sm flex items-center justify-center p-3">
-        <div class="bg-white rounded-2xl max-w-md w-full p-4 shadow-xl border border-slate-100 relative overflow-hidden animate-fadeIn max-h-[85vh] flex flex-col">
+    <div id="thresholdConfigModal" class="hidden fixed inset-0 z-50 bg-slate-955/45 backdrop-blur-sm flex items-center justify-center p-3">
+        <div class="bg-white rounded-2xl max-w-md w-full p-4 shadow-xl border border-slate-100 relative overflow-hidden max-h-[85vh] flex flex-col">
             <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 to-orange-500"></div>
             
             <div class="flex items-center justify-between mb-3 border-b border-slate-100 pb-2 flex-shrink-0">
@@ -590,7 +528,6 @@
                 </div>
             </div>
 
-            <!-- Modal Action Buttons -->
             <div class="pt-3 border-t border-slate-100 flex justify-end gap-1.5 mt-2 flex-shrink-0">
                 <button type="button" id="resetThresholdsBtn" class="px-2.5 py-2 text-[10px] font-bold text-slate-500 hover:bg-slate-100 rounded-lg transition-colors flex items-center gap-1">
                     <i class="fa-solid fa-arrows-rotate"></i> Set Semula
@@ -604,7 +541,7 @@
     </div>
 
     <!-- HOUSE SETTINGS MODAL -->
-    <div id="houseSettingsModal" class="hidden fixed inset-0 z-50 bg-slate-950/45 backdrop-blur-sm flex items-center justify-center p-3 animate-fadeIn">
+    <div id="houseSettingsModal" class="hidden fixed inset-0 z-50 bg-slate-955/45 backdrop-blur-sm flex items-center justify-center p-3">
         <div class="bg-white rounded-2xl max-w-md w-full p-4 shadow-xl border border-slate-100 relative overflow-hidden max-h-[85vh] flex flex-col">
             <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 to-purple-500"></div>
             
@@ -619,41 +556,36 @@
             </div>
 
             <div class="space-y-4 overflow-y-auto pr-0.5 pb-2 flex-1 no-scrollbar">
-                <!-- INTEGRASI FIREBASE CONFIG (NEW FALLBACK FOR PREVIEW) -->
                 <div class="space-y-1.5 bg-blue-50/50 p-2.5 rounded-xl border border-blue-100">
                     <h3 class="text-[9px] font-extrabold text-blue-900 uppercase tracking-wider flex items-center gap-1">
                         <i class="fa-solid fa-cloud text-blue-600"></i>
                         Konfigurasi Firebase Web SDK (JSON)
                     </h3>
-                    <textarea id="firebaseConfigInput" rows="4" placeholder='Tampal konfigurasi Firebase SDK di sini...&#10;Contoh:&#10;{&#10;  "apiKey": "AIzaSy...",&#10;  "authDomain": "sekolah.firebaseapp.com",&#10;  "projectId": "sekolah-id",&#10;  "appId": "1:..."&#10;}' class="w-full px-2.5 py-2 bg-white border border-blue-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/10 rounded-lg text-[9px] font-mono outline-none transition-all placeholder:text-slate-400"></textarea>
+                    <textarea id="firebaseConfigInput" rows="4" placeholder='Tampal konfigurasi Firebase SDK di sini...' class="w-full px-2.5 py-2 bg-white border border-blue-200 focus:border-blue-500 rounded-lg text-[9px] font-mono outline-none"></textarea>
                     <div class="flex justify-end">
                         <button id="saveFirebaseConfigBtn" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-[10px] font-bold transition-all shadow-sm active:scale-95">
-                            Hubungkan Firebase
+                            Kemas Kini Firebase
                         </button>
                     </div>
-                    <p class="text-[8px] text-blue-500 font-medium">Membolehkan fungsi Log Masuk Google/DELIMa & Firebase Firestore berjalan secara langsung dalam mod pratonton ini.</p>
                 </div>
 
-                <!-- INTEGRASI GOOGLE SHEETS API URL -->
                 <div class="space-y-1.5 bg-indigo-50/50 p-2.5 rounded-xl border border-indigo-100">
                     <h3 class="text-[9px] font-extrabold text-indigo-900 uppercase tracking-wider flex items-center gap-1">
                         <i class="fa-brands fa-google text-indigo-600"></i>
                         URL Pangkalan Data Google Apps Script
                     </h3>
                     <div class="flex gap-1.5">
-                        <input type="text" id="gscriptUrlInput" placeholder="Masukkan Google Apps Script Web App URL..." class="flex-1 px-2.5 py-2 bg-white border border-indigo-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/10 rounded-lg text-[10px] font-semibold outline-none transition-all placeholder:text-slate-400">
+                        <input type="text" id="gscriptUrlInput" placeholder="Masukkan Google Apps Script Web App URL..." class="flex-1 px-2.5 py-2 bg-white border border-indigo-200 focus:border-indigo-500 rounded-lg text-[10px] font-semibold outline-none">
                         <button id="saveGscriptUrlBtn" class="px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-[10px] font-bold transition-all shadow-sm active:scale-95">
                             Simpan
                         </button>
                     </div>
-                    <p class="text-[8px] text-indigo-500 font-medium">Sambungan ini mengawal penyelarasan data ke helaian Google Sheets secara masa nyata.</p>
                 </div>
 
-                <!-- Tambah Rumah Sukan Baru -->
                 <div class="space-y-1.5" id="settingsAddHouseContainer">
                     <h3 class="text-[9px] font-extrabold text-slate-400 uppercase tracking-wider">Daftar Rumah Sukan Baru</h3>
                     <form id="houseForm" class="flex gap-1.5">
-                        <input type="text" id="newHouseName" placeholder="Contoh: Merah, Biru" class="flex-1 px-2.5 py-2 bg-slate-50 focus:bg-white border border-slate-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/10 rounded-lg text-[11px] font-semibold outline-none transition-all placeholder:text-slate-400">
+                        <input type="text" id="newHouseName" placeholder="Contoh: Merah, Biru" class="flex-1 px-2.5 py-2 bg-slate-50 focus:bg-white border border-slate-200 rounded-lg text-[11px] font-semibold outline-none">
                         <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-[11px] font-bold transition-all shadow-sm flex items-center gap-1 active:scale-95">
                             <i class="fa-solid fa-plus"></i>
                             Tambah
@@ -661,7 +593,6 @@
                     </form>
                 </div>
                 
-                <!-- Senarai Rumah Sukan Berdaftar -->
                 <div class="space-y-1.5">
                     <h3 class="text-[9px] font-extrabold text-slate-400 uppercase tracking-wider">Senarai Rumah Sukan Berdaftar</h3>
                     <div id="settingsHousesList" class="flex flex-wrap gap-1">
@@ -673,7 +604,7 @@
     </div>
 
     <!-- REPRESENTATIVES (PILIH WAKIL) MODAL -->
-    <div id="pilihWakilModal" class="hidden fixed inset-0 z-50 bg-slate-950/45 backdrop-blur-sm flex items-center justify-center p-3">
+    <div id="pilihWakilModal" class="hidden fixed inset-0 z-50 bg-slate-955/45 backdrop-blur-sm flex items-center justify-center p-3">
         <div class="bg-white rounded-2xl max-w-4xl w-full p-4 shadow-xl border border-slate-100 relative overflow-hidden max-h-[90vh] flex flex-col animate-fadeIn">
             <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 to-yellow-500"></div>
             
@@ -698,14 +629,12 @@
                 </div>
             </div>
 
-            <!-- Filter Konten Wakil -->
             <div class="flex flex-col gap-2 overflow-y-auto pr-0.5 pb-2 flex-1 no-scrollbar">
                 <div class="flex flex-wrap items-center gap-2 bg-slate-50 p-2 rounded-xl border border-slate-100">
                     <div class="flex items-center gap-1">
                         <label for="wakilHouseFilter" class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Rumah Sukan:</label>
-                        <select id="wakilHouseFilter" class="px-2 py-1 bg-white border border-slate-200 rounded-lg text-[9px] text-slate-700 font-bold outline-none transition-all cursor-pointer">
+                        <select id="wakilHouseFilter" class="px-2 py-1 bg-white border border-slate-200 rounded-lg text-[9px] text-slate-700 font-bold outline-none cursor-pointer">
                             <option value="ALL">Semua Rumah Sukan</option>
-                            <!-- Options added dynamically -->
                         </select>
                     </div>
                 </div>
@@ -718,7 +647,7 @@
     </div>
 
     <!-- CONFIRM DIALOG -->
-    <div id="confirmModal" class="hidden fixed inset-0 z-50 bg-slate-950/45 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn">
+    <div id="confirmModal" class="hidden fixed inset-0 z-50 bg-slate-955/45 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn">
         <div class="bg-white rounded-2xl max-w-xs w-full p-4 shadow-xl border border-slate-100 transform scale-95 transition-all">
             <div id="confirmIconContainer" class="w-8 h-8 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center text-sm mb-2.5">
                 <i id="confirmIcon" class="fa-solid fa-circle-exclamation"></i>
@@ -738,7 +667,7 @@
     <!-- FOOTER -->
     <footer class="bg-white border-t border-slate-100 py-3 mt-4">
         <div class="max-w-7xl mx-auto px-4 text-center">
-            <p class="text-[9px] text-slate-400 font-medium">&copy; 2026 Sistem Sukantara Sekolah. Pangkalan Data Bersepadu Google Sheets & Mod Demo Tempatan.</p>
+            <p class="text-[9px] text-slate-400 font-medium">&copy; 2026 Sistem Sukantara Sekolah. Pangkalan Data Bersepadu Google Sheets & Google Firebase (Online).</p>
         </div>
     </footer>
 
@@ -748,28 +677,22 @@
     <!-- JAVASCRIPT & DATABASE INTEGRATION -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Global Firebase state & configs
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'sukantara-sekolah-2026';
+        // ID Projek Sebenar
+        const appId = 'sukantara-sekolah-2026';
         let firebaseConfig = null;
 
-        // Semak jika persekitaran membekalkan config automatik
-        if (typeof __firebase_config !== 'undefined') {
-            firebaseConfig = JSON.parse(__firebase_config);
-        } else {
-            // Sandaran konfigurasi manual daripada penyimpanan lokal (untuk Mod Pratonton)
-            const savedFbConfig = localStorage.getItem('sukantara_firebase_config');
-            if (savedFbConfig) {
-                try {
-                    firebaseConfig = JSON.parse(savedFbConfig);
-                } catch(e) {
-                    console.error("Ralat membaca konfigurasi Firebase lokal:", e);
-                }
+        // Muat turun tetapan tersimpan dari storan komputer
+        const savedFbConfig = localStorage.getItem('sukantara_firebase_config');
+        if (savedFbConfig) {
+            try {
+                firebaseConfig = JSON.parse(savedFbConfig);
+            } catch(e) {
+                console.error("Ralat memuatkan config:", e);
             }
         }
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
         let db = null;
         let auth = null;
@@ -784,63 +707,21 @@
         let currentSortOption = "name_asc";
         let confirmCallback = null;
         
-        // Ciri kawalan Admin Utama
         const ADMIN_EMAIL = "sekolah-7608@moe-dl.edu.my";
         let isAdmin = false;
 
-        // Had kelayakan berbilang peringkat mengikut kategori umur
         let thresholds = {
-            pra: {
-                longJump: "2.00",
-                highJump: "0.80",
-                running: "15.0",
-                shotPut: "3.00"
-            },
-            tahap1: {
-                longJump: "2.50",
-                highJump: "0.90",
-                running: "13.5",
-                shotPut: "4.00"
-            },
-            tahap2: {
-                longJump: "3.00",
-                highJump: "1.00",
-                running: "12.0",
-                shotPut: "5.00"
-            }
+            pra: { longJump: "2.00", highJump: "0.80", running: "15.0", shotPut: "3.00" },
+            tahap1: { longJump: "2.50", highJump: "0.90", running: "13.5", shotPut: "4.00" },
+            tahap2: { longJump: "3.00", highJump: "1.00", running: "12.0", shotPut: "5.00" }
         };
 
         const houseColorMap = {
-            merah: {
-                activeBtn: "bg-rose-600 border-rose-600 text-white shadow-md shadow-rose-500/20",
-                inactiveBtn: "bg-white border-rose-200 text-rose-700 hover:bg-rose-50/50",
-                activeBadge: "bg-rose-700 text-rose-100",
-                inactiveBadge: "bg-rose-100 text-rose-800"
-            },
-            biru: {
-                activeBtn: "bg-blue-600 border-blue-600 text-white shadow-md shadow-blue-500/20",
-                inactiveBtn: "bg-white border-blue-200 text-blue-700 hover:bg-blue-50/50",
-                activeBadge: "bg-blue-700 text-blue-100",
-                inactiveBadge: "bg-blue-100 text-blue-800"
-            },
-            kuning: {
-                activeBtn: "bg-amber-500 border-amber-500 text-white shadow-md shadow-amber-500/20",
-                inactiveBtn: "bg-white border-amber-200 text-amber-700 hover:bg-amber-50/50",
-                activeBadge: "bg-amber-600 text-amber-100",
-                inactiveBadge: "bg-amber-100 text-amber-800"
-            },
-            hijau: {
-                activeBtn: "bg-emerald-600 border-emerald-600 text-white shadow-md shadow-emerald-500/20",
-                inactiveBtn: "bg-white border-emerald-200 text-emerald-700 hover:bg-emerald-50/50",
-                activeBadge: "bg-emerald-700 text-emerald-100",
-                inactiveBadge: "bg-emerald-100 text-emerald-800"
-            },
-            slate: {
-                activeBtn: "bg-slate-700 border-slate-700 text-white shadow-md shadow-slate-500/20",
-                inactiveBtn: "bg-white border-slate-200 text-slate-700 hover:bg-slate-50/50",
-                activeBadge: "bg-slate-800 text-slate-100",
-                inactiveBadge: "bg-slate-100 text-slate-800"
-            }
+            merah: { activeBtn: "bg-rose-600 border-rose-600 text-white shadow-md shadow-rose-500/20", inactiveBtn: "bg-white border-rose-200 text-rose-700 hover:bg-rose-50/50", activeBadge: "bg-rose-700 text-rose-100", inactiveBadge: "bg-rose-100 text-rose-800" },
+            biru: { activeBtn: "bg-blue-600 border-blue-600 text-white shadow-md shadow-blue-500/20", inactiveBtn: "bg-white border-blue-200 text-blue-700 hover:bg-blue-50/50", activeBadge: "bg-blue-700 text-blue-100", inactiveBadge: "bg-blue-100 text-blue-800" },
+            kuning: { activeBtn: "bg-amber-500 border-amber-500 text-white shadow-md shadow-amber-500/20", inactiveBtn: "bg-white border-amber-200 text-amber-700 hover:bg-amber-50/50", activeBadge: "bg-amber-600 text-amber-100", inactiveBadge: "bg-amber-100 text-amber-800" },
+            hijau: { activeBtn: "bg-emerald-600 border-emerald-600 text-white shadow-md shadow-emerald-500/20", inactiveBtn: "bg-white border-emerald-200 text-emerald-700 hover:bg-emerald-50/50", activeBadge: "bg-emerald-700 text-emerald-100", inactiveBadge: "bg-emerald-100 text-emerald-800" },
+            slate: { activeBtn: "bg-slate-700 border-slate-700 text-white shadow-md shadow-slate-500/20", inactiveBtn: "bg-white border-slate-200 text-slate-700 hover:bg-slate-50/50", activeBadge: "bg-slate-800 text-slate-100", inactiveBadge: "bg-slate-100 text-slate-800" }
         };
 
         function getHouseColorTheme(name) {
@@ -906,27 +787,6 @@
             return "T1";
         }
 
-        // Fungsi Memulakan Sesi Simulasi Tempatan (Bypass Ralat Domain Sandbox)
-        function simulateUserSignIn(email, name) {
-            const mockUser = {
-                uid: `mock_user_${Date.now()}`,
-                displayName: name,
-                email: email,
-                photoURL: `https://placehold.co/40x40/1e3b8a/ffffff?text=${name.charAt(0)}`
-            };
-            localStorage.setItem('sukantara_simulated_user', JSON.stringify(mockUser));
-            userId = mockUser.uid;
-            firebaseActive = true;
-            isAdmin = (email.toLowerCase() === ADMIN_EMAIL.toLowerCase());
-            
-            updateAuthUI(mockUser);
-            updateDbStatus(false, "Sesi Simulasi Aktif", "warning");
-            
-            // Muatkan data
-            loadLocalData();
-            showToast(`Sesi simulasi aktif sebagai ${name}!`, "success");
-        }
-
         async function initFirebase() {
             try {
                 updateDbStatus(true, "Menghubungi Firebase...");
@@ -937,61 +797,53 @@
                 db = getFirestore(app);
                 auth = getAuth(app);
 
-                // Semak jika ada sesi simulasi aktif terlebih dahulu
-                const savedSim = localStorage.getItem('sukantara_simulated_user');
-                if (savedSim) {
-                    const parsed = JSON.parse(savedSim);
-                    userId = parsed.uid;
-                    firebaseActive = true;
-                    isAdmin = (parsed.email.toLowerCase() === ADMIN_EMAIL.toLowerCase());
-                    updateAuthUI(parsed);
-                    updateDbStatus(false, "Sesi Simulasi Aktif", "warning");
-                    loadLocalData();
-                    return;
-                }
-
-                // Mendengar status pengesahan pengguna secara dinamik
                 onAuthStateChanged(auth, (user) => {
-                    const sim = localStorage.getItem('sukantara_simulated_user');
-                    if (sim) return; // Skip if simulated session is overriding
-
                     updateAuthUI(user);
                     if (user) {
                         userId = user.uid;
                         firebaseActive = true;
                         updateDbStatus(false, "Berjaya Diselaraskan");
+                        
+                        document.getElementById('loginOverlayPanel').classList.add('hidden');
+                        document.getElementById('dataActivityPanel').classList.remove('hidden');
+                        
                         setupFirestoreListeners();
                     } else {
                         userId = null;
                         firebaseActive = false;
                         updateDbStatus(false, "Sila Log Masuk", "warning");
-                        loadLocalData();
+                        
+                        document.getElementById('loginOverlayPanel').classList.remove('hidden');
+                        document.getElementById('dataActivityPanel').classList.add('hidden');
+                        
+                        houses = [];
+                        students = [];
+                        syncData();
                     }
                 });
 
             } catch (error) {
-                console.error("Firebase gagal diaktifkan. Berpindah ke Mod Lokal:", error);
+                console.error("Firebase Auth Error:", error);
                 firebaseActive = false;
-                
-                // Semak jika ada sesi simulasi tempatan walaupun Firebase gagal dimuatkan
-                const savedSim = localStorage.getItem('sukantara_simulated_user');
-                if (savedSim) {
-                    const parsed = JSON.parse(savedSim);
-                    userId = parsed.uid;
-                    firebaseActive = true;
-                    isAdmin = (parsed.email.toLowerCase() === ADMIN_EMAIL.toLowerCase());
-                    updateAuthUI(parsed);
-                    updateDbStatus(false, "Sesi Simulasi Aktif", "warning");
-                    loadLocalData();
-                } else {
-                    updateDbStatus(false, "Mod Lokal (Tanpa Awan)", "warning");
-                    updateAuthUI(null);
-                    loadLocalData();
-                }
+                updateDbStatus(false, "Gagal Berhubung", "danger");
+                showToast("Sila pastikan konfigurasi Firebase Web SDK anda adalah sah.", "danger");
+                toggleFirebaseSetupUI(true);
             }
         }
 
-        // Fungsi mengawal had akses elemen mengikut peranan pengguna
+        function toggleFirebaseSetupUI(show) {
+            const setupPanel = document.getElementById('firebaseSetupPanel');
+            const mainContent = document.getElementById('mainAppContent');
+            
+            if (show) {
+                setupPanel.classList.remove('hidden');
+                mainContent.classList.add('hidden');
+            } else {
+                setupPanel.classList.add('hidden');
+                mainContent.classList.remove('hidden');
+            }
+        }
+
         function applyAdminRestrictions() {
             const thresholdBtn = document.getElementById('thresholdConfigLinkBtn');
             const dbConfigBtn = document.getElementById('dbConfigLinkBtn');
@@ -999,11 +851,9 @@
             const deleteHouseMembersBtn = document.getElementById('deleteHouseMembersBtn');
             const resetHouseRecordsBtn = document.getElementById('resetHouseRecordsBtn');
             const importBtn = document.getElementById('importBtn');
-            
             const thresholdInputs = document.querySelectorAll('.threshold-input');
 
             if (isAdmin) {
-                // Tunjukkan semua alat pentadbiran untuk Admin Utama
                 if (thresholdBtn) thresholdBtn.classList.remove('hidden');
                 if (dbConfigBtn) dbConfigBtn.classList.remove('hidden');
                 if (clearAllBtn) clearAllBtn.classList.remove('hidden');
@@ -1012,88 +862,74 @@
                 if (deleteHouseMembersBtn) {
                     deleteHouseMembersBtn.disabled = false;
                     deleteHouseMembersBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-                    deleteHouseMembersBtn.title = "Padam semua ahli bagi rumah sukan yang aktif";
                 }
                 if (resetHouseRecordsBtn) {
                     resetHouseRecordsBtn.disabled = false;
                     resetHouseRecordsBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-                    resetHouseRecordsBtn.title = "Kosongkan rekod prestasi dan kotak kelayakan rumah aktif";
                 }
 
                 thresholdInputs.forEach(input => {
                     input.removeAttribute('disabled');
                     input.classList.remove('bg-slate-900', 'text-slate-500', 'cursor-not-allowed');
-                    input.title = "Masukkan had minima baharu";
                 });
             } else {
-                // Sembunyikan dan kunci tindakan kritikal bagi pengguna biasa
                 if (thresholdBtn) thresholdBtn.classList.add('hidden');
                 if (dbConfigBtn) dbConfigBtn.classList.add('hidden');
                 if (clearAllBtn) clearAllBtn.classList.add('hidden');
-                if (importBtn) importBtn.classList.add('hidden'); // Hanya admin boleh import json pangkalan data
+                if (importBtn) importBtn.classList.add('hidden');
 
                 if (deleteHouseMembersBtn) {
                     deleteHouseMembersBtn.disabled = true;
                     deleteHouseMembersBtn.classList.add('opacity-50', 'cursor-not-allowed');
-                    deleteHouseMembersBtn.title = "Fungsi ini dikunci. Hanya dibenarkan untuk Admin Utama sahaja.";
                 }
                 if (resetHouseRecordsBtn) {
                     resetHouseRecordsBtn.disabled = true;
                     resetHouseRecordsBtn.classList.add('opacity-50', 'cursor-not-allowed');
-                    resetHouseRecordsBtn.title = "Fungsi ini dikunci. Hanya dibenarkan untuk Admin Utama sahaja.";
                 }
 
                 thresholdInputs.forEach(input => {
                     input.setAttribute('disabled', 'true');
                     input.classList.add('bg-slate-900', 'text-slate-500', 'cursor-not-allowed');
-                    input.title = "Had kelayakan hanya boleh diubah oleh Admin Utama.";
                 });
             }
         }
 
-        // Kemas kini komponen UI Log Masuk / Maklumat Profil Google
         function updateAuthUI(user) {
             const authContainer = document.getElementById('authContainer');
             if (!authContainer) return;
 
             if (user) {
-                const displayName = user.displayName || "Ahli Sukantara";
+                const displayName = user.displayName || "Guru Sukan";
                 const email = user.email || "";
-                const photoURL = user.photoURL || "https://placehold.co/40x40/1e3b8a/ffffff?text=" + displayName.charAt(0);
+                const photoURL = user.photoURL || `https://placehold.co/40x40/1e3b8a/ffffff?text=${displayName.charAt(0)}`;
                 
-                // Semak peranan Admin Utama sekolah
                 isAdmin = (email.toLowerCase() === ADMIN_EMAIL.toLowerCase());
-
-                // Kenal pasti jika e-mel ialah e-mel DELIMa (KPM Malaysia)
                 const isDelima = email.toLowerCase().endsWith("moe-dl.edu.my") || email.toLowerCase().endsWith("moe.edu.my");
                 
                 let badgeHtml = "";
                 if (isAdmin) {
                     badgeHtml = `
-                        <span class="px-2.5 py-0.5 text-[8px] sm:text-[9px] font-black rounded-full border bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 border-yellow-300 shadow-sm animate-pulse flex items-center gap-1">
-                            <i class="fa-solid fa-crown text-amber-950"></i> Admin Utama
+                        <span class="px-2.5 py-0.5 text-[8px] sm:text-[9px] font-black rounded-full border bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-955 border-yellow-300 shadow-sm animate-pulse flex items-center gap-1">
+                            <i class="fa-solid fa-crown"></i> Admin Utama
                         </span>
                     `;
                 } else if (isDelima) {
                     badgeHtml = `
                         <span class="px-2 py-0.5 text-[8px] sm:text-[9px] font-extrabold rounded-full border bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-sm border-blue-400">
-                            <i class="fa-solid fa-graduation-cap mr-0.5"></i> DELIMa KPM
+                            <i class="fa-solid fa-graduation-cap"></i> DELIMa KPM
                         </span>
                     `;
                 } else {
                     badgeHtml = `
                         <span class="px-2 py-0.5 text-[8px] sm:text-[9px] font-extrabold rounded-full border bg-slate-100 text-slate-700 border-slate-200">
-                            <i class="fa-brands fa-google mr-0.5"></i> Google Personal
+                            <i class="fa-brands fa-google"></i> Google Personal
                         </span>
                     `;
                 }
 
                 authContainer.innerHTML = `
-                    <div class="flex items-center gap-2">
-                        <!-- Lencana Kategori Akaun -->
+                    <div class="flex items-center gap-2 animate-fadeIn">
                         ${badgeHtml}
-                        
-                        <!-- Profil Pengguna -->
                         <div class="flex items-center gap-1.5 bg-slate-50 border border-slate-100 rounded-full pl-1.5 pr-2.5 py-0.5 shadow-sm">
                             <img src="${photoURL}" onerror="this.src='https://placehold.co/40x40/1e3b8a/ffffff?text=${displayName.charAt(0)}'" class="w-5 h-5 rounded-full border border-slate-200" alt="Avatar">
                             <div class="hidden sm:flex flex-col text-left leading-none">
@@ -1101,9 +937,7 @@
                                 <span class="text-[7px] text-slate-400 truncate max-w-[90px]">${email}</span>
                             </div>
                         </div>
-
-                        <!-- Butang Log Keluar -->
-                        <button id="logoutBtn" class="px-2.5 py-1 text-[9px] font-bold text-rose-600 hover:text-white hover:bg-rose-600 border border-rose-200 hover:border-rose-600 rounded-lg transition-all active:scale-95" title="Log Keluar">
+                        <button id="logoutBtn" class="px-2.5 py-1 text-[9px] font-bold text-rose-600 hover:text-white hover:bg-rose-600 border border-rose-200 hover:border-rose-600 rounded-lg transition-all active:scale-95">
                             <i class="fa-solid fa-right-from-bracket"></i>
                             <span class="hidden md:inline ml-1">Log Keluar</span>
                         </button>
@@ -1111,55 +945,37 @@
                 `;
 
                 document.getElementById('logoutBtn').addEventListener('click', handleLogout);
-                if (isAdmin) {
-                    showToast(`Selamat Datang, Admin Utama (${displayName})!`, "success");
-                }
             } else {
                 isAdmin = false;
-                // Tunjukkan butang Log Masuk DELIMa & Google
                 authContainer.innerHTML = `
-                    <div class="flex items-center gap-1">
-                        <button id="loginGoogleBtn" class="px-3 py-1.5 bg-gradient-to-tr from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-lg text-[9px] sm:text-[10px] font-black tracking-wide shadow-md shadow-blue-500/10 hover:shadow-blue-500/20 transition-all flex items-center gap-1.5 active:scale-95">
-                            <i class="fa-brands fa-google text-yellow-300"></i>
-                            <span>Log Masuk Google / DELIMa</span>
-                        </button>
-                    </div>
+                    <button id="loginGoogleBtn" class="px-3 py-1.5 bg-gradient-to-tr from-blue-600 to-indigo-600 text-white rounded-lg text-[9px] sm:text-[10px] font-black tracking-wide shadow-md flex items-center gap-1.5 active:scale-95">
+                        <i class="fa-brands fa-google text-yellow-300"></i>
+                        <span>Log Masuk Google / DELIMa</span>
+                    </button>
                 `;
 
-                document.getElementById('loginGoogleBtn').addEventListener('click', () => {
-                    const modal = document.getElementById('loginSelectionModal');
-                    if (modal) modal.classList.remove('hidden');
-                });
+                const btn = document.getElementById('loginGoogleBtn');
+                if (btn) btn.addEventListener('click', triggerRealGoogleLogin);
             }
 
-            // Kemas kini had sekatan paparan mengikut peranan
             applyAdminRestrictions();
         }
 
-        // Fungsi mengurus log masuk Google Sebenar (Firebase Auth)
         async function triggerRealGoogleLogin() {
             if (!auth) {
-                showToast("Sistem awan Firebase belum sedia. Sila masukkan konfigurasi Firebase Web SDK di menu Gear (⚙️).", "warning");
-                const houseSettingsModal = document.getElementById('houseSettingsModal');
-                if (houseSettingsModal) houseSettingsModal.classList.remove('hidden');
+                showToast("Sistem awan Firebase belum sedia.", "danger");
                 return;
             }
             try {
                 updateDbStatus(true, "Membuka Pop-up Google...");
                 const provider = new GoogleAuthProvider();
-                provider.setCustomParameters({
-                    prompt: 'select_account'
-                });
+                provider.setCustomParameters({ prompt: 'select_account' });
                 await signInWithPopup(auth, provider);
-                showToast("Log masuk berjaya! Menyandarkan data awan...", "success");
+                showToast("Berjaya Log Masuk!", "success");
             } catch (error) {
-                console.error("Gagal log masuk Google:", error);
-                
-                // Mengesan ralat sekatan Domain Firebase (auth/unauthorized-domain)
+                console.error("Auth Fail:", error);
                 if (error.code === 'auth/unauthorized-domain' || error.message.includes('unauthorized-domain')) {
                     const currentHost = window.location.hostname;
-                    
-                    // Salin domain secara automatik ke dalam clipboard untuk memudahkan Whitelist
                     try {
                         const tempEl = document.createElement('textarea');
                         tempEl.value = currentHost;
@@ -1171,25 +987,20 @@
                     } catch(e) {}
 
                     showConfirm(
-                        "Ralat Domain Pratonton Disekat",
-                        `Firebase menyekat log masuk kerana domain ini (${currentHost}) tidak tersenarai di Firebase Console projek anda.\n\nSila tambah domain ini ke dalam senarai 'Authorized Domains' di Firebase Authentication Settings.\n\nAdakah anda mahu mulakan 'Sesi Simulasi' sebagai Admin Utama (sekolah-7608@moe-dl.edu.my) untuk menguji sistem di tetingkap ini?`,
-                        false,
-                        "Simulasikan Sesi Admin Utama",
-                        () => {
-                            simulateUserSignIn("sekolah-7608@moe-dl.edu.my", "Admin Utama (Simulasi)");
-                        }
+                        "Ralat Domain Pratonton Sekat",
+                        `Google Firebase menyekat sambungan login popup kerana domain ini (${currentHost}) belum dibenarkan (authorized) di Firebase Console projek anda.\n\nSila whitelist domain ini dalam panel Firebase Console > Authentication > Settings > Authorized Domains.`,
+                        true,
+                        "Ok",
+                        () => {}
                     );
                 } else {
-                    showToast("Log masuk dibatalkan atau menghadapi ralat. Pastikan pop-up dibenarkan dalam pelayar.", "danger");
+                    showToast("Log masuk tidak berjaya.", "danger");
                 }
                 updateDbStatus(false, "Sila Log Masuk", "warning");
             }
         }
 
-        // Fungsi mengurus Log Keluar
         async function handleLogout() {
-            const isSimulated = localStorage.getItem('sukantara_simulated_user') !== null;
-            
             showConfirm(
                 "Log Keluar Sesi",
                 "Adakah anda pasti mahu log keluar daripada akaun anda?",
@@ -1197,17 +1008,9 @@
                 "Log Keluar",
                 async () => {
                     try {
-                        if (isSimulated) {
-                            localStorage.removeItem('sukantara_simulated_user');
-                            userId = null;
-                            firebaseActive = false;
-                            isAdmin = false;
-                            updateAuthUI(null);
-                            loadLocalData();
-                            showToast("Sesi simulasi ditutup.", "info");
-                        } else if (auth) {
+                        if (auth) {
                             await signOut(auth);
-                            showToast("Anda telah berjaya log keluar.", "info");
+                            showToast("Anda telah mendaftar keluar.", "info");
                         }
                     } catch (error) {
                         console.error("Ralat sewaktu log keluar:", error);
@@ -1217,40 +1020,28 @@
         }
 
         function setupFirestoreListeners() {
-            if (!db) return;
+            if (!db || !auth.currentUser) return;
 
-            // 1. Dengar rekod Rumah Sukan (Laluan Ketat - Peraturan 1)
+            // 1. Live House Updates
             const housesCol = collection(db, 'artifacts', appId, 'public', 'data', 'houses');
             onSnapshot(housesCol, (snapshot) => {
                 const tempHouses = [];
                 snapshot.forEach(docSnap => {
                     tempHouses.push({ id: docSnap.id, ...docSnap.data() });
                 });
-                if (tempHouses.length > 0) {
-                    houses = tempHouses;
-                } else {
-                    // Seed awal jika kosong di Firebase
-                    houses = [
-                        { id: "h1", name: "Merah" },
-                        { id: "h2", name: "Biru" },
-                        { id: "h3", name: "Kuning" },
-                        { id: "h4", name: "Hijau" }
-                    ];
-                    houses.forEach(async h => {
-                        await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'houses', h.id), h);
-                    });
-                }
+                houses = tempHouses;
                 localStorage.setItem('sukantara_houses', JSON.stringify(houses));
+                
                 if (!activeHouseTab && houses.length > 0) {
                     activeHouseTab = houses[0].name;
                 }
                 syncData();
             }, (error) => {
-                console.error("Gagal mendengar perubahan rumah di Firestore:", error);
-                showToast("Sesi bacaan rumah terputus.", "danger");
+                console.error("Firestore Listen House Error:", error);
+                showToast("Ralat membaca data rumah sukan dari pelayan.", "danger");
             });
 
-            // 2. Dengar rekod Murid (Laluan Ketat - Peraturan 1 & Tiada Query Kompleks - Peraturan 2)
+            // 2. Live Student Updates
             const studentsCol = collection(db, 'artifacts', appId, 'public', 'data', 'students');
             onSnapshot(studentsCol, (snapshot) => {
                 const tempStudents = [];
@@ -1262,11 +1053,11 @@
                 localStorage.setItem('sukantara_students', JSON.stringify(students));
                 syncData();
             }, (error) => {
-                console.error("Gagal mendengar perubahan murid di Firestore:", error);
-                showToast("Sesi bacaan murid terputus.", "danger");
+                console.error("Firestore Listen Student Error:", error);
+                showToast("Ralat membaca rekod pelajar.", "danger");
             });
 
-            // 3. Dengar rekod Had Had Kelayakan Sukan (Laluan Ketat - Peraturan 1)
+            // 3. Live Threshold Settings
             const thresholdsDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'thresholds');
             onSnapshot(thresholdsDocRef, (docSnap) => {
                 if (docSnap.exists()) {
@@ -1275,98 +1066,68 @@
                     updateThresholdInputsUI();
                     renderWorksheet();
                 } else {
-                    setDoc(thresholdsDocRef, thresholds).catch(err => console.error(err));
+                    if (isAdmin) {
+                        setDoc(thresholdsDocRef, thresholds).catch(err => console.error(err));
+                    }
                 }
             }, (error) => {
-                console.error("Gagal mendengar perubahan konfigurasi had di Firestore:", error);
+                console.error("Firestore Listen Threshold Error:", error);
             });
         }
 
-        function loadLocalData() {
-            const savedThresholds = localStorage.getItem('sukantara_thresholds_v2');
-            if (savedThresholds) {
-                thresholds = JSON.parse(savedThresholds);
-            }
-            updateThresholdInputsUI();
-
-            const localHouses = localStorage.getItem('sukantara_houses');
-            const localStudents = localStorage.getItem('sukantara_students');
-            if (localHouses) {
-                houses = JSON.parse(localHouses);
-            } else {
-                houses = [
-                    { id: "h1", name: "Merah" },
-                    { id: "h2", name: "Biru" },
-                    { id: "h3", name: "Kuning" },
-                    { id: "h4", name: "Hijau" }
-                ];
-                localStorage.setItem('sukantara_houses', JSON.stringify(houses));
-            }
-
-            if (localStudents) {
-                students = JSON.parse(localStudents);
-                normalizeAllStoredData();
-            } else {
-                seedMockStudentsIfEmpty();
-            }
-
-            if (houses.length > 0 && !activeHouseTab) {
-                activeHouseTab = houses[0].name;
-            }
-
-            applyThresholdVisibility();
-            syncData();
-        }
-
         async function saveStudentToDb(student) {
+            if (!auth.currentUser) return;
             localStorage.setItem('sukantara_students', JSON.stringify(students));
             
             if (firebaseActive && db) {
                 const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'students', student.id);
-                await setDoc(docRef, student).catch(err => console.error("Ralat simpan murid ke Firebase:", err));
+                await setDoc(docRef, student).catch(err => console.error("Ralat Firebase:", err));
             }
 
             sendToGoogleSheets("saveStudent", student).catch(err => {
-                console.error("Gagal menyelaraskan kemas kini murid ke Google Sheets:", err);
+                console.error("Gagal menyelaraskan ke Google Sheets:", err);
             });
         }
 
         async function saveHouseToDb(house) {
+            if (!auth.currentUser) return;
             localStorage.setItem('sukantara_houses', JSON.stringify(houses));
 
             if (firebaseActive && db) {
                 const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'houses', house.id);
-                await setDoc(docRef, house).catch(err => console.error("Ralat simpan rumah ke Firebase:", err));
+                await setDoc(docRef, house).catch(err => console.error("Ralat Firebase:", err));
             }
 
             sendToGoogleSheets("saveHouse", house).catch(err => {
-                console.error("Gagal menyelaraskan kemas kini rumah ke Google Sheets:", err);
+                console.error("Gagal menyelaraskan ke Google Sheets:", err);
             });
         }
 
         async function deleteStudentFromDb(studentId) {
+            if (!auth.currentUser) return;
             students = students.filter(s => s.id !== studentId);
             localStorage.setItem('sukantara_students', JSON.stringify(students));
 
             if (firebaseActive && db) {
                 const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'students', studentId);
-                await deleteDoc(docRef).catch(err => console.error("Ralat buang murid dari Firebase:", err));
+                await deleteDoc(docRef).catch(err => console.error("Ralat Firebase:", err));
             }
 
             syncData();
             sendToGoogleSheets("deleteStudent", studentId).catch(err => {
-                console.error("Gagal memadam murid di Google Sheets:", err);
+                console.error("Gagal memadam di Google Sheets:", err);
             });
         }
 
         async function deleteHouseFromDb(houseId) {
+            if (!auth.currentUser) return;
             const hObj = houses.find(h => h.id === houseId);
             houses = houses.filter(h => h.id !== houseId);
             localStorage.setItem('sukantara_houses', JSON.stringify(houses));
             
             if (firebaseActive && db) {
                 const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'houses', houseId);
-                await deleteDoc(docRef).catch(err => console.error("Ralat buang rumah dari Firebase:", err));
+                await deleteDoc(docRef).catch(err => console.error("Ralat Firebase:", err));
             }
 
             if (hObj) {
@@ -1384,7 +1145,7 @@
             
             syncData();
             sendToGoogleSheets("deleteHouse", houseId).catch(err => {
-                console.error("Gagal memadam rumah di Google Sheets:", err);
+                console.error("Gagal memadam di Google Sheets:", err);
             });
         }
 
@@ -1470,7 +1231,7 @@
             if (!houseTabsContainer) return;
             houseTabsContainer.innerHTML = "";
             if (houses.length === 0) {
-                houseTabsContainer.innerHTML = `<span class="text-[10px] text-slate-400 py-1">Tiada Rumah Sukan. Sila daftar di menu Urus Rumah & Google Sheets.</span>`;
+                houseTabsContainer.innerHTML = `<span class="text-[10px] text-slate-400 py-1">Tiada Rumah Sukan dalam pangkalan data. Sila tambah menggunakan menu Urus Rumah & Google Sheets.</span>`;
                 return;
             }
 
@@ -1482,7 +1243,6 @@
                 
                 const tab = document.createElement('button');
                 const isActive = activeHouseTab === h.name;
-                
                 const themeKey = getHouseColorTheme(h.name);
                 const theme = houseColorMap[themeKey] || houseColorMap["slate"];
                 
@@ -1517,13 +1277,10 @@
             ['pra', 'tahap1', 'tahap2'].forEach(category => {
                 ['longJump', 'highJump', 'running', 'shotPut'].forEach(field => {
                     const el = document.getElementById(`threshold_${category}_${field}`);
-                    if (el) {
-                        el.value = thresholds[category][field] || "";
-                    }
+                    if (el) el.value = thresholds[category][field] || "";
+                    
                     const modalEl = document.getElementById(`modal_threshold_${category}_${field}`);
-                    if (modalEl) {
-                        modalEl.value = thresholds[category][field] || "";
-                    }
+                    if (modalEl) modalEl.value = thresholds[category][field] || "";
                 });
             });
         }
@@ -1532,7 +1289,7 @@
             document.querySelectorAll('.threshold-input').forEach(input => {
                 input.addEventListener('change', async (e) => {
                     if (!isAdmin) {
-                        showToast("Akses Dihalang: Hanya Admin Utama dibenarkan mengubah had minima.", "danger");
+                        showToast("Akses Had: Hanya Admin Utama dibenarkan mengubah konfigurasi ini.", "danger");
                         updateThresholdInputsUI();
                         return;
                     }
@@ -1550,16 +1307,16 @@
                             await setDoc(configRef, thresholds).catch(err => console.error(err));
                         }
 
-                        showToast(`Had kelayakan ${category.toUpperCase()} (${field}) dikemaskini!`, "success");
+                        showToast(`Had Kelayakan ${category.toUpperCase()} dikemaskini!`, "success");
                         updateThresholdInputsUI();
                         reEvaluateAllStudents();
-                        syncData();
                     }
                 });
             });
         }
 
         async function reEvaluateAllStudents() {
+            if (!auth.currentUser) return;
             students.forEach(s => {
                 const category = getStudentCategory(s.studentClass);
                 const catThresholds = thresholds[category] || thresholds["tahap1"];
@@ -1593,8 +1350,7 @@
                     await setDoc(sRef, s).catch(err => console.error(err));
                 }
             }
-
-            sendToGoogleSheets("bulkImport", students);
+            syncData();
         }
 
         function renderWorksheet() {
@@ -1606,10 +1362,8 @@
             worksheetBody.innerHTML = "";
             const filtered = students.filter(s => s.house === activeHouseTab);
 
-            const count = filtered.length;
-            const totalScore = filtered.reduce((acc, s) => acc + (s.totalPoints || 0), 0);
-            if (houseTotalMembers) houseTotalMembers.innerText = count;
-            if (houseTotalPoints) houseTotalPoints.innerText = totalScore;
+            if (houseTotalMembers) houseTotalMembers.innerText = filtered.length;
+            if (houseTotalPoints) houseTotalPoints.innerText = filtered.reduce((acc, s) => acc + (s.totalPoints || 0), 0);
 
             if (currentSortOption === "name_asc") {
                 filtered.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
@@ -1632,8 +1386,7 @@
                     <tr>
                         <td colspan="11" class="py-6 text-center text-slate-400 font-medium">
                             <i class="fa-solid fa-folder-open text-base mb-1.5 block text-slate-300"></i>
-                            Tiada murid berdaftar dalam Rumah ${activeHouseTab || 'Sukan'}. <br/>
-                            <span class="text-[9px] text-slate-400 font-normal">Tekan Gear -> Daftar Murid Baru atau Import Data JSON untuk bermula.</span>
+                            Rumah sukan ini tidak mempunyai pelajar yang berdaftar.
                         </td>
                     </tr>
                 `;
@@ -1672,7 +1425,7 @@
 
                 tr.innerHTML = `
                     <td class="py-2 px-1 text-center font-bold text-slate-400 border-r border-slate-100">${index + 1}</td>
-                    <td class="py-2 px-1.5 font-extrabold text-slate-950 uppercase tracking-tight">${stud.name}</td>
+                    <td class="py-2 px-1.5 font-extrabold text-slate-955 uppercase tracking-tight">${stud.name}</td>
                     <td class="py-2 px-0.5 text-center">${genderBadge}</td>
                     <td class="py-2 px-0.5 text-center font-semibold text-slate-600">${stud.studentClass}</td>
                     ${inputsHtml}
@@ -1689,16 +1442,13 @@
                     </td>
                 `;
 
-                // Listener kelayakan manual (Checkbox)
                 tr.querySelectorAll('.student-score-checkbox').forEach(chk => {
                     chk.addEventListener('change', (e) => {
                         const sId = e.target.getAttribute('data-id');
                         const field = e.target.getAttribute('data-field');
-                        const isChecked = e.target.checked;
-                        
                         const current = students.find(s => s.id === sId);
                         if (current) {
-                            current[`${field}Eligible`] = isChecked;
+                            current[`${field}Eligible`] = e.target.checked;
                             current.totalPoints = (current.longJumpEligible ? 1 : 0) + 
                                                    (current.highJumpEligible ? 1 : 0) + 
                                                    (current.runningEligible ? 1 : 0) + 
@@ -1709,18 +1459,14 @@
                     });
                 });
 
-                // Listener Rekod Teks (Mata auto-tick)
                 tr.querySelectorAll('.student-record-input').forEach(input => {
                     input.addEventListener('change', (e) => {
                         const sId = e.target.getAttribute('data-id');
                         const field = e.target.getAttribute('data-field');
                         const valText = e.target.value.trim();
-                        
                         const current = students.find(s => s.id === sId);
                         if (current) {
                             current[`${field}Record`] = valText;
-                            
-                            // Auto-ticking mengikut kategori umur
                             const category = getStudentCategory(current.studentClass);
                             const catThresholds = thresholds[category] || thresholds["tahap1"];
                             const parsedVal = parseFloat(valText.replace(/[^0-9.]/g, ''));
@@ -1730,11 +1476,7 @@
                             } else if (!isNaN(parsedVal)) {
                                 const threshold = parseFloat(catThresholds[field]);
                                 if (!isNaN(threshold) && threshold > 0) {
-                                    if (field === 'running') {
-                                        current[`${field}Eligible`] = (parsedVal <= threshold);
-                                    } else {
-                                        current[`${field}Eligible`] = (parsedVal >= threshold);
-                                    }
+                                    current[`${field}Eligible`] = (field === 'running') ? (parsedVal <= threshold) : (parsedVal >= threshold);
                                 }
                             }
                             
@@ -1752,10 +1494,9 @@
                 if (noteInput) {
                     noteInput.addEventListener('change', (e) => {
                         const sId = e.target.getAttribute('data-id');
-                        const val = e.target.value.trim();
                         const current = students.find(s => s.id === sId);
                         if (current) {
-                            current.notes = val;
+                            current.notes = e.target.value.trim();
                             saveStudentToDb(current);
                         }
                     });
@@ -1769,12 +1510,12 @@
                         if (current) {
                             showConfirm(
                                 "Padam Murid", 
-                                `Adakah anda pasti mahu memadam murid '${current.name}' dari Rumah ${current.house}?`, 
+                                `Padam '${current.name}' dari sistem?`, 
                                 true,
                                 "Ya, Padam",
                                 () => {
                                     deleteStudentFromDb(sId);
-                                    showToast(`Rekod '${current.name}' dipadam. Menyelaras...`, "success");
+                                    showToast("Pelajar dipadam.", "success");
                                 }
                             );
                         }
@@ -1784,7 +1525,6 @@
                 worksheetBody.appendChild(tr);
             });
 
-            // Guna sekatan elemen dinamik pada senarai had jadual apabila ia selesai di-render
             applyAdminRestrictions();
         }
 
@@ -1803,7 +1543,7 @@
                 pill.className = "flex items-center gap-1 bg-slate-50 border border-slate-200 pl-2 pr-1 py-1 rounded-lg text-[9px] font-bold text-slate-700 shadow-sm";
                 pill.innerHTML = `
                     <span>${h.name}</span>
-                    <button class="p-0.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded transition-colors delete-house-btn active:scale-95" data-id="${h.id}">
+                    <button class="p-0.5 text-slate-400 hover:text-rose-600 rounded delete-house-btn active:scale-95" data-id="${h.id}">
                         <i class="fa-solid fa-circle-xmark text-sm"></i>
                     </button>
                 `;
@@ -1811,12 +1551,12 @@
                 pill.querySelector('.delete-house-btn').addEventListener('click', () => {
                     showConfirm(
                         "Padam Rumah Sukan",
-                        `Adakah anda pasti mahu memadam Rumah ${h.name}? Ini juga memadam SEMUA ahli di bawahnya!`,
+                        `Padam Rumah ${h.name} dan SEMUA ahli di bawahnya secara kekal?`,
                         true,
                         "Ya, Padam",
                         () => {
                             deleteHouseFromDb(h.id);
-                            showToast(`Rumah ${h.name} berjaya dipadam. Menyelaras...`, "success");
+                            showToast(`Rumah ${h.name} dipadam.`, "success");
                         }
                     );
                 });
@@ -1828,25 +1568,22 @@
         function populateHouseFilter() {
             const filter = document.getElementById('wakilHouseFilter');
             if (!filter) return;
-
             const prevVal = filter.value;
             filter.innerHTML = `<option value="ALL">Semua Rumah Sukan</option>`;
-
             houses.forEach(h => {
                 const opt = document.createElement('option');
                 opt.value = h.name;
                 opt.innerText = `Rumah ${h.name}`;
                 filter.appendChild(opt);
             });
-
             filter.value = prevVal || "ALL";
         }
 
         function printReport() {
             const printWindow = window.open('', '_blank');
             const houseMembers = students.filter(s => s.house === activeHouseTab);
-            
             let studentRowsHtml = "";
+            
             if (houseMembers.length === 0) {
                 studentRowsHtml = `<tr><td colspan="10" style="text-align:center; padding: 15px; color: #888;">Tiada rekod data murid.</td></tr>`;
             } else {
@@ -1874,35 +1611,18 @@
                     <title>Laporan Sukantara - Rumah ${activeHouseTab}</title>
                     <style>
                         body { font-family: 'Inter', sans-serif; font-size: 11px; margin: 25px; color: #333; }
-                        .header-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
                         .school-title { font-size: 15px; font-weight: 800; text-transform: uppercase; }
                         .report-title { font-size: 12px; font-weight: 700; color: #1e3a8a; margin-top: 5px; }
-                        .stats-container { display: flex; gap: 15px; margin-bottom: 15px; background: #f8fafc; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; }
-                        .stat-box { font-size: 11px; font-weight: bold; }
-                        table.data-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-                        table.data-table th { background-color: #0f172a; color: white; padding: 8px; text-align: left; text-transform: uppercase; font-size: 9px; }
-                        table.data-table td { padding: 6px; border: 1px solid #e2e8f0; }
+                        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+                        table th { background-color: #0f172a; color: white; padding: 8px; text-align: left; text-transform: uppercase; font-size: 9px; }
+                        table td { padding: 6px; border: 1px solid #e2e8f0; }
                     </style>
                 </head>
                 <body>
-                    <table class="header-table">
-                        <tr>
-                            <td style="width: 80px; text-align: center; vertical-align: middle;">
-                                <div style="width: 50px; height: 50px; background: linear-gradient(to right, #2563eb, #4f46e5); border-radius: 10px; display: inline-block;"></div>
-                            </td>
-                            <td>
-                                <div class="school-title">Laporan Analisis Kejohanan Sukantara Tahunan</div>
-                                <div style="font-weight: 600; color: #555;">Kemas Kini Sistem Bersepadu</div>
-                                <div class="report-title">PRESTASI DAN KELAYAKAN AHLI - RUMAH SUKAN: ${activeHouseTab.toUpperCase()}</div>
-                            </td>
-                        </tr>
-                    </table>
-                    <div class="stats-container">
-                        <div class="stat-box">Jumlah Ahli Berdaftar: <span style="color: #1e3a8a;">${houseMembers.length} orang</span></div>
-                        <div class="stat-box">Mata Keseluruhan: <span style="color: #16a34a;">${houseMembers.reduce((a, b) => a + (b.totalPoints || 0), 0)} Mata</span></div>
-                        <div class="stat-box">Tarikh Cetakan: <span>${new Date().toLocaleDateString('ms-MY')}</span></div>
-                    </div>
-                    <table class="data-table">
+                    <div class="school-title">Laporan Analisis Kejohanan Sukantara Tahunan</div>
+                    <div class="report-title">PRESTASI DAN KELAYAKAN AHLI - RUMAH SUKAN: ${activeHouseTab.toUpperCase()}</div>
+                    <p>Tarikh Cetakan: ${new Date().toLocaleDateString('ms-MY')}</p>
+                    <table>
                         <thead>
                             <tr>
                                 <th style="width: 4%; text-align: center;">Bil</th>
@@ -1921,17 +1641,13 @@
                             ${studentRowsHtml}
                         </tbody>
                     </table>
-                    <script>
-                        window.onload = function() {
-                            window.print();
-                        }
-                    <\/script>
                 </body>
                 </html>
             `;
-
             printWindow.document.write(printTemplate);
             printWindow.document.close();
+            // Cetak terus dari pelayar web tanpa ralat parsers skrip bersarang
+            printWindow.print();
         }
 
         function getRepresentativesData(houseFilter = "ALL") {
@@ -1953,12 +1669,7 @@
 
             classes.forEach(cls => {
                 genders.forEach(gen => {
-                    const group = {
-                        className: cls,
-                        gender: gen,
-                        events: []
-                    };
-
+                    const group = { className: cls, gender: gen, events: [] };
                     const classGroupStudents = pool.filter(s => s.studentClass === cls && s.gender === gen);
 
                     events.forEach(ev => {
@@ -1975,23 +1686,14 @@
                                 record: rawRecord ? `${numericVal}${ev.unit}` : null,
                                 eligible: eligible
                             };
-                        }).filter(cand => cand.numericVal !== null);
+                        }).filter(cand => cand.numericVal !== null && cand.eligible === true);
 
                         candidates.sort((a, b) => {
-                            if (ev.higherBetter) {
-                                return b.numericVal - a.numericVal;
-                            } else {
-                                return a.numericVal - b.numericVal;
-                            }
+                            return ev.higherBetter ? (b.numericVal - a.numericVal) : (a.numericVal - b.numericVal);
                         });
 
                         const topTwo = candidates.slice(0, 2);
-
-                        group.events.push({
-                            eventKey: ev.key,
-                            eventName: ev.name,
-                            topStudents: topTwo
-                        });
+                        group.events.push({ eventKey: ev.key, eventName: ev.name, topStudents: topTwo });
                     });
 
                     const hasAtLeastOneRepresentative = group.events.some(e => e.topStudents.length > 0);
@@ -2002,94 +1704,6 @@
             });
 
             return results;
-        }
-
-        function printRepresentativeReport(filteredRepresentatives, houseName) {
-            const printWindow = window.open('', '_blank');
-            let contentHtml = "";
-
-            filteredRepresentatives.forEach(cat => {
-                contentHtml += `
-                    <div class="category-block" style="page-break-inside: avoid; margin-bottom: 25px;">
-                        <h3 style="background-color: #f1f5f9; padding: 6px 10px; border-left: 4px solid #d97706; font-size: 11px; margin-bottom: 10px; text-transform: uppercase;">
-                            Kelas: ${cat.className} (${cat.gender === 'L' ? 'Lelaki' : 'Perempuan'})
-                        </h3>
-                        <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
-                            <thead>
-                                <tr style="background-color: #0f172a; color: white; font-size: 9px; text-transform: uppercase;">
-                                    <th style="padding: 6px; border: 1px solid #ddd; text-align: left; width: 25%;">Acara</th>
-                                    <th style="padding: 6px; border: 1px solid #ddd; text-align: left; width: 40%;">Nama Peserta Terbaik</th>
-                                    <th style="padding: 6px; border: 1px solid #ddd; text-align: center; width: 12%;">Rumah</th>
-                                    <th style="padding: 6px; border: 1px solid #ddd; text-align: right; width: 13%;">Rekod Terpilih</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                `;
-
-                cat.events.forEach(ev => {
-                    if (ev.topStudents.length === 0) {
-                        contentHtml += `
-                            <tr>
-                                <td style="padding: 6px; border: 1px solid #ddd; font-weight: bold; color: #1e3a8a;">${ev.eventName}</td>
-                                <td colspan="3" style="padding: 6px; border: 1px solid #ddd; text-align: center; color: #888; font-style: italic;">Tiada rekod kelayakan yang memenuhi syarat minimum.</td>
-                            </tr>
-                        `;
-                    } else {
-                        ev.topStudents.forEach((stud, idx) => {
-                            contentHtml += `
-                                <tr>
-                                    ${idx === 0 ? `<td rowspan="${ev.topStudents.length}" style="padding: 6px; border: 1px solid #ddd; font-weight: bold; color: #1e3a8a; vertical-align: middle;">${ev.eventName}</td>` : ''}
-                                    <td style="padding: 6px; border: 1px solid #ddd; font-weight: bold; text-transform: uppercase;">
-                                        ${idx === 0 ? '🥇' : '🥈'} ${stud.name}
-                                    </td>
-                                    <td style="padding: 6px; border: 1px solid #ddd; text-align: center; font-weight: bold;">${stud.house}</td>
-                                    <td style="padding: 6px; border: 1px solid #ddd; text-align: right; font-weight: bold; color: #d97706;">${stud.record}</td>
-                                </tr>
-                            `;
-                        });
-                    }
-                });
-
-                contentHtml += `
-                            </tbody>
-                        </table>
-                    </div>
-                `;
-            });
-
-            const printTemplate = `
-                <html>
-                <head>
-                    <title>Senarai Wakil Sukan Terpilih</title>
-                    <style>
-                        body { font-family: 'Inter', sans-serif; font-size: 10px; margin: 25px; color: #333; }
-                        .header-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-                        .school-title { font-size: 14px; font-weight: 800; text-transform: uppercase; }
-                        table { width: 100%; border-collapse: collapse; }
-                        table th, table td { border: 1px solid #e2e8f0; }
-                    </style>
-                </head>
-                <body>
-                    <table class="header-table">
-                        <tr>
-                            <td>
-                                <div class="school-title">Laporan Calon Elit Kejohanan Sukan Tahunan</div>
-                                <div style="font-weight: 600; color: #555;">Disinkronisasikan Bersama Google Sheets & Firebase</div>
-                            </td>
-                        </tr>
-                    </table>
-                    ${contentHtml}
-                    <script>
-                        window.onload = function() {
-                            window.print();
-                        }
-                    <\/script>
-                </body>
-                </html>
-            `;
-
-            printWindow.document.write(printTemplate);
-            printWindow.document.close();
         }
 
         function renderRepresentativeView() {
@@ -2104,7 +1718,7 @@
                 container.innerHTML = `
                     <div class="col-span-2 text-center p-6 text-slate-400 font-medium">
                         <i class="fa-solid fa-triangle-exclamation text-base mb-1 block text-slate-300"></i>
-                        Tiada atlet yang mempunyai rekod bertulis lagi untuk dicalonkan sebagai wakil. Sila masukkan data pencapaian terlebih dahulu.
+                        Tiada atlet layak dengan rekod bertulis ditemui untuk dicalonkan sebagai wakil. Sila masukkan data kelayakan terlebih dahulu.
                     </div>
                 `;
                 return;
@@ -2113,14 +1727,13 @@
             data.forEach(cat => {
                 const card = document.createElement('div');
                 card.className = "bg-slate-50 rounded-xl border border-slate-200 p-3 shadow-sm space-y-2";
-
                 const isMale = cat.gender === 'L';
                 const genderIcon = isMale ? 'fa-mars text-blue-500' : 'fa-venus text-pink-500';
                 const genderLabel = isMale ? 'Lelaki' : 'Perempuan';
 
                 card.innerHTML = `
                     <div class="flex items-center justify-between border-b border-slate-200 pb-1.5">
-                        <h3 class="text-[10px] font-extrabold text-slate-900 tracking-tight flex items-center gap-1">
+                        <h3 class="text-[10px] font-extrabold text-slate-900 flex items-center gap-1">
                             <i class="fa-solid ${genderIcon}"></i>
                             <span>Kelas ${cat.className} (${genderLabel})</span>
                         </h3>
@@ -2136,7 +1749,7 @@
 
                     let studentsHtml = "";
                     if (ev.topStudents.length === 0) {
-                        studentsHtml = `<div class="text-[9px] text-slate-400 font-medium italic pl-1">Tiada calon layak dikesan.</div>`;
+                        studentsHtml = `<div class="text-[9px] text-slate-400 font-medium italic pl-1">Tiada calon disyorkan.</div>`;
                     } else {
                         ev.topStudents.forEach((stud, idx) => {
                             const medal = idx === 0 ? '🥇' : '🥈';
@@ -2189,14 +1802,12 @@
                 await fetch(googleScriptUrl, {
                     method: "POST",
                     mode: "no-cors",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
+                    headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(payload)
                 });
                 updateDbStatus(false, "Berjaya Diselaraskan");
             } catch (error) {
-                console.error("Gagal menyelaraskan kemas kini ke Google Sheets:", error);
+                console.error("Gagal menyelaraskan ke Google Sheets:", error);
                 updateDbStatus(false, "Ralat Penyelarasan", "danger");
             }
         }
@@ -2229,20 +1840,20 @@
             
             if (syncing) {
                 indicator.className = "w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse";
-                statusText.innerText = text || "Menghubungi Google Sheets...";
+                statusText.innerText = text || "Google Sheets...";
                 badge.className = "px-2.5 py-1 text-[10px] font-semibold rounded-full bg-amber-50 text-amber-700 border border-amber-200 flex items-center gap-1.5 shadow-sm transition-all duration-300";
             } else {
                 if (type === "success") {
                     indicator.className = "w-1.5 h-1.5 rounded-full bg-emerald-500";
-                    statusText.innerText = text || "Berjaya Diselaraskan";
+                    statusText.innerText = text || "Dalam Talian";
                     badge.className = "px-2.5 py-1 text-[10px] font-semibold rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1.5 shadow-sm transition-all duration-300";
                 } else if (type === "warning") {
                     indicator.className = "w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse";
-                    statusText.innerText = text || "Mod Tempatan";
+                    statusText.innerText = text || "Sila Log Masuk";
                     badge.className = "px-2.5 py-1 text-[10px] font-semibold rounded-full bg-amber-50 text-amber-700 border border-amber-200 flex items-center gap-1.5 shadow-sm transition-all duration-300";
                 } else {
                     indicator.className = "w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse";
-                    statusText.innerText = text || "Sambungan Gagal";
+                    statusText.innerText = text || "Offline";
                     badge.className = "px-2.5 py-1 text-[10px] font-semibold rounded-full bg-rose-50 text-rose-700 border border-rose-200 flex items-center gap-1.5 shadow-sm transition-all duration-300";
                 }
             }
@@ -2253,17 +1864,13 @@
                 ['longJump', 'highJump', 'running', 'shotPut'].forEach(field => {
                     const eligKey = `${field}Eligible`;
                     const recKey = `${field}Record`;
-                    if (typeof s[eligKey] === 'number') {
-                        s[eligKey] = s[eligKey] > 0;
-                    }
+                    if (typeof s[eligKey] === 'number') s[eligKey] = s[eligKey] > 0;
                     if (s[eligKey] === undefined) s[eligKey] = false;
                     if (s[recKey] === undefined) s[recKey] = "";
                 });
-
                 if (!s.id) {
                     s.id = `stud_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
                 }
-                
                 s.totalPoints = (s.longJumpEligible ? 1 : 0) + 
                                  (s.highJumpEligible ? 1 : 0) + 
                                  (s.runningEligible ? 1 : 0) + 
@@ -2285,12 +1892,7 @@
             if (rowTahap2) rowTahap2.classList.toggle('hidden', !show);
         }
 
-        if (toggleContainer) {
-            toggleContainer.addEventListener('click', (e) => {
-                e.stopPropagation();
-            });
-        }
-
+        if (toggleContainer) toggleContainer.addEventListener('click', (e) => e.stopPropagation());
         if (toggleHeaderThresholds) {
             toggleHeaderThresholds.addEventListener('change', (e) => {
                 localStorage.setItem('sukantara_show_thresholds', e.target.checked);
@@ -2298,53 +1900,35 @@
             });
         }
 
-        function seedMockStudentsIfEmpty() {
-            if (students.length === 0) {
-                students = [
-                    { id: "s1", name: "AHMAD DANISH BIN AZLI", gender: "L", studentClass: "T4", house: "Merah", longJumpEligible: true, longJumpRecord: "3.20m", highJumpEligible: true, highJumpRecord: "1.10m", runningEligible: true, runningRecord: "11.2s", shotPutEligible: true, shotPutRecord: "5.50m", totalPoints: 4, notes: "Harapan Emas" },
-                    { id: "s2", name: "SITI NUR HALIZA BINTI AMRAN", gender: "P", studentClass: "T5", house: "Merah", longJumpEligible: true, longJumpRecord: "3.05m", highJumpEligible: false, highJumpRecord: "0.95m", runningEligible: true, runningRecord: "11.8s", shotPutEligible: true, shotPutRecord: "5.10m", totalPoints: 3, notes: "" },
-                    { id: "s3", name: "MUHAMMAD ALIF BIN SHAH", gender: "L", studentClass: "T4", house: "Merah", longJumpEligible: true, longJumpRecord: "3.45m", highJumpEligible: true, highJumpRecord: "1.05m", runningEligible: true, runningRecord: "10.9s", shotPutEligible: false, shotPutRecord: "4.80m", totalPoints: 3, notes: "Larian sangat pantas" },
-                    { id: "s4", name: "CHONG WEI LIANG", gender: "L", studentClass: "T6", house: "Biru", longJumpEligible: true, longJumpRecord: "3.60m", highJumpEligible: true, highJumpRecord: "1.25m", runningEligible: true, runningRecord: "11.0s", shotPutEligible: true, shotPutRecord: "6.20m", totalPoints: 4, notes: "Kapten Olahraga" },
-                    { id: "s5", name: "NURUL ASYIKIN BINTI YUSOF", gender: "P", studentClass: "T6", house: "Biru", longJumpEligible: true, longJumpRecord: "3.10m", highJumpEligible: true, highJumpRecord: "1.05m", runningEligible: true, runningRecord: "11.5s", shotPutEligible: true, shotPutRecord: "5.40m", totalPoints: 4, notes: "" },
-                    { id: "s6", name: "GAVIN ANAK NYALAU", gender: "L", studentClass: "T1", house: "Kuning", longJumpEligible: true, longJumpRecord: "2.60m", highJumpEligible: true, highJumpRecord: "0.95m", runningEligible: true, runningRecord: "13.1s", shotPutEligible: true, shotPutRecord: "4.20m", totalPoints: 4, notes: "" },
-                    { id: "s7", name: "AISYAH HUMAIRA BINTI BAKRI", gender: "P", studentClass: "T2", house: "Kuning", longJumpEligible: true, longJumpRecord: "2.55m", highJumpEligible: false, highJumpRecord: "0.85m", runningEligible: true, runningRecord: "13.2s", shotPutEligible: true, shotPutRecord: "4.05m", totalPoints: 3, notes: "" },
-                    { id: "s8", name: "ARAVIND A/L BALAKRISHNAN", gender: "L", studentClass: "T3", house: "Hijau", longJumpEligible: true, longJumpRecord: "2.75m", highJumpEligible: true, highJumpRecord: "1.00m", runningEligible: true, runningRecord: "12.8s", shotPutEligible: true, shotPutRecord: "4.60m", totalPoints: 4, notes: "" },
-                    { id: "s9", name: "MEGAT HARIS BIN MEGAT JAAFAR", gender: "L", studentClass: "Pra Sekolah", house: "Hijau", longJumpEligible: true, longJumpRecord: "2.10m", highJumpEligible: true, highJumpRecord: "0.85m", runningEligible: true, runningRecord: "14.2s", shotPutEligible: true, shotPutRecord: "3.10m", totalPoints: 4, notes: "Pra Cemerlang" }
-                ];
-                localStorage.setItem('sukantara_students', JSON.stringify(students));
-            }
-        }
-
         async function initDatabase() {
             const savedUrl = localStorage.getItem('sukantara_gscript_url');
-            if (savedUrl) {
-                googleScriptUrl = savedUrl;
-            } else {
-                localStorage.setItem('sukantara_gscript_url', googleScriptUrl);
-            }
+            if (savedUrl) googleScriptUrl = savedUrl;
             
             const urlInput = document.getElementById('gscriptUrlInput');
-            if (urlInput) {
-                urlInput.value = googleScriptUrl;
-            }
+            if (urlInput) urlInput.value = googleScriptUrl;
 
-            // Kemas kini paparan input konfigurasi Firebase jika ada
             const fbConfigInput = document.getElementById('firebaseConfigInput');
             if (fbConfigInput && firebaseConfig) {
                 fbConfigInput.value = JSON.stringify(firebaseConfig, null, 2);
             }
 
+            const setupFbConfigInput = document.getElementById('setupFirebaseConfigInput');
+            if (setupFbConfigInput && firebaseConfig) {
+                setupFbConfigInput.value = JSON.stringify(firebaseConfig, null, 2);
+            }
+
             setupThresholdListeners();
 
             if (firebaseConfig) {
+                toggleFirebaseSetupUI(false);
                 await initFirebase();
             } else {
-                loadLocalData();
-                updateDbStatus(false, "Mod Demo (Tanpa Firebase)", "warning");
-                updateAuthUI(null);
+                toggleFirebaseSetupUI(true);
             }
+            applyThresholdVisibility();
         }
 
+        // Penyambung Unsur UI (UI Bindings)
         const studentForm = document.getElementById('studentForm');
         const houseForm = document.getElementById('houseForm');
         const sortDropdown = document.getElementById('sortDropdown');
@@ -2367,57 +1951,38 @@
         const gscriptUrlInput = document.getElementById('gscriptUrlInput');
         const saveFirebaseConfigBtn = document.getElementById('saveFirebaseConfigBtn');
         const firebaseConfigInput = document.getElementById('firebaseConfigInput');
+        
+        const setupFirebaseConnectBtn = document.getElementById('setupFirebaseConnectBtn');
+        const setupFirebaseConfigInput = document.getElementById('setupFirebaseConfigInput');
 
-        // Bindings Mod Pilihan Log Masuk
-        const loginSelectionModal = document.getElementById('loginSelectionModal');
-        const closeLoginSelectionModalBtn = document.getElementById('closeLoginSelectionModalBtn');
-        const simLoginAdminBtn = document.getElementById('simLoginAdminBtn');
-        const simLoginDelimaBtn = document.getElementById('simLoginDelimaBtn');
-        const simLoginPersonalBtn = document.getElementById('simLoginPersonalBtn');
-        const realGoogleLoginBtn = document.getElementById('realGoogleLoginBtn');
-
-        if (closeLoginSelectionModalBtn) {
-            closeLoginSelectionModalBtn.addEventListener('click', () => {
-                loginSelectionModal.classList.add('hidden');
+        if (setupFirebaseConnectBtn && setupFirebaseConfigInput) {
+            setupFirebaseConnectBtn.addEventListener('click', () => {
+                const text = setupFirebaseConfigInput.value.trim();
+                if (text) {
+                    try {
+                        const parsed = JSON.parse(text);
+                        localStorage.setItem('sukantara_firebase_config', JSON.stringify(parsed));
+                        firebaseConfig = parsed;
+                        showToast("Firebase Config dikemaskini. Berhubung...", "success");
+                        initDatabase();
+                    } catch(e) {
+                        showToast("Format JSON tidak sah.", "danger");
+                    }
+                }
             });
         }
 
-        if (simLoginAdminBtn) {
-            simLoginAdminBtn.addEventListener('click', () => {
-                loginSelectionModal.classList.add('hidden');
-                simulateUserSignIn("sekolah-7608@moe-dl.edu.my", "Pn. Halimah (Guru Besar)");
-            });
+        const overlayLoginBtn = document.getElementById('overlayLoginBtn');
+        if (overlayLoginBtn) {
+            overlayLoginBtn.addEventListener('click', triggerRealGoogleLogin);
         }
 
-        if (simLoginDelimaBtn) {
-            simLoginDelimaBtn.addEventListener('click', () => {
-                loginSelectionModal.classList.add('hidden');
-                simulateUserSignIn("guru.sukantara@moe-dl.edu.my", "En. Roslan (Ketua Rumah)");
-            });
-        }
-
-        if (simLoginPersonalBtn) {
-            simLoginPersonalBtn.addEventListener('click', () => {
-                loginSelectionModal.classList.add('hidden');
-                simulateUserSignIn("cikgu.peribadi@gmail.com", "Cikgu Fatimah");
-            });
-        }
-
-        if (realGoogleLoginBtn) {
-            realGoogleLoginBtn.addEventListener('click', () => {
-                loginSelectionModal.classList.add('hidden');
-                triggerRealGoogleLogin();
-            });
-        }
-
-        // Threshold Modal References
         const thresholdConfigLinkBtn = document.getElementById('thresholdConfigLinkBtn');
         const thresholdConfigModal = document.getElementById('thresholdConfigModal');
         const closeThresholdConfigModalBtn = document.getElementById('closeThresholdConfigModalBtn');
         const saveThresholdConfigBtn = document.getElementById('saveThresholdConfigBtn');
         const resetThresholdsBtn = document.getElementById('resetThresholdsBtn');
 
-        // New Features Event Listeners
         const printReportBtn = document.getElementById('printReportBtn');
         const resetHouseRecordsBtn = document.getElementById('resetHouseRecordsBtn');
         const pilihWakilBtn = document.getElementById('pilihWakilBtn');
@@ -2428,7 +1993,6 @@
 
         if (printReportBtn) {
             printReportBtn.addEventListener('click', () => {
-                showToast("Menjana laporan untuk cetakan...", "info");
                 printReport();
             });
         }
@@ -2436,30 +2000,23 @@
         if (resetHouseRecordsBtn) {
             resetHouseRecordsBtn.addEventListener('click', () => {
                 if (!isAdmin) {
-                    showToast("Had Kuasa: Hanya Admin Utama sekolah dibenarkan mengeset semula rekod.", "danger");
+                    showToast("Sila log masuk sebagai Admin Utama.", "danger");
                     return;
                 }
                 const count = students.filter(s => s.house === activeHouseTab).length;
-                if (count === 0) {
-                    showToast("Tiada ahli murid dalam rumah sukan ini.", "info");
-                    return;
-                }
+                if (count === 0) return;
                 showConfirm(
-                    "Set Semula Markah & Rekod",
-                    `Adakah anda pasti mahu MENGOSONGKAN (reset) semua rekod prestasi masa/jarak dan kotak kelayakan bagi KESEMUA ${count} murid di bawah Rumah ${activeHouseTab}?`,
+                    "Set Semula Markah",
+                    `Adakah anda pasti mahu set semula kesemua ${count} pelajar dalam Rumah ${activeHouseTab}?`,
                     true,
                     "Ya, Set Semula",
                     async () => {
                         const targetStudents = students.filter(s => s.house === activeHouseTab);
                         targetStudents.forEach(s => {
-                            s.longJumpEligible = false;
-                            s.longJumpRecord = "";
-                            s.highJumpEligible = false;
-                            s.highJumpRecord = "";
-                            s.runningEligible = false;
-                            s.runningRecord = "";
-                            s.shotPutEligible = false;
-                            s.shotPutRecord = "";
+                            s.longJumpEligible = false; s.longJumpRecord = "";
+                            s.highJumpEligible = false; s.highJumpRecord = "";
+                            s.runningEligible = false; s.runningRecord = "";
+                            s.shotPutEligible = false; s.shotPutRecord = "";
                             s.totalPoints = 0;
                         });
 
@@ -2470,9 +2027,8 @@
                                 await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'students', s.id), s);
                             }
                         }
-
                         syncData();
-                        showToast(`Semua rekod sukan bagi Rumah ${activeHouseTab} dikosongkan.`, "success");
+                        showToast("Markah dikosongkan.", "success");
                     }
                 );
             });
@@ -2492,16 +2048,70 @@
         }
 
         if (wakilHouseFilter) {
-            wakilHouseFilter.addEventListener('change', () => {
-                renderRepresentativeView();
-            });
+            wakilHouseFilter.addEventListener('change', renderRepresentativeView);
         }
 
         if (printWakilBtn) {
             printWakilBtn.addEventListener('click', () => {
                 const selectedHouse = wakilHouseFilter.value;
                 const reps = getRepresentativesData(selectedHouse);
-                printRepresentativeReport(reps, selectedHouse);
+                const printWindow = window.open('', '_blank');
+                let contentHtml = "";
+
+                reps.forEach(cat => {
+                    contentHtml += `
+                        <div style="page-break-inside: avoid; margin-bottom: 25px;">
+                            <h3 style="background-color: #f1f5f9; padding: 6px; border-left: 4px solid #d97706; text-transform: uppercase;">
+                                Kelas: ${cat.className} (${cat.gender === 'L' ? 'Lelaki' : 'Perempuan'})
+                            </h3>
+                            <table style="width: 100%; border-collapse: collapse;">
+                                <thead>
+                                    <tr style="background-color: #0f172a; color: white;">
+                                        <th style="padding: 6px; border: 1px solid #ddd; text-align: left;">Acara</th>
+                                        <th style="padding: 6px; border: 1px solid #ddd; text-align: left;">Nama Peserta Terbaik</th>
+                                        <th style="padding: 6px; border: 1px solid #ddd; text-align: center;">Rumah</th>
+                                        <th style="padding: 6px; border: 1px solid #ddd; text-align: right;">Rekod</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                    `;
+
+                    cat.events.forEach(ev => {
+                        if (ev.topStudents.length === 0) {
+                            contentHtml += `
+                                <tr>
+                                    <td style="padding: 6px; border: 1px solid #ddd; font-weight: bold;">${ev.eventName}</td>
+                                    <td colspan="3" style="padding: 6px; border: 1px solid #ddd; text-align: center; color: #888;">Tiada rekod dikesan.</td>
+                                </tr>
+                            `;
+                        } else {
+                            ev.topStudents.forEach((stud, idx) => {
+                                contentHtml += `
+                                    <tr>
+                                        ${idx === 0 ? `<td rowspan="${ev.topStudents.length}" style="padding: 6px; border: 1px solid #ddd; font-weight: bold;">${ev.eventName}</td>` : ''}
+                                        <td style="padding: 6px; border: 1px solid #ddd; font-weight: bold;">${idx === 0 ? '🥇' : '🥈'} ${stud.name}</td>
+                                        <td style="padding: 6px; border: 1px solid #ddd; text-align: center;">${stud.house}</td>
+                                        <td style="padding: 6px; border: 1px solid #ddd; text-align: right; font-weight: bold;">${stud.record}</td>
+                                    </tr>
+                                `;
+                            });
+                        }
+                    });
+
+                    contentHtml += `</tbody></table></div>`;
+                });
+
+                printWindow.document.write(`
+                    <html>
+                    <head><style>body { font-family: sans-serif; font-size: 11px; margin: 20px; }</style></head>
+                    <body>
+                        <h2>Senarai Calon Elit Kejohanan Sukan</h2>
+                        ${contentHtml}
+                    </body>
+                    </html>
+                `);
+                printWindow.document.close();
+                printWindow.print();
             });
         }
 
@@ -2510,9 +2120,7 @@
                 e.stopPropagation();
                 gearDropdown.classList.toggle('hidden');
             });
-            document.addEventListener('click', () => {
-                gearDropdown.classList.add('hidden');
-            });
+            document.addEventListener('click', () => gearDropdown.classList.add('hidden'));
         }
 
         if (registerStudentLinkBtn) {
@@ -2561,10 +2169,7 @@
 
         if (saveThresholdConfigBtn) {
             saveThresholdConfigBtn.addEventListener('click', async () => {
-                if (!isAdmin) {
-                    showToast("Ralat Kebenaran: Hanya Admin Utama sahaja boleh menguruskan had minima.", "danger");
-                    return;
-                }
+                if (!isAdmin) return;
 
                 ['pra', 'tahap1', 'tahap2'].forEach(category => {
                     ['longJump', 'highJump', 'running', 'shotPut'].forEach(field => {
@@ -2584,23 +2189,19 @@
 
                 updateThresholdInputsUI();
                 reEvaluateAllStudents();
-                syncData();
                 thresholdConfigModal.classList.add('hidden');
-                showToast("Had kelayakan mengikut kategori berjaya disimpan!", "success");
+                showToast("Had kelayakan disimpan!", "success");
             });
         }
 
         if (resetThresholdsBtn) {
             resetThresholdsBtn.addEventListener('click', () => {
-                if (!isAdmin) {
-                    showToast("Ralat Kebenaran: Hanya Admin Utama sahaja boleh menguruskan had kelayakan.", "danger");
-                    return;
-                }
+                if (!isAdmin) return;
                 showConfirm(
                     "Set Semula Had Kelayakan",
-                    "Adakah anda pasti mahu menetapkan had kelayakan minima sukan kembali kepada nilai asal?",
+                    "Adakah anda pasti mahu set semula had kelayakan?",
                     false,
-                    "Ya, Teruskan",
+                    "Ya",
                     async () => {
                         thresholds = {
                             pra: { longJump: "2.00", highJump: "0.80", running: "15.0", shotPut: "3.00" },
@@ -2616,8 +2217,7 @@
 
                         updateThresholdInputsUI();
                         reEvaluateAllStudents();
-                        syncData();
-                        showToast("Had kelayakan telah diset semula kepada asal.", "success");
+                        showToast("Had kelayakan diset semula.", "success");
                     }
                 );
             });
@@ -2625,27 +2225,23 @@
 
         if (saveGscriptUrlBtn && gscriptUrlInput) {
             saveGscriptUrlBtn.addEventListener('click', () => {
-                if (!isAdmin && firebaseActive) {
-                    showToast("Dihalang: Pautan Google Sheets hanya boleh diubah oleh Admin Utama.", "danger");
+                if (!isAdmin) {
+                    showToast("Hanya Admin Utama boleh menyunting URL Google Sheets.", "danger");
                     return;
                 }
                 const url = gscriptUrlInput.value.trim();
                 if (url) {
                     googleScriptUrl = url;
                     localStorage.setItem('sukantara_gscript_url', url);
-                    showToast("URL Google Sheets berjaya disimpan!", "success");
-                    initDatabase();
-                } else {
-                    showToast("Sila masukkan URL yang sah.", "warning");
+                    showToast("URL disimpan!", "success");
                 }
             });
         }
 
         if (saveFirebaseConfigBtn && firebaseConfigInput) {
             saveFirebaseConfigBtn.addEventListener('click', () => {
-                // Sesiapa boleh menetapkan konfigurasi pada kali pertama (menyelesaikan bootstrap paradox)
                 if (!isAdmin && firebaseActive) {
-                    showToast("Dihalang: Konfigurasi Firebase hanya boleh diubah oleh Admin Utama.", "danger");
+                    showToast("Hanya Admin Utama boleh menyunting sambungan Firebase.", "danger");
                     return;
                 }
                 const configText = firebaseConfigInput.value.trim();
@@ -2654,15 +2250,15 @@
                         const parsed = JSON.parse(configText);
                         localStorage.setItem('sukantara_firebase_config', JSON.stringify(parsed));
                         firebaseConfig = parsed;
-                        showToast("Konfigurasi Firebase disimpan! Membina sambungan...", "success");
+                        showToast("Kunci Firebase disimpan!", "success");
                         initDatabase();
                     } catch(e) {
-                        showToast("Format JSON Firebase tidak sah. Sila periksa semula tanda kurung dan koma.", "danger");
+                        showToast("Format JSON tidak sah.", "danger");
                     }
                 } else {
                     localStorage.removeItem('sukantara_firebase_config');
                     firebaseConfig = null;
-                    showToast("Konfigurasi Firebase dipadam. Sistem kembali ke Mod Demo.", "info");
+                    showToast("Sambungan Firebase dipadam.", "info");
                     initDatabase();
                 }
             });
@@ -2685,22 +2281,16 @@
                     gender: genderInput.value,
                     studentClass: classInput.value,
                     house: houseInput.value || activeHouseTab,
-                    longJumpEligible: false,
-                    longJumpRecord: "",
-                    highJumpEligible: false,
-                    highJumpRecord: "",
-                    runningEligible: false,
-                    runningRecord: "",
-                    shotPutEligible: false,
-                    shotPutRecord: "",
-                    totalPoints: 0,
-                    notes: ""
+                    longJumpEligible: false, longJumpRecord: "",
+                    highJumpEligible: false, highJumpRecord: "",
+                    runningEligible: false, runningRecord: "",
+                    shotPutEligible: false, shotPutRecord: "",
+                    totalPoints: 0, notes: ""
                 };
 
                 students.push(newStudent);
                 saveStudentToDb(newStudent);
-                showToast(`Murid '${name}' didaftarkan ke Rumah ${newStudent.house}!`, "success");
-                
+                showToast(`Pelajar '${name}' didaftarkan!`, "success");
                 closeRegModal();
                 syncData();
             });
@@ -2709,10 +2299,7 @@
         if (houseForm) {
             houseForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                if (!isAdmin) {
-                    showToast("Dihalang: Pengurusan rumah sukan memerlukan kebenaran Admin Utama.", "danger");
-                    return;
-                }
+                if (!isAdmin) return;
                 const input = document.getElementById('newHouseName');
                 const name = input.value.trim();
                 if (!name) return;
@@ -2722,14 +2309,10 @@
                     return;
                 }
 
-                const newHouse = {
-                    id: `house_${Date.now()}`,
-                    name: name
-                };
-
+                const newHouse = { id: `house_${Date.now()}`, name: name };
                 houses.push(newHouse);
                 saveHouseToDb(newHouse);
-                showToast(`Rumah ${name} berjaya didaftarkan!`, "success");
+                showToast(`Rumah ${name} didaftarkan.`, "success");
                 input.value = "";
                 syncData();
             });
@@ -2744,52 +2327,40 @@
 
         if (syncManualBtn) {
             syncManualBtn.addEventListener('click', async () => {
-                showToast("Memulakan penarikan data dari Google Sheets...", "info");
+                showToast("Menarik data dari Google Sheets...", "info");
                 const sheetsData = await fetchFromGoogleSheets();
                 if (sheetsData) {
                     if (sheetsData.houses && sheetsData.houses.length > 0) {
                         houses = sheetsData.houses;
                         localStorage.setItem('sukantara_houses', JSON.stringify(houses));
-                        
                         if (firebaseActive && db) {
-                            for (const h of houses) {
-                                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'houses', h.id), h);
-                            }
+                            for (const h of houses) await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'houses', h.id), h);
                         }
                     }
                     if (sheetsData.students) {
                         students = sheetsData.students;
                         normalizeAllStoredData();
                         localStorage.setItem('sukantara_students', JSON.stringify(students));
-
                         if (firebaseActive && db) {
-                            for (const s of students) {
-                                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'students', s.id), s);
-                            }
+                            for (const s of students) await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'students', s.id), s);
                         }
                     }
                     syncData();
-                    showToast("Data Google Sheets & Firebase berjaya diselaraskan!", "success");
+                    showToast("Penyelarasan Google Sheets cemerlang!", "success");
                 } else {
-                    showToast("Gagal memuat turun data dari Google Sheets.", "danger");
+                    showToast("Gagal menyelaraskan.", "danger");
                 }
             });
         }
 
         if (deleteHouseMembersBtn) {
             deleteHouseMembersBtn.addEventListener('click', () => {
-                if (!isAdmin) {
-                    showToast("Dihalang: Hanya Admin Utama sahaja dibenarkan memadam ahli rumah sukan.", "danger");
-                    return;
-                }
+                if (!isAdmin) return;
                 const count = students.filter(s => s.house === activeHouseTab).length;
-                if (count === 0) {
-                    showToast("Tiada murid berdaftar dalam rumah ini.", "info");
-                    return;
-                }
+                if (count === 0) return;
                 showConfirm(
                     "Padam Ahli Rumah Sukan", 
-                    `Adakah anda pasti mahu memadam KESEMUA ${count} ahli murid di dalam Rumah ${activeHouseTab}?`, 
+                    `Padam semua ${count} murid di bawah Rumah ${activeHouseTab}?`, 
                     true,
                     "Ya, Padam",
                     async () => {
@@ -2799,18 +2370,11 @@
                         
                         if (firebaseActive && db) {
                             for (const s of toDelete) {
-                                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'students', s.id);
-                                await deleteDoc(docRef).catch(err => console.error(err));
+                                await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'students', s.id));
                             }
                         }
-
                         syncData();
                         showToast("Ahli Rumah dipadam.", "success");
-                        toDelete.forEach(s => {
-                            sendToGoogleSheets("deleteStudent", s.id).catch(err => {
-                                console.error("Gagal menyelaraskan pemadaman ke Sheets:", err);
-                            });
-                        });
                     }
                 );
             });
@@ -2818,28 +2382,16 @@
 
         if (clearAllBtn) {
             clearAllBtn.addEventListener('click', () => {
-                if (!isAdmin) {
-                    showToast("Dihalang: Akses pembersihan pangkalan data memerlukan kelayakan Admin Utama.", "danger");
-                    return;
-                }
+                if (!isAdmin) return;
                 showConfirm(
-                    "Padam Keseluruhan Rekod", 
-                    "AMARAN! Tindakan ini akan membuang SEMUA murid dan rumah sukan daripada sistem cloud dan lokal!", 
+                    "Padam Semua Rekod", 
+                    "AMARAN! Anda akan mengosongkan keseluruhan pangkalan data secara kekal!", 
                     true,
-                    "Ya, Teruskan",
+                    "Ya",
                     async () => {
-                        for (const s of students) {
-                            await deleteStudentFromDb(s.id);
-                        }
-                        for (const h of houses) {
-                            await deleteHouseFromDb(h.id);
-                        }
-                        students = [];
-                        houses = [];
-                        localStorage.setItem('sukantara_students', JSON.stringify([]));
-                        localStorage.setItem('sukantara_houses', JSON.stringify([]));
-                        
-                        showToast("Keseluruhan pangkalan data dibersihkan.", "success");
+                        for (const s of students) await deleteStudentFromDb(s.id);
+                        for (const h of houses) await deleteHouseFromDb(h.id);
+                        students = []; houses = [];
                         activeHouseTab = "";
                         syncData();
                     }
@@ -2849,154 +2401,97 @@
 
         if (exportBtn) {
             exportBtn.addEventListener('click', () => {
-                const dataToBackup = {
-                    houses: houses,
-                    students: students
-                };
+                const dataToBackup = { houses: houses, students: students };
                 try {
                     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(dataToBackup, null, 2));
                     const dlAnchorElem = document.createElement('a');
                     dlAnchorElem.setAttribute("href", dataStr);
                     dlAnchorElem.setAttribute("download", `sukantara_backup_${Date.now()}.json`);
                     dlAnchorElem.click();
-                    showToast("Fail sandaran JSON berjaya dimuat turun.", "success");
+                    showToast("Backup dimuat turun.", "success");
                 } catch(e) {
-                    showToast("Eksport gagal: " + e.message, "danger");
+                    showToast("Gagal.", "danger");
                 }
             });
         }
 
         if (importBtn && jsonFileInput) {
             importBtn.addEventListener('click', () => {
-                if (!isAdmin) {
-                    showToast("Dihalang: Hanya Admin Utama sahaja dibenarkan memuat naik sandaran atau import pangkalan data baru.", "danger");
-                    return;
-                }
+                if (!isAdmin) return;
                 jsonFileInput.click();
             });
 
             jsonFileInput.addEventListener('change', (e) => {
                 const file = e.target.files[0];
                 if (!file) return;
-
                 const reader = new FileReader();
                 reader.onload = async function(evt) {
                     try {
                         const parsed = JSON.parse(evt.target.result);
-                        
                         if (Array.isArray(parsed)) {
-                            if (parsed.length === 0) {
-                                showToast("Fail kosong atau tidak sah.", "warning");
-                                return;
-                            }
-
-                            const sample = parsed[0];
-                            const hasNameField = ('nama' in sample) || ('nama_pelajar' in sample) || ('name' in sample);
-                            
-                            if (!hasNameField) {
-                                showToast("Format fail tidak dikesan.", "danger");
-                                return;
-                            }
-
                             showConfirm(
                                 "Import Senarai Ahli",
-                                `Adakah anda mahu mendaftarkan ${parsed.length} orang ahli baru ke dalam Rumah ${activeHouseTab}?`,
+                                `Import ${parsed.length} ahli baru ke dalam Rumah ${activeHouseTab}?`,
                                 false,
-                                "Ya, Teruskan",
+                                "Ya",
                                 async () => {
-                                    let importCount = 0;
-                                    const newImportedStudents = [];
-                                    
+                                    let count = 0;
+                                    const newList = [];
                                     parsed.forEach(item => {
                                         const rawName = item.nama || item.name || item.nama_pelajar;
                                         if (!rawName) return;
-
-                                        const normalizedName = rawName.toString().trim().toUpperCase();
-                                        const rawGender = item.janti || item.jantina || item.singkatan_jantina || item.gender || "L";
-                                        const normalizedGender = normalizeGender(rawGender);
-                                        const rawClass = item.kelas || item.studentClass || item.class || "T1";
-                                        const normalizedClass = normalizeClass(rawClass);
-
                                         const newStud = {
-                                            id: `stud_${Date.now()}_${Math.random().toString(36).substr(2, 5)}_${importCount}`,
-                                            name: normalizedName,
-                                            gender: normalizedGender,
-                                            studentClass: normalizedClass,
+                                            id: `stud_${Date.now()}_${Math.random().toString(36).substr(2, 5)}_${count}`,
+                                            name: rawName.toString().trim().toUpperCase(),
+                                            gender: normalizeGender(item.janti || item.jantina || item.gender),
+                                            studentClass: normalizeClass(item.kelas || item.studentClass || item.class),
                                             house: activeHouseTab,
-                                            longJumpEligible: false,
-                                            longJumpRecord: "",
-                                            highJumpEligible: false,
-                                            highJumpRecord: "",
-                                            runningEligible: false,
-                                            runningRecord: "",
-                                            shotPutEligible: false,
-                                            shotPutRecord: "",
-                                            totalPoints: 0,
-                                            notes: ""
+                                            longJumpEligible: false, longJumpRecord: "",
+                                            highJumpEligible: false, highJumpRecord: "",
+                                            runningEligible: false, runningRecord: "",
+                                            shotPutEligible: false, shotPutRecord: "",
+                                            totalPoints: 0, notes: ""
                                         };
-
                                         students.push(newStud);
-                                        newImportedStudents.push(newStud);
-                                        importCount++;
+                                        newList.push(newStud);
+                                        count++;
                                     });
 
                                     if (firebaseActive && db) {
-                                        for (const s of newImportedStudents) {
+                                        for (const s of newList) {
                                             await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'students', s.id), s);
                                         }
                                     }
-
-                                    await sendToGoogleSheets("bulkImport", newImportedStudents);
+                                    await sendToGoogleSheets("bulkImport", newList);
                                     localStorage.setItem('sukantara_students', JSON.stringify(students));
-                                    showToast("Berjaya membawa masuk ahli baharu!", "success");
                                     syncData();
                                 }
                             );
-
                         } else if (parsed.houses && parsed.students) {
                             showConfirm(
-                                "Import Fail Sandaran",
-                                "Mengimport fail sandaran penuh akan menimpa seluruh pangkalan data sedia ada anda di Firebase dan Google Sheets. Teruskan?",
-                                false,
-                                "Ya, Teruskan",
+                                "Import Backup",
+                                "Sapu keseluruhan pangkalan data sedia ada dan ganti dengan backup ini?",
+                                true,
+                                "Ya",
                                 async () => {
                                     houses = parsed.houses;
                                     students = parsed.students;
                                     normalizeAllStoredData();
-
                                     localStorage.setItem('sukantara_houses', JSON.stringify(houses));
                                     localStorage.setItem('sukantara_students', JSON.stringify(students));
-
                                     if (firebaseActive && db) {
-                                        for (const h of houses) {
-                                            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'houses', h.id), h);
-                                        }
-                                        for (const s of students) {
-                                            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'students', s.id), s);
-                                        }
+                                        for (const h of houses) await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'houses', h.id), h);
+                                        for (const s of students) await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'students', s.id), s);
                                     }
-
                                     await sendToGoogleSheets("bulkImport", students);
-                                    for (const h of houses) {
-                                        await sendToGoogleSheets("saveHouse", h);
-                                    }
-
-                                    if (houses.length > 0) {
-                                        activeHouseTab = houses[0].name;
-                                    }
-
-                                    showToast("Pangkalan data sistem berjaya dipulihkan.", "success");
+                                    if (houses.length > 0) activeHouseTab = houses[0].name;
                                     syncData();
                                 }
                             );
-                        } else {
-                            showToast("Format fail tidak sah.", "danger");
                         }
-
                     } catch(err) {
-                        showToast("Gagal membaca JSON: " + err.message, "danger");
+                        showToast("Ralat JSON.", "danger");
                     }
-                    jsonFileInput.value = "";
                 };
                 reader.readAsText(file);
             });
