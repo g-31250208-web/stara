@@ -2,7 +2,7 @@
 <html lang="ms">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Sistem Sukantara Sekolah</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -32,6 +32,7 @@
         }
     </script>
     <style>
+        /* Sembunyikan skrolbar lalai pada navigasi tab telefon pintas */
         .no-scrollbar::-webkit-scrollbar {
             display: none;
         }
@@ -46,94 +47,99 @@
         .animate-fadeIn {
             animation: fadeIn 0.2s ease-out forwards;
         }
+        /* Mengelakkan heretan skrin liar di Chrome Android semasa skrol jadual */
+        body {
+            overscroll-behavior-y: none;
+        }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 min-h-screen font-sans flex flex-col antialiased selection:bg-blue-500 selection:text-white text-xs">
+<body class="bg-slate-50 text-slate-800 min-h-screen font-sans flex flex-col antialiased selection:bg-blue-500 selection:text-white text-xs select-none md:select-text">
 
     <nav class="bg-white border-b border-slate-100 sticky top-0 z-40 shadow-sm backdrop-blur-md bg-white/90">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-14 items-center">
+        <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-14 items-center gap-2">
                 <!-- Logo & Tajuk Utama -->
-                <div class="flex items-center gap-3">
-                    <div class="p-2 bg-gradient-to-tr from-blue-600 to-indigo-600 rounded-xl text-white shadow-md shadow-blue-500/20">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="flex items-center gap-2 min-w-0">
+                    <div class="p-1.5 bg-gradient-to-tr from-blue-600 to-indigo-600 rounded-lg text-white shadow-md shadow-blue-500/20 flex-shrink-0">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
                         </svg>
                     </div>
-                    <div>
-                        <span class="text-[10px] font-bold text-blue-600 tracking-wider uppercase block">Kejohanan Tahunan</span>
-                        <h1 class="text-sm font-extrabold text-slate-900 tracking-tight leading-none">Sistem Sukantara Sekolah</h1>
+                    <div class="truncate">
+                        <span class="text-[8px] font-bold text-blue-600 tracking-wider uppercase block leading-none mb-0.5">Kejohanan Tahunan</span>
+                        <h1 class="text-xs font-extrabold text-slate-900 tracking-tight leading-none truncate">Sistem Sukantara Sekolah</h1>
                     </div>
                 </div>
                 
-                <div class="flex items-center gap-3">
+                <div class="flex items-center gap-1.5 flex-shrink-0">
                     <!-- Status Sambungan Google Sheets -->
-                    <span id="dbStatusBadge" class="px-2.5 py-1 text-[10px] font-semibold rounded-full bg-amber-50 text-amber-700 border border-amber-200 flex items-center gap-1.5 shadow-sm transition-all duration-300">
+                    <span id="dbStatusBadge" class="px-2 py-1 text-[8px] sm:text-[10px] font-bold rounded-full bg-amber-50 text-amber-700 border border-amber-100 flex items-center gap-1 shadow-sm transition-all duration-300">
                         <span id="dbStatusIndicator" class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
-                        <span id="dbStatusText">Menyambung Database...</span>
+                        <span id="dbStatusText" class="hidden sm:inline">Menyambung...</span>
                     </span>
 
-                    <span id="roleBadge" class="px-2.5 py-1 text-[10px] font-semibold rounded-full bg-slate-100 text-slate-600 border border-slate-200 flex items-center gap-1">
+                    <span id="roleBadge" class="px-2 py-1 text-[8px] sm:text-[10px] font-bold rounded-full bg-slate-100 text-slate-600 border border-slate-200 flex items-center gap-1">
                         <span id="roleIndicator" class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                        <span id="roleText">Pentadbir (Google Sheets Mode)</span>
+                        <span id="roleText" class="hidden sm:inline">Pentadbir</span>
+                        <i class="fa-solid fa-user-shield sm:hidden"></i>
                     </span>
                 </div>
             </div>
         </div>
     </nav>
 
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex-1 w-full space-y-4">
+    <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-3 flex-1 w-full space-y-3">
         
         <!-- CORE ACTIVITIES & SPREADSHEET PANEL -->
         <section class="bg-white rounded-xl border border-slate-100 shadow-sm p-3 relative overflow-hidden">
             <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-indigo-500"></div>
             
-            <div class="flex items-center justify-between gap-4 flex-wrap border-b border-slate-100 pb-1.5">
-                <div class="flex items-center gap-2 flex-wrap">
+            <div class="flex items-center justify-between gap-4 border-b border-slate-100 pb-2">
+                <div class="flex items-center gap-2">
                     <h2 class="text-xs font-extrabold text-slate-900 flex items-center gap-1.5">
                         <i class="fa-solid fa-clipboard-list text-blue-600"></i>
                         Borang Aktiviti Rumah Sukan (Lembaran Kerja)
                     </h2>
                     
                     <div class="relative inline-block text-left" id="gearDropdownContainer">
-                        <button id="gearBtn" class="p-1 text-slate-400 hover:text-blue-600 hover:bg-slate-50 border border-slate-200 rounded-lg transition-all focus:outline-none flex items-center justify-center" title="Tetapan & Sandaran Sistem">
+                        <button id="gearBtn" class="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-slate-50 border border-slate-200 rounded-lg transition-all focus:outline-none flex items-center justify-center active:scale-95" title="Tetapan & Sandaran Sistem">
                             <i id="gearIcon" class="fa-solid fa-cog text-xs transform transition-transform duration-500"></i>
                         </button>
                         <!-- Dropdown Options -->
                         <div id="gearDropdown" class="hidden absolute left-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-slate-100 z-50 animate-fadeIn overflow-hidden">
                             <div class="p-1 space-y-0.5">
-                                <button id="registerStudentLinkBtn" class="w-full text-left px-3 py-1.5 text-[10px] font-semibold text-slate-700 hover:bg-slate-50 hover:text-blue-600 rounded-lg transition-colors flex items-center gap-2">
+                                <button id="registerStudentLinkBtn" class="w-full text-left px-3 py-2 text-[10px] font-semibold text-slate-700 hover:bg-slate-50 hover:text-blue-600 rounded-lg transition-colors flex items-center gap-2 active:bg-slate-50">
                                     <i class="fa-solid fa-user-plus text-blue-500"></i>
                                     <span>Daftar Murid Baru</span>
                                 </button>
-                                <button id="thresholdConfigLinkBtn" class="w-full text-left px-3 py-1.5 text-[10px] font-semibold text-slate-700 hover:bg-slate-50 hover:text-blue-600 rounded-lg transition-colors flex items-center gap-2">
+                                <button id="thresholdConfigLinkBtn" class="w-full text-left px-3 py-2 text-[10px] font-semibold text-slate-700 hover:bg-slate-50 hover:text-blue-600 rounded-lg transition-colors flex items-center gap-2 active:bg-slate-50">
                                     <i class="fa-solid fa-sliders text-amber-500"></i>
                                     <span>Urus Had Kelayakan</span>
                                 </button>
-                                <button id="dbConfigLinkBtn" class="w-full text-left px-3 py-1.5 text-[10px] font-semibold text-slate-700 hover:bg-slate-50 hover:text-blue-600 rounded-lg transition-colors flex items-center gap-2">
+                                <button id="dbConfigLinkBtn" class="w-full text-left px-3 py-2 text-[10px] font-semibold text-slate-700 hover:bg-slate-50 hover:text-blue-600 rounded-lg transition-colors flex items-center gap-2 active:bg-slate-50">
                                     <i class="fa-solid fa-database text-indigo-500"></i>
                                     <span>Urus Rumah & Google Sheets</span>
                                 </button>
-                                <button id="importBtn" class="w-full text-left px-3 py-1.5 text-[10px] font-semibold text-slate-700 hover:bg-slate-50 hover:text-blue-600 rounded-lg transition-colors flex items-center gap-2">
+                                <button id="importBtn" class="w-full text-left px-3 py-2 text-[10px] font-semibold text-slate-700 hover:bg-slate-50 hover:text-blue-600 rounded-lg transition-colors flex items-center gap-2 active:bg-slate-50">
                                     <i class="fa-solid fa-file-import text-blue-500"></i>
                                     <span>Import Data JSON</span>
                                 </button>
-                                <button id="exportBtn" class="w-full text-left px-3 py-1.5 text-[10px] font-semibold text-slate-700 hover:bg-slate-50 hover:text-emerald-600 rounded-lg transition-colors flex items-center gap-2">
+                                <button id="exportBtn" class="w-full text-left px-3 py-2 text-[10px] font-semibold text-slate-700 hover:bg-slate-50 hover:text-emerald-600 rounded-lg transition-colors flex items-center gap-2 active:bg-slate-50">
                                     <i class="fa-solid fa-file-export text-emerald-500"></i>
                                     <span>Eksport Data JSON</span>
                                 </button>
-                                <button id="syncManualBtn" class="w-full text-left px-3 py-1.5 text-[10px] font-bold text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors flex items-center gap-2">
+                                <button id="syncManualBtn" class="w-full text-left px-3 py-2 text-[10px] font-bold text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors flex items-center gap-2 active:bg-emerald-50">
                                     <i class="fa-solid fa-arrows-rotate text-emerald-500"></i>
                                     <span>Muat Semula Google Sheets</span>
                                 </button>
                                 <div class="border-t border-slate-100 my-1"></div>
-                                <button id="clearAllBtn" class="w-full text-left px-3 py-1.5 text-[10px] font-bold text-rose-600 hover:bg-rose-50 rounded-lg transition-colors flex items-center gap-2">
+                                <button id="clearAllBtn" class="w-full text-left px-3 py-2 text-[10px] font-bold text-rose-600 hover:bg-rose-50 rounded-lg transition-colors flex items-center gap-2 active:bg-rose-50">
                                     <i class="fa-solid fa-trash-can text-rose-500"></i>
                                     <span>Padam Semua Rekod</span>
                                 </button>
                                 <div class="border-t border-slate-100 my-1"></div>
                                 <div class="px-3 py-1.5 flex items-center justify-between" id="toggleContainer">
-                                    <span class="text-[10px] font-bold text-slate-700 flex items-center gap-2">
+                                    <span class="text-[9px] font-bold text-slate-700 flex items-center gap-1.5">
                                         <i class="fa-solid fa-eye text-slate-400"></i>
                                         <span>Papar Had Min di Header</span>
                                     </span>
@@ -148,32 +154,33 @@
                 </div>
             </div>
 
-            <div class="flex flex-col gap-1.5 mt-2">
-                <div class="flex flex-wrap items-center gap-1 border-b border-slate-100 pb-1 w-full" id="houseTabsContainer">
+            <div class="flex flex-col gap-2 mt-2">
+                <!-- Tab rumah sukan boleh disapu / skrol secara melintang di Android tanpa terputus -->
+                <div class="flex flex-nowrap md:flex-wrap items-center gap-1.5 overflow-x-auto pb-1.5 w-full no-scrollbar select-none" id="houseTabsContainer" style="-webkit-overflow-scrolling: touch;">
                     <!-- Dynamic Tabs Rendered Here with Theme Outlines -->
                 </div>
                 
                 <!-- LEGEND INSTRUCTION BAR -->
-                <div class="bg-blue-50/50 border border-blue-100/50 rounded-lg px-2.5 py-1.5 flex items-center gap-2 text-[10px] font-medium text-blue-700 shadow-inner">
-                    <i class="fa-solid fa-circle-info text-blue-500 animate-pulse text-xs"></i>
-                    <div>
+                <div class="bg-blue-50/50 border border-blue-100/50 rounded-xl px-2.5 py-2 flex items-start gap-2 text-[10px] font-medium text-blue-700 shadow-inner">
+                    <i class="fa-solid fa-circle-info text-blue-500 mt-0.5 text-xs"></i>
+                    <div class="leading-relaxed">
                         <strong class="font-bold">💡 Petunjuk Sistem Kelayakan Pintar:</strong> 
                         Tanda <strong class="text-blue-900">(✓) = Layak (1 Mata)</strong>. Tulis digit pencapaian di kotak teks kanan. Jika digit melepasi had kelayakan minima mengikut kategori umur (Pra, Tahap 1, Tahap 2), sistem akan <strong class="text-blue-900">auto-tick</strong>. Jika tiada digit, anda boleh menanda checkbox secara manual.
                     </div>
                 </div>
                 
-                <div class="flex flex-wrap items-center justify-between gap-2 w-full bg-slate-50 p-1 rounded-lg border border-slate-100">
+                <div class="flex flex-wrap items-center justify-between gap-2 w-full bg-slate-50 p-1.5 rounded-xl border border-slate-100">
                     <!-- Ringkasan Statistik Rumah Sukan Aktif -->
-                    <div id="houseStats" class="flex items-center gap-3 px-1.5 text-[10px] font-semibold text-slate-500">
+                    <div id="houseStats" class="flex items-center gap-2 px-1 text-[10px] font-bold text-slate-500">
                         <span>Jumlah Ahli: <strong id="houseTotalMembers" class="text-slate-800">0</strong> orang</span>
                         <span class="w-1 h-1 bg-slate-300 rounded-full"></span>
-                        <span>Jumlah Mata Kelayakan: <strong id="houseTotalPoints" class="text-emerald-600">0</strong></span>
+                        <span>Mata Kelayakan: <strong id="houseTotalPoints" class="text-emerald-600">0</strong></span>
                     </div>
                     
-                    <div class="flex items-center gap-2 flex-wrap">
-                        <div class="flex items-center gap-1.5">
+                    <div class="flex items-center gap-1.5 flex-wrap">
+                        <div class="flex items-center gap-1">
                             <label for="sortDropdown" class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Susun:</label>
-                            <select id="sortDropdown" class="px-1.5 py-0.5 bg-white border border-slate-200 rounded-lg text-[9px] text-slate-700 font-bold focus:ring-1 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all cursor-pointer">
+                            <select id="sortDropdown" class="px-2 py-1 bg-white border border-slate-200 rounded-lg text-[9px] text-slate-700 font-bold focus:ring-1 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all cursor-pointer">
                                 <option value="name_asc">Nama (A-Z)</option>
                                 <option value="class_asc">Kelas (Pra ➡️ T6)</option>
                                 <option value="gender_l_p">Jantina (L ➡️ P)</option>
@@ -181,7 +188,7 @@
                         </div>
                         
                         <!-- Butang Padam Semua Ahli Rumah Sukan Aktif -->
-                        <button id="deleteHouseMembersBtn" class="px-2 py-0.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg text-[9px] font-bold transition-all flex items-center gap-1 focus:outline-none" title="Padam semua ahli bagi rumah sukan yang sedang aktif">
+                        <button id="deleteHouseMembersBtn" class="px-2 py-1 bg-rose-50 hover:bg-rose-100 active:scale-95 text-rose-600 rounded-lg text-[9px] font-bold transition-all flex items-center gap-1 focus:outline-none" title="Padam semua ahli bagi rumah sukan yang sedang aktif">
                             <i class="fa-solid fa-trash-can text-rose-500"></i>
                             <span>Padam Semua Ahli Rumah</span>
                         </button>
@@ -189,22 +196,22 @@
                 </div>
             </div>
 
-            <div class="mt-2 border border-slate-100 rounded-xl overflow-x-auto shadow-inner w-full">
-                <table id="worksheetTable" class="w-full text-left border-collapse text-[10px] min-w-[950px]">
+            <div class="mt-2 border border-slate-100 rounded-xl overflow-x-auto shadow-inner w-full" style="-webkit-overflow-scrolling: touch; overscroll-behavior-x: contain;">
+                <table id="worksheetTable" class="w-full text-left border-collapse text-[10px] min-w-[980px]">
                     <thead>
                         <!-- Header Row 1: Event Titles -->
                         <tr class="bg-gradient-to-r from-navy-900 to-slate-900 text-white font-extrabold uppercase tracking-wider border-b border-slate-200">
-                            <th class="py-2 px-1 text-center w-[4%]">Bil</th>
-                            <th class="py-2 px-1.5 w-[20%]">Nama Pelajar</th>
-                            <th class="py-2 px-0.5 text-center w-[6%]">Jantina</th>
-                            <th class="py-2 px-0.5 text-center w-[6%]">Kelas</th>
-                            <th class="py-2 px-0.5 text-center w-[13%] bg-blue-950 text-blue-300 border-r border-slate-800">L. Jauh (Mata)</th>
-                            <th class="py-2 px-0.5 text-center w-[13%] bg-teal-950 text-teal-300 border-r border-slate-800">L. Tinggi (Mata)</th>
-                            <th class="py-2 px-0.5 text-center w-[13%] bg-indigo-950 text-indigo-300 border-r border-slate-800">Larian (Mata)</th>
-                            <th class="py-2 px-0.5 text-center w-[13%] bg-purple-950 text-purple-300 border-r border-slate-800">L. Peluru (Mata)</th>
-                            <th class="py-2 px-0.5 text-center w-[5%]">Jumlah</th>
-                            <th class="py-2 px-1 w-[7%]">Catatan</th>
-                            <th id="actionColumnHeader" class="py-2 px-0.5 text-center w-[3%]"></th>
+                            <th class="py-2.5 px-1 text-center w-[4%]">Bil</th>
+                            <th class="py-2.5 px-2 w-[20%]">Nama Pelajar</th>
+                            <th class="py-2.5 px-0.5 text-center w-[6%]">Jantina</th>
+                            <th class="py-2.5 px-0.5 text-center w-[6%]">Kelas</th>
+                            <th class="py-2.5 px-0.5 text-center w-[13%] bg-blue-950 text-blue-300 border-r border-slate-800">L. Jauh (Mata)</th>
+                            <th class="py-2.5 px-0.5 text-center w-[13%] bg-teal-950 text-teal-300 border-r border-slate-800">L. Tinggi (Mata)</th>
+                            <th class="py-2.5 px-0.5 text-center w-[13%] bg-indigo-950 text-indigo-300 border-r border-slate-800">Larian (Mata)</th>
+                            <th class="py-2.5 px-0.5 text-center w-[13%] bg-purple-950 text-purple-300 border-r border-slate-800">L. Peluru (Mata)</th>
+                            <th class="py-2.5 px-0.5 text-center w-[5%]">Jumlah</th>
+                            <th class="py-2.5 px-1.5 w-[7%]">Catatan</th>
+                            <th id="actionColumnHeader" class="py-2.5 px-0.5 text-center w-[3%]"></th>
                         </tr>
                         
                         <!-- Header Row 2: Pra Sekolah Thresholds -->
@@ -323,11 +330,11 @@
     </div>
 
     <!-- REGISTRATION MODAL -->
-    <div id="registrationModal" class="hidden fixed inset-0 z-50 bg-slate-950/45 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-sm w-full p-4 shadow-xl border border-slate-100 transform scale-95 transition-all relative overflow-hidden animate-fadeIn">
+    <div id="registrationModal" class="hidden fixed inset-0 z-50 bg-slate-950/45 backdrop-blur-sm flex items-center justify-center p-3">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-4 shadow-xl border border-slate-100 transform scale-95 transition-all relative overflow-hidden animate-fadeIn max-h-[85vh] flex flex-col">
             <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-indigo-500"></div>
             
-            <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center justify-between mb-3 flex-shrink-0">
                 <h2 class="text-xs font-bold text-slate-900 flex items-center gap-1.5">
                     <i class="fa-solid fa-user-plus text-blue-600"></i>
                     Daftar Murid Baru
@@ -337,17 +344,17 @@
                 </button>
             </div>
             
-            <form id="studentForm" class="space-y-3">
+            <form id="studentForm" class="space-y-3 overflow-y-auto pr-0.5 pb-2 flex-1 no-scrollbar">
                 <!-- Nama Pelajar -->
                 <div class="space-y-1">
                     <label for="studentName" class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Nama Pelajar</label>
-                    <input type="text" id="studentName" required placeholder="Masukkan nama penuh pelajar" class="w-full px-2.5 py-1.5 bg-slate-50 hover:bg-slate-100/50 focus:bg-white border border-slate-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/10 rounded-lg text-[11px] outline-none transition-all placeholder:text-slate-400">
+                    <input type="text" id="studentName" required placeholder="Masukkan nama penuh pelajar" class="w-full px-2.5 py-2 bg-slate-50 hover:bg-slate-100/50 focus:bg-white border border-slate-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/10 rounded-lg text-xs outline-none transition-all placeholder:text-slate-400">
                 </div>
                 
                 <!-- Jantina -->
                 <div class="space-y-1">
                     <label for="studentGender" class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Jantina</label>
-                    <select id="studentGender" required class="w-full px-2 py-1.5 bg-slate-50 border border-slate-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/10 rounded-lg text-[11px] outline-none transition-all cursor-pointer">
+                    <select id="studentGender" required class="w-full px-2 py-2 bg-slate-50 border border-slate-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/10 rounded-lg text-xs outline-none transition-all cursor-pointer">
                         <option value="L">L (Lelaki)</option>
                         <option value="P">P (Perempuan)</option>
                     </select>
@@ -356,7 +363,7 @@
                 <!-- Kelas -->
                 <div class="space-y-1">
                     <label for="studentClass" class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Kelas</label>
-                    <select id="studentClass" required class="w-full px-2 py-1.5 bg-slate-50 border border-slate-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/10 rounded-lg text-[11px] outline-none transition-all cursor-pointer">
+                    <select id="studentClass" required class="w-full px-2 py-2 bg-slate-50 border border-slate-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/10 rounded-lg text-xs outline-none transition-all cursor-pointer">
                         <option value="Pra Sekolah">Pra Sekolah</option>
                         <option value="T1">Tahun 1 (T1)</option>
                         <option value="T2">Tahun 2 (T2)</option>
@@ -371,9 +378,9 @@
                 <input type="hidden" id="studentHouse" value="">
 
                 <!-- Butang Hantar -->
-                <div class="pt-2 flex justify-end gap-1.5">
-                    <button type="button" id="cancelRegistrationBtn" class="px-3 py-1.5 text-[10px] font-bold text-slate-500 hover:bg-slate-100 rounded-lg transition-colors">Batal</button>
-                    <button type="submit" id="submitStudentBtn" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-[10px] font-bold tracking-wide shadow-md transition-all flex items-center justify-center gap-1">
+                <div class="pt-3 border-t border-slate-100 flex justify-end gap-1.5 flex-shrink-0">
+                    <button type="button" id="cancelRegistrationBtn" class="px-3 py-2 text-[10px] font-bold text-slate-500 hover:bg-slate-100 rounded-lg transition-colors">Batal</button>
+                    <button type="submit" id="submitStudentBtn" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-[10px] font-bold tracking-wide shadow-md transition-all flex items-center justify-center gap-1 active:scale-95">
                         <i class="fa-solid fa-plus-circle"></i>
                         <span>Daftar</span>
                     </button>
@@ -383,11 +390,11 @@
     </div>
 
     <!-- THRESHOLD CONFIGURATION MODAL -->
-    <div id="thresholdConfigModal" class="hidden fixed inset-0 z-50 bg-slate-950/45 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-md w-full p-4 shadow-xl border border-slate-100 relative overflow-hidden animate-fadeIn">
+    <div id="thresholdConfigModal" class="hidden fixed inset-0 z-50 bg-slate-950/45 backdrop-blur-sm flex items-center justify-center p-3">
+        <div class="bg-white rounded-2xl max-w-md w-full p-4 shadow-xl border border-slate-100 relative overflow-hidden animate-fadeIn max-h-[85vh] flex flex-col">
             <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 to-orange-500"></div>
             
-            <div class="flex items-center justify-between mb-3 border-b border-slate-100 pb-2">
+            <div class="flex items-center justify-between mb-3 border-b border-slate-100 pb-2 flex-shrink-0">
                 <h2 class="text-xs font-bold text-slate-900 flex items-center gap-1.5">
                     <i class="fa-solid fa-sliders text-amber-600"></i>
                     Urus Had Kelayakan Minima Sukan
@@ -397,7 +404,7 @@
                 </button>
             </div>
 
-            <div class="space-y-3 max-h-[350px] overflow-y-auto pr-1">
+            <div class="space-y-3 overflow-y-auto pr-0.5 pb-2 flex-1 no-scrollbar">
                 <!-- Pra Sekolah Form Section -->
                 <div class="bg-pink-50/50 p-2.5 rounded-xl border border-pink-100 space-y-2">
                     <h3 class="text-[10px] font-bold text-pink-800 flex items-center gap-1">
@@ -406,19 +413,19 @@
                     <div class="grid grid-cols-2 gap-2">
                         <div>
                             <label class="text-[8px] font-bold text-slate-400 block mb-0.5">LOMPAT JAUH (>= m)</label>
-                            <input type="text" id="modal_threshold_pra_longJump" class="w-full px-2 py-1 bg-white border border-slate-200 rounded text-[10px] font-bold">
+                            <input type="text" id="modal_threshold_pra_longJump" class="w-full px-2 py-1.5 bg-white border border-slate-200 rounded text-[10px] font-bold">
                         </div>
                         <div>
                             <label class="text-[8px] font-bold text-slate-400 block mb-0.5">LOMPAT TINGGI (>= m)</label>
-                            <input type="text" id="modal_threshold_pra_highJump" class="w-full px-2 py-1 bg-white border border-slate-200 rounded text-[10px] font-bold">
+                            <input type="text" id="modal_threshold_pra_highJump" class="w-full px-2 py-1.5 bg-white border border-slate-200 rounded text-[10px] font-bold">
                         </div>
                         <div>
                             <label class="text-[8px] font-bold text-slate-400 block mb-0.5">LARIAN (<= s)</label>
-                            <input type="text" id="modal_threshold_pra_running" class="w-full px-2 py-1 bg-white border border-slate-200 rounded text-[10px] font-bold">
+                            <input type="text" id="modal_threshold_pra_running" class="w-full px-2 py-1.5 bg-white border border-slate-200 rounded text-[10px] font-bold">
                         </div>
                         <div>
                             <label class="text-[8px] font-bold text-slate-400 block mb-0.5">LONTAR PELURU (>= m)</label>
-                            <input type="text" id="modal_threshold_pra_shotPut" class="w-full px-2 py-1 bg-white border border-slate-200 rounded text-[10px] font-bold">
+                            <input type="text" id="modal_threshold_pra_shotPut" class="w-full px-2 py-1.5 bg-white border border-slate-200 rounded text-[10px] font-bold">
                         </div>
                     </div>
                 </div>
@@ -431,19 +438,19 @@
                     <div class="grid grid-cols-2 gap-2">
                         <div>
                             <label class="text-[8px] font-bold text-slate-400 block mb-0.5">LOMPAT JAUH (>= m)</label>
-                            <input type="text" id="modal_threshold_tahap1_longJump" class="w-full px-2 py-1 bg-white border border-slate-200 rounded text-[10px] font-bold">
+                            <input type="text" id="modal_threshold_tahap1_longJump" class="w-full px-2 py-1.5 bg-white border border-slate-200 rounded text-[10px] font-bold">
                         </div>
                         <div>
                             <label class="text-[8px] font-bold text-slate-400 block mb-0.5">LOMPAT TINGGI (>= m)</label>
-                            <input type="text" id="modal_threshold_tahap1_highJump" class="w-full px-2 py-1 bg-white border border-slate-200 rounded text-[10px] font-bold">
+                            <input type="text" id="modal_threshold_tahap1_highJump" class="w-full px-2 py-1.5 bg-white border border-slate-200 rounded text-[10px] font-bold">
                         </div>
                         <div>
                             <label class="text-[8px] font-bold text-slate-400 block mb-0.5">LARIAN (<= s)</label>
-                            <input type="text" id="modal_threshold_tahap1_running" class="w-full px-2 py-1 bg-white border border-slate-200 rounded text-[10px] font-bold">
+                            <input type="text" id="modal_threshold_tahap1_running" class="w-full px-2 py-1.5 bg-white border border-slate-200 rounded text-[10px] font-bold">
                         </div>
                         <div>
                             <label class="text-[8px] font-bold text-slate-400 block mb-0.5">LONTAR PELURU (>= m)</label>
-                            <input type="text" id="modal_threshold_tahap1_shotPut" class="w-full px-2 py-1 bg-white border border-slate-200 rounded text-[10px] font-bold">
+                            <input type="text" id="modal_threshold_tahap1_shotPut" class="w-full px-2 py-1.5 bg-white border border-slate-200 rounded text-[10px] font-bold">
                         </div>
                     </div>
                 </div>
@@ -456,43 +463,43 @@
                     <div class="grid grid-cols-2 gap-2">
                         <div>
                             <label class="text-[8px] font-bold text-slate-400 block mb-0.5">LOMPAT JAUH (>= m)</label>
-                            <input type="text" id="modal_threshold_tahap2_longJump" class="w-full px-2 py-1 bg-white border border-slate-200 rounded text-[10px] font-bold">
+                            <input type="text" id="modal_threshold_tahap2_longJump" class="w-full px-2 py-1.5 bg-white border border-slate-200 rounded text-[10px] font-bold">
                         </div>
                         <div>
                             <label class="text-[8px] font-bold text-slate-400 block mb-0.5">LOMPAT TINGGI (>= m)</label>
-                            <input type="text" id="modal_threshold_tahap2_highJump" class="w-full px-2 py-1 bg-white border border-slate-200 rounded text-[10px] font-bold">
+                            <input type="text" id="modal_threshold_tahap2_highJump" class="w-full px-2 py-1.5 bg-white border border-slate-200 rounded text-[10px] font-bold">
                         </div>
                         <div>
                             <label class="text-[8px] font-bold text-slate-400 block mb-0.5">LARIAN (<= s)</label>
-                            <input type="text" id="modal_threshold_tahap2_running" class="w-full px-2 py-1 bg-white border border-slate-200 rounded text-[10px] font-bold">
+                            <input type="text" id="modal_threshold_tahap2_running" class="w-full px-2 py-1.5 bg-white border border-slate-200 rounded text-[10px] font-bold">
                         </div>
                         <div>
                             <label class="text-[8px] font-bold text-slate-400 block mb-0.5">LONTAR PELURU (>= m)</label>
-                            <input type="text" id="modal_threshold_tahap2_shotPut" class="w-full px-2 py-1 bg-white border border-slate-200 rounded text-[10px] font-bold">
+                            <input type="text" id="modal_threshold_tahap2_shotPut" class="w-full px-2 py-1.5 bg-white border border-slate-200 rounded text-[10px] font-bold">
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- Modal Action Buttons -->
-            <div class="pt-3 border-t border-slate-100 flex justify-end gap-1.5 mt-3">
-                <button type="button" id="resetThresholdsBtn" class="px-2.5 py-1.5 text-[10px] font-bold text-slate-500 hover:bg-slate-100 rounded-lg transition-colors flex items-center gap-1">
-                    <i class="fa-solid fa-arrows-rotate"></i> Set Semula Asal
+            <div class="pt-3 border-t border-slate-100 flex justify-end gap-1.5 mt-2 flex-shrink-0">
+                <button type="button" id="resetThresholdsBtn" class="px-2.5 py-2 text-[10px] font-bold text-slate-500 hover:bg-slate-100 rounded-lg transition-colors flex items-center gap-1">
+                    <i class="fa-solid fa-arrows-rotate"></i> Set Semula
                 </button>
-                <button type="button" id="saveThresholdConfigBtn" class="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-[10px] font-bold shadow-md transition-all flex items-center justify-center gap-1">
+                <button type="button" id="saveThresholdConfigBtn" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-[10px] font-bold shadow-md transition-all flex items-center justify-center gap-1 active:scale-95">
                     <i class="fa-solid fa-check"></i>
-                    <span>Simpan & Terapkan</span>
+                    <span>Simpan</span>
                 </button>
             </div>
         </div>
     </div>
 
     <!-- HOUSE SETTINGS MODAL -->
-    <div id="houseSettingsModal" class="hidden fixed inset-0 z-50 bg-slate-950/45 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn">
-        <div class="bg-white rounded-2xl max-w-md w-full p-4 shadow-xl border border-slate-100 relative overflow-hidden">
+    <div id="houseSettingsModal" class="hidden fixed inset-0 z-50 bg-slate-950/45 backdrop-blur-sm flex items-center justify-center p-3 animate-fadeIn">
+        <div class="bg-white rounded-2xl max-w-md w-full p-4 shadow-xl border border-slate-100 relative overflow-hidden max-h-[85vh] flex flex-col">
             <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 to-purple-500"></div>
             
-            <div class="flex items-center justify-between mb-3 border-b border-slate-100 pb-2">
+            <div class="flex items-center justify-between mb-3 border-b border-slate-100 pb-2 flex-shrink-0">
                 <h2 class="text-xs font-bold text-slate-900 flex items-center gap-1.5">
                     <i class="fa-solid fa-database text-indigo-600"></i>
                     Urus Rumah & Integrasi Google Sheets
@@ -502,7 +509,7 @@
                 </button>
             </div>
 
-            <div class="space-y-4">
+            <div class="space-y-4 overflow-y-auto pr-0.5 pb-2 flex-1 no-scrollbar">
                 <!-- INTEGRASI GOOGLE SHEETS API URL -->
                 <div class="space-y-1.5 bg-indigo-50/50 p-2.5 rounded-xl border border-indigo-100">
                     <h3 class="text-[9px] font-extrabold text-indigo-900 uppercase tracking-wider flex items-center gap-1">
@@ -510,8 +517,8 @@
                         URL Pangkalan Data Google Apps Script
                     </h3>
                     <div class="flex gap-1.5">
-                        <input type="text" id="gscriptUrlInput" placeholder="Masukkan Google Apps Script Web App URL..." class="flex-1 px-2 py-1.5 bg-white border border-indigo-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/10 rounded-lg text-[10px] font-semibold outline-none transition-all placeholder:text-slate-400">
-                        <button id="saveGscriptUrlBtn" class="px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-[10px] font-bold transition-all shadow-sm">
+                        <input type="text" id="gscriptUrlInput" placeholder="Masukkan Google Apps Script Web App URL..." class="flex-1 px-2.5 py-2 bg-white border border-indigo-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/10 rounded-lg text-[10px] font-semibold outline-none transition-all placeholder:text-slate-400">
+                        <button id="saveGscriptUrlBtn" class="px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-[10px] font-bold transition-all shadow-sm active:scale-95">
                             Simpan
                         </button>
                     </div>
@@ -522,8 +529,8 @@
                 <div class="space-y-1.5" id="settingsAddHouseContainer">
                     <h3 class="text-[9px] font-extrabold text-slate-400 uppercase tracking-wider">Daftar Rumah Sukan Baru</h3>
                     <form id="houseForm" class="flex gap-1.5">
-                        <input type="text" id="newHouseName" placeholder="Contoh: Merah, Biru" class="flex-1 px-2.5 py-1.5 bg-slate-50 focus:bg-white border border-slate-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/10 rounded-lg text-[11px] font-semibold outline-none transition-all placeholder:text-slate-400">
-                        <button type="submit" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-[11px] font-bold transition-all shadow-sm flex items-center gap-1">
+                        <input type="text" id="newHouseName" placeholder="Contoh: Merah, Biru" class="flex-1 px-2.5 py-2 bg-slate-50 focus:bg-white border border-slate-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/10 rounded-lg text-[11px] font-semibold outline-none transition-all placeholder:text-slate-400">
+                        <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-[11px] font-bold transition-all shadow-sm flex items-center gap-1 active:scale-95">
                             <i class="fa-solid fa-plus"></i>
                             Tambah
                         </button>
@@ -779,11 +786,10 @@
             }
 
             houses.forEach(h => {
-                // Kira statistik ahli rumah sukan semasa
                 const houseStudents = students.filter(s => s.house === h.name);
                 const total = houseStudents.length;
-                const maleCount = houseStudents.filter(s => s.gender === 'L' || s.gender === 'l').length;
-                const femaleCount = houseStudents.filter(s => s.gender === 'P' || s.gender === 'p').length;
+                const maleCount = houseStudents.filter(s => s.gender === 'L').length;
+                const femaleCount = houseStudents.filter(s => s.gender === 'P').length;
                 
                 const tab = document.createElement('button');
                 const isActive = activeHouseTab === h.name;
@@ -791,23 +797,21 @@
                 const themeKey = getHouseColorTheme(h.name);
                 const theme = houseColorMap[themeKey] || houseColorMap["slate"];
                 
-                // Menggunakan susunan flex-col untuk memaparkan statistik di baris kedua dengan kemas
-                tab.className = `px-3 py-1.5 text-[10px] rounded-lg border transition-all duration-200 flex flex-col items-start gap-0.5 text-left ${
+                tab.className = `px-3.5 py-2 rounded-lg border transition-all duration-200 flex flex-col items-center justify-center gap-0.5 text-center flex-shrink-0 active:scale-95 min-w-[135px] ${
                     isActive ? theme.activeBtn : theme.inactiveBtn
                 }`;
                 
                 tab.innerHTML = `
-                    <div class="flex items-center gap-1.5 w-full">
-                        <span class="font-extrabold text-[11px]">Rumah ${h.name}</span>
-                        <span class="px-1 py-0.2 text-[8px] rounded font-bold ${
-                            isActive ? theme.activeBadge : theme.inactiveBadge
-                        }">Jumlah: ${total}</span>
+                    <div class="font-extrabold text-[11px] whitespace-nowrap text-center w-full leading-tight">
+                        Rumah ${h.name}
                     </div>
-                    <div class="text-[8px] font-bold flex gap-2 tracking-wide ${
-                        isActive ? 'text-white/90' : 'text-slate-500'
+                    <div class="text-[8px] font-bold flex items-center justify-center gap-1.5 mt-1 tracking-wide w-full leading-none whitespace-nowrap ${
+                        isActive ? 'text-white/95' : 'text-slate-500'
                     }">
-                        <span>L: <strong class="${isActive ? 'text-white font-extrabold' : 'text-slate-700 font-extrabold'}">${maleCount}</strong></span>
-                        <span>P: <strong class="${isActive ? 'text-white font-extrabold' : 'text-slate-700 font-extrabold'}">${femaleCount}</strong></span>
+                        <span>L:<strong class="ml-0.5 ${isActive ? 'text-white font-extrabold' : 'text-slate-700 font-extrabold'}">${maleCount}</strong></span>
+                        <span>P:<strong class="ml-0.5 ${isActive ? 'text-white font-extrabold' : 'text-slate-700 font-extrabold'}">${femaleCount}</strong></span>
+                        <span class="w-1 h-1 rounded-full ${isActive ? 'bg-white/40' : 'bg-slate-300'}"></span>
+                        <span>Jumlah:<strong class="ml-0.5 ${isActive ? 'text-white font-extrabold' : 'text-slate-700 font-extrabold'}">${total}</strong></span>
                     </div>
                 `;
                 
@@ -951,10 +955,10 @@
                         <td class="py-1 px-1.5 border-r border-slate-100 text-left">
                             <div class="flex items-center justify-start gap-1.5 w-full">
                                 <input type="checkbox" ${isChecked} 
-                                    class="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500 accent-blue-600 cursor-pointer student-score-checkbox flex-shrink-0"
+                                    class="w-5 h-5 text-blue-600 border-slate-300 rounded focus:ring-blue-500 accent-blue-600 cursor-pointer student-score-checkbox flex-shrink-0"
                                     data-id="${stud.id}" data-field="${field}">
                                 <input type="text" placeholder="${placeholderText}" value="${recordVal}" 
-                                    class="w-full px-1.5 py-0.5 bg-slate-50 hover:bg-slate-100/50 focus:bg-white text-left font-semibold text-slate-800 rounded border border-slate-200/60 focus:border-blue-300 outline-none transition-all student-record-input"
+                                    class="w-full px-1.5 py-1 bg-slate-50 hover:bg-slate-100/50 focus:bg-white text-left font-bold text-slate-800 rounded-lg border border-slate-200/60 focus:border-blue-300 outline-none transition-all student-record-input"
                                     data-id="${stud.id}" data-field="${field}">
                             </div>
                         </td>
@@ -970,11 +974,11 @@
                     <td class="py-2 px-0.5 text-center font-extrabold text-blue-600 text-[11px]">${stud.totalPoints || 0}</td>
                     <td class="py-1 px-1">
                         <input type="text" placeholder="-" value="${stud.notes || ''}" 
-                            class="w-full px-1.5 py-0.5 bg-transparent hover:bg-slate-50/80 focus:bg-white text-slate-600 rounded-lg outline-none transition-all focus:ring-1 focus:ring-blue-500/20 border border-transparent student-note-input"
+                            class="w-full px-1.5 py-1 bg-transparent hover:bg-slate-50/80 focus:bg-white text-slate-600 rounded-lg outline-none transition-all focus:ring-1 focus:ring-blue-500/20 border border-transparent student-note-input"
                             data-id="${stud.id}">
                     </td>
                     <td class="py-1 px-0.5 text-center student-action-cell">
-                        <button class="p-1 text-slate-300 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors delete-student-btn" data-id="${stud.id}">
+                        <button class="p-1.5 text-slate-300 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors delete-student-btn active:scale-95" data-id="${stud.id}">
                             <i class="fa-solid fa-trash text-[10px]"></i>
                         </button>
                     </td>
@@ -1087,11 +1091,11 @@
 
             houses.forEach(h => {
                 const pill = document.createElement('div');
-                pill.className = "flex items-center gap-1 bg-slate-50 border border-slate-200 pl-2 pr-1 py-0.5 rounded-lg text-[9px] font-bold text-slate-700 shadow-sm";
+                pill.className = "flex items-center gap-1 bg-slate-50 border border-slate-200 pl-2 pr-1 py-1 rounded-lg text-[9px] font-bold text-slate-700 shadow-sm";
                 pill.innerHTML = `
                     <span>${h.name}</span>
-                    <button class="p-0.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded transition-colors delete-house-btn" data-id="${h.id}">
-                        <i class="fa-solid fa-circle-xmark"></i>
+                    <button class="p-0.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded transition-colors delete-house-btn active:scale-95" data-id="${h.id}">
+                        <i class="fa-solid fa-circle-xmark text-sm"></i>
                     </button>
                 `;
                 
@@ -1173,7 +1177,7 @@
             } else {
                 if (type === "success") {
                     indicator.className = "w-1.5 h-1.5 rounded-full bg-emerald-500";
-                    statusText.innerText = text || "Google Sheets Aktif";
+                    statusText.innerText = text || "Sheets Aktif";
                     badge.className = "px-2.5 py-1 text-[10px] font-semibold rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1.5 shadow-sm transition-all duration-300";
                 } else {
                     indicator.className = "w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse";
@@ -1589,7 +1593,7 @@
                         students = students.filter(s => s.house !== activeHouseTab);
                         localStorage.setItem('sukantara_students', JSON.stringify(students));
                         syncData();
-                        showToast(`Ahli Rumah ${activeHouseTab} dipadam secara lokal. Menyelaras...`, "success");
+                        showToast("Ahli Rumah dipadam secara lokal.", "success");
                         toDelete.forEach(s => {
                             sendToGoogleSheets("deleteStudent", s.id).catch(err => {
                                 console.error("Gagal menyelaraskan pemadaman ke Google Sheets:", err);
