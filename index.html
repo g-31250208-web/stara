@@ -2373,15 +2373,24 @@
                 events.forEach(event => {
                     let list = activePool.filter(s => {
                         if (s.studentClass !== cls) return false;
-                        const rec = s[`${event}Record`] || "";
-                        const val = parseFloat(rec);
-                        return !isNaN(val);
+                        
+                        const rec = (s[`${event}Record`] || "").toString().trim().toUpperCase();
+                        
+                        // Abaikan secara mutlak rekod kosong, TH (Tidak Hadir), DQ (Dibatalkan) atau 0 (Tidak Mencuba)
+                        if (!rec || rec === "TH" || rec === "DQ" || rec === "0") return false;
+                        
+                        // Ekstrak hanya nombor (abaikan simbol unit seperti 'm' atau 's')
+                        const numericStr = rec.replace(/[^\d.]/g, '');
+                        const val = parseFloat(numericStr);
+                        
+                        // Pastikan ia adalah nombor sah dan bernilai lebih besar daripada 0 (nombor bererti)
+                        return !isNaN(val) && val > 0;
                     });
 
                     // Susun: larian secara menaik (masa terpantas), acara lain secara menurun (jarak/tinggi tertinggi)
                     list.sort((a, b) => {
-                        const valA = parseFloat(a[`${event}Record`]);
-                        const valB = parseFloat(b[`${event}Record`]);
+                        const valA = parseFloat((a[`${event}Record`] || "").toString().replace(/[^\d.]/g, '')) || 0;
+                        const valB = parseFloat((b[`${event}Record`] || "").toString().replace(/[^\d.]/g, '')) || 0;
                         if (event === 'running') {
                             return valA - valB;
                         } else {
