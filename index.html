@@ -655,6 +655,20 @@
 
     <!-- JAVASCRIPT & DATABASE INTEGRATION -->
     <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Global Firebase state & configs
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'sukantara-sekolah-2026';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        let db = null;
+        let auth = null;
+        let userId = null;
+        let firebaseActive = false;
+
         let googleScriptUrl = "https://script.google.com/macros/s/AKfycbzbolOQP6QjsQrOdAkomAFVBL5iZAuCPp_KlxWKui4QsgoGwvcqRMdbgL-jpWCw1_DARw/exec";
 
         let houses = [];
@@ -662,16 +676,6 @@
         let activeHouseTab = "";
         let currentSortOption = "name_asc";
         let confirmCallback = null;
-
-        // Mod Demo Admin Default State (Membolehkan keyin terus tanpa setting Firebase)
-        let userRole = {
-            isLoggedIn: true,
-            isDelima: true,
-            isAdmin: true,
-            email: "cikgu.demo@moe-dl.edu.my",
-            name: "Cikgu Demo (Admin)",
-            photoURL: ""
-        };
 
         // Had kelayakan berbilang peringkat mengikut kategori umur
         let thresholds = {
@@ -747,9 +751,6 @@
             return "tahap1";
         }
 
-        // ==========================================
-        // FUNGSI PEMBANTU BARU (DITAMBAH UNTUK PEMBETULAN RALAT)
-        // ==========================================
         function getClassOrder(studentClass) {
             if (!studentClass) return 99;
             const clean = studentClass.toString().trim();
@@ -767,7 +768,6 @@
             if (recordStr === undefined || recordStr === null) return null;
             const clean = recordStr.toString().trim();
             if (clean === "") return null;
-            // Hanya ambil angka dan simbol perpuluhan sahaja
             const match = clean.replace(/[^0-9.]/g, '');
             const val = parseFloat(match);
             return isNaN(val) ? null : val;
@@ -794,39 +794,220 @@
             if (clean.includes("T6") || clean.includes("TAHUN 6") || clean === "6") return "T6";
             return "T1";
         }
-        // ==========================================
 
-        function saveStudentToDb(student) {
+        async function initFirebase() {
+            try {
+                updateDbStatus(true, "Menghubungi Firebase...");
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+
+                // Mengutamakan Custom Token berbanding Anonymous (Mematuhi Aturan Firebase)
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                } else {
+                    await signInAnonymously(auth);
+                }
+
+                userId = auth.currentUser?.uid || crypto.randomUUID();
+                firebaseActive = true;
+
+                // Render profil pengguna yang disahkan dalam bar navigasi
+                const authContainer = document.getElementById('authContainer');
+                if (authContainer && auth.currentUser) {
+                    const u = auth.currentUser;
+                    const displayName = u.displayName || (u.isAnonymous ? "Cikgu (Sesi Awan)" : "Ahli Pentadbir");
+                    authContainer.innerHTML = `
+                        <div class="flex items-center gap-1 bg-slate-100 rounded-full px-2 py-0.5 border border-slate-200">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                            <span class="text-[9px] font-extrabold text-slate-700 truncate max-w-[80px]" title="${displayName}">${displayName}</span>
+                        </div>
+                    `;
+                }
+
+                const roleText = document.getElementById('roleText');
+                if (roleText) {
+                    roleText.innerText = auth.currentUser?.isAnonymous ? "Sesi Penyumbang" : "Pentadbir Sukan";
+                    const roleBadge = document.getElementById('roleBadge');
+                    if (roleBadge) {
+                        roleBadge.className = "px-2 py-1 text-[8px] sm:text-[10px] font-bold rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100 flex items-center gap-1 shadow-sm";
+                    }
+                }
+
+                setupFirestoreListeners();
+                updateDbStatus(false, "Berjaya Diselaraskan");
+            } catch (error) {
+                console.error("Firebase gagal diaktifkan. Berpindah ke Mod Lokal:", error);
+                firebaseActive = false;
+                updateDbStatus(false, "Sambungan Awan Gagal", "danger");
+                loadLocalData();
+            }
+        }
+
+        function setupFirestoreListeners() {
+            if (!db) return;
+
+            // 1. Dengar rekod Rumah Sukan (Laluan Ketat - Peraturan 1)
+            const housesCol = collection(db, 'artifacts', appId, 'public', 'data', 'houses');
+            onSnapshot(housesCol, (snapshot) => {
+                const tempHouses = [];
+                snapshot.forEach(docSnap => {
+                    tempHouses.push({ id: docSnap.id, ...docSnap.data() });
+                });
+                if (tempHouses.length > 0) {
+                    houses = tempHouses;
+                } else {
+                    // Seed awal jika kosong di Firebase
+                    houses = [
+                        { id: "h1", name: "Merah" },
+                        { id: "h2", name: "Biru" },
+                        { id: "h3", name: "Kuning" },
+                        { id: "h4", name: "Hijau" }
+                    ];
+                    houses.forEach(async h => {
+                        await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'houses', h.id), h);
+                    });
+                }
+                localStorage.setItem('sukantara_houses', JSON.stringify(houses));
+                if (!activeHouseTab && houses.length > 0) {
+                    activeHouseTab = houses[0].name;
+                }
+                syncData();
+            }, (error) => {
+                console.error("Gagal mendengar perubahan rumah di Firestore:", error);
+                showToast("Sesi bacaan rumah terputus.", "danger");
+            });
+
+            // 2. Dengar rekod Murid (Laluan Ketat - Peraturan 1 & Tiada Query Kompleks - Peraturan 2)
+            const studentsCol = collection(db, 'artifacts', appId, 'public', 'data', 'students');
+            onSnapshot(studentsCol, (snapshot) => {
+                const tempStudents = [];
+                snapshot.forEach(docSnap => {
+                    tempStudents.push({ id: docSnap.id, ...docSnap.data() });
+                });
+                students = tempStudents;
+                normalizeAllStoredData();
+                localStorage.setItem('sukantara_students', JSON.stringify(students));
+                syncData();
+            }, (error) => {
+                console.error("Gagal mendengar perubahan murid di Firestore:", error);
+                showToast("Sesi bacaan murid terputus.", "danger");
+            });
+
+            // 3. Dengar rekod Had Had Kelayakan Sukan (Laluan Ketat - Peraturan 1)
+            const thresholdsDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'thresholds');
+            onSnapshot(thresholdsDocRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    thresholds = docSnap.data();
+                    localStorage.setItem('sukantara_thresholds_v2', JSON.stringify(thresholds));
+                    updateThresholdInputsUI();
+                    renderWorksheet();
+                } else {
+                    setDoc(thresholdsDocRef, thresholds).catch(err => console.error(err));
+                }
+            }, (error) => {
+                console.error("Gagal mendengar perubahan konfigurasi had di Firestore:", error);
+            });
+        }
+
+        function loadLocalData() {
+            const savedThresholds = localStorage.getItem('sukantara_thresholds_v2');
+            if (savedThresholds) {
+                thresholds = JSON.parse(savedThresholds);
+            }
+            updateThresholdInputsUI();
+
+            const localHouses = localStorage.getItem('sukantara_houses');
+            const localStudents = localStorage.getItem('sukantara_students');
+            if (localHouses) {
+                houses = JSON.parse(localHouses);
+            } else {
+                houses = [
+                    { id: "h1", name: "Merah" },
+                    { id: "h2", name: "Biru" },
+                    { id: "h3", name: "Kuning" },
+                    { id: "h4", name: "Hijau" }
+                ];
+                localStorage.setItem('sukantara_houses', JSON.stringify(houses));
+            }
+
+            if (localStudents) {
+                students = JSON.parse(localStudents);
+                normalizeAllStoredData();
+            } else {
+                seedMockStudentsIfEmpty();
+            }
+
+            if (houses.length > 0 && !activeHouseTab) {
+                activeHouseTab = houses[0].name;
+            }
+
+            applyThresholdVisibility();
+            syncData();
+        }
+
+        async function saveStudentToDb(student) {
             localStorage.setItem('sukantara_students', JSON.stringify(students));
+            
+            if (firebaseActive && db) {
+                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'students', student.id);
+                await setDoc(docRef, student).catch(err => console.error("Ralat simpan murid ke Firebase:", err));
+            }
+
             sendToGoogleSheets("saveStudent", student).catch(err => {
                 console.error("Gagal menyelaraskan kemas kini murid ke Google Sheets:", err);
             });
         }
 
-        function saveHouseToDb(house) {
+        async function saveHouseToDb(house) {
             localStorage.setItem('sukantara_houses', JSON.stringify(houses));
+
+            if (firebaseActive && db) {
+                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'houses', house.id);
+                await setDoc(docRef, house).catch(err => console.error("Ralat simpan rumah ke Firebase:", err));
+            }
+
             sendToGoogleSheets("saveHouse", house).catch(err => {
                 console.error("Gagal menyelaraskan kemas kini rumah ke Google Sheets:", err);
             });
         }
 
-        function deleteStudentFromDb(studentId) {
+        async function deleteStudentFromDb(studentId) {
             students = students.filter(s => s.id !== studentId);
             localStorage.setItem('sukantara_students', JSON.stringify(students));
+
+            if (firebaseActive && db) {
+                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'students', studentId);
+                await deleteDoc(docRef).catch(err => console.error("Ralat buang murid dari Firebase:", err));
+            }
+
             syncData();
             sendToGoogleSheets("deleteStudent", studentId).catch(err => {
                 console.error("Gagal memadam murid di Google Sheets:", err);
             });
         }
 
-        function deleteHouseFromDb(houseId) {
+        async function deleteHouseFromDb(houseId) {
             const hObj = houses.find(h => h.id === houseId);
             houses = houses.filter(h => h.id !== houseId);
             localStorage.setItem('sukantara_houses', JSON.stringify(houses));
             
+            if (firebaseActive && db) {
+                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'houses', houseId);
+                await deleteDoc(docRef).catch(err => console.error("Ralat buang rumah dari Firebase:", err));
+            }
+
             if (hObj) {
+                const toDelete = students.filter(s => s.house === hObj.name);
                 students = students.filter(s => s.house !== hObj.name);
                 localStorage.setItem('sukantara_students', JSON.stringify(students));
+
+                if (firebaseActive && db) {
+                    for (const s of toDelete) {
+                        const sRef = doc(db, 'artifacts', appId, 'public', 'data', 'students', s.id);
+                        await deleteDoc(sRef).catch(err => console.error(err));
+                    }
+                }
             }
             
             syncData();
@@ -977,7 +1158,7 @@
 
         function setupThresholdListeners() {
             document.querySelectorAll('.threshold-input').forEach(input => {
-                input.addEventListener('change', (e) => {
+                input.addEventListener('change', async (e) => {
                     const category = e.target.getAttribute('data-category');
                     const field = e.target.getAttribute('data-field');
                     const value = e.target.value.trim();
@@ -985,6 +1166,12 @@
                     if (category && field) {
                         thresholds[category][field] = value;
                         localStorage.setItem('sukantara_thresholds_v2', JSON.stringify(thresholds));
+                        
+                        if (firebaseActive && db) {
+                            const configRef = doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'thresholds');
+                            await setDoc(configRef, thresholds).catch(err => console.error(err));
+                        }
+
                         showToast(`Had kelayakan ${category.toUpperCase()} (${field}) dikemaskini!`, "success");
                         updateThresholdInputsUI();
                         reEvaluateAllStudents();
@@ -994,7 +1181,7 @@
             });
         }
 
-        function reEvaluateAllStudents() {
+        async function reEvaluateAllStudents() {
             students.forEach(s => {
                 const category = getStudentCategory(s.studentClass);
                 const catThresholds = thresholds[category] || thresholds["tahap1"];
@@ -1021,6 +1208,14 @@
                                  (s.shotPutEligible ? 1 : 0);
             });
             localStorage.setItem('sukantara_students', JSON.stringify(students));
+            
+            if (firebaseActive && db) {
+                for (const s of students) {
+                    const sRef = doc(db, 'artifacts', appId, 'public', 'data', 'students', s.id);
+                    await setDoc(sRef, s).catch(err => console.error(err));
+                }
+            }
+
             sendToGoogleSheets("bulkImport", students);
         }
 
@@ -1201,7 +1396,7 @@
                                 "Ya, Padam",
                                 () => {
                                     deleteStudentFromDb(sId);
-                                    showToast(`Rekod '${current.name}' dipadam secara lokal. Menyelaras...`, "success");
+                                    showToast(`Rekod '${current.name}' dipadam. Menyelaras...`, "success");
                                 }
                             );
                         }
@@ -1240,7 +1435,7 @@
                         "Ya, Padam",
                         () => {
                             deleteHouseFromDb(h.id);
-                            showToast(`Rumah ${h.name} berjaya dipadam secara lokal. Menyelaras...`, "success");
+                            showToast(`Rumah ${h.name} berjaya dipadam. Menyelaras...`, "success");
                         }
                     );
                 });
@@ -1306,9 +1501,6 @@
                         table.data-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
                         table.data-table th { background-color: #0f172a; color: white; padding: 8px; text-align: left; text-transform: uppercase; font-size: 9px; }
                         table.data-table td { padding: 6px; border: 1px solid #e2e8f0; }
-                        .signature-section { margin-top: 50px; display: flex; justify-content: space-between; }
-                        .sig-box { width: 200px; text-align: center; }
-                        .sig-line { border-bottom: 1px solid #000; margin-bottom: 5px; height: 40px; }
                     </style>
                 </head>
                 <body>
@@ -1319,18 +1511,16 @@
                             </td>
                             <td>
                                 <div class="school-title">Laporan Analisis Kejohanan Sukantara Tahunan</div>
-                                <div style="font-weight: 600; color: #555;">Sekolah Kebangsaan Bikang</div>
+                                <div style="font-weight: 600; color: #555;">Kemas Kini Sistem Bersepadu</div>
                                 <div class="report-title">PRESTASI DAN KELAYAKAN AHLI - RUMAH SUKAN: ${activeHouseTab.toUpperCase()}</div>
                             </td>
                         </tr>
                     </table>
-
                     <div class="stats-container">
                         <div class="stat-box">Jumlah Ahli Berdaftar: <span style="color: #1e3a8a;">${houseMembers.length} orang</span></div>
-                        <div class="stat-box">Mata Keseluruhan Rumah Sukan: <span style="color: #16a34a;">${houseMembers.reduce((a, b) => a + (b.totalPoints || 0), 0)} Mata</span></div>
+                        <div class="stat-box">Mata Keseluruhan: <span style="color: #16a34a;">${houseMembers.reduce((a, b) => a + (b.totalPoints || 0), 0)} Mata</span></div>
                         <div class="stat-box">Tarikh Cetakan: <span>${new Date().toLocaleDateString('ms-MY')}</span></div>
                     </div>
-
                     <table class="data-table">
                         <thead>
                             <tr>
@@ -1350,20 +1540,6 @@
                             ${studentRowsHtml}
                         </tbody>
                     </table>
-
-                    <div class="signature-section">
-                        <div class="sig-box">
-                            <p>Disediakan Oleh:</p>
-                            <div class="sig-line"></div>
-                            <p style="font-weight: bold; text-transform: uppercase;">(Ketua Rumah Sukan)</p>
-                        </div>
-                        <div class="sig-box">
-                            <p>Disahkan Oleh:</p>
-                            <div class="sig-line"></div>
-                            <p style="font-weight: bold; text-transform: uppercase;">(Setiausaha Sukan / Pentadbir)</p>
-                        </div>
-                    </div>
-
                     <script>
                         window.onload = function() {
                             window.print();
@@ -1422,13 +1598,12 @@
 
                         candidates.sort((a, b) => {
                             if (ev.higherBetter) {
-                                return b.numericVal - a.numericVal; // Lebih tinggi, lebih baik
+                                return b.numericVal - a.numericVal;
                             } else {
-                                return a.numericVal - b.numericVal; // Lebih rendah (pantas larian), lebih baik
+                                return a.numericVal - b.numericVal;
                             }
                         });
 
-                        // Ambil 2 terbaik bagi setiap kelas dan acara
                         const topTwo = candidates.slice(0, 2);
 
                         group.events.push({
@@ -1438,7 +1613,6 @@
                         });
                     });
 
-                    // Hanya rekodkan kumpulan kelas jika ada data atlet layak yang dikesan
                     const hasAtLeastOneRepresentative = group.events.some(e => e.topStudents.length > 0);
                     if (hasAtLeastOneRepresentative) {
                         results.push(group);
@@ -1456,7 +1630,7 @@
             filteredRepresentatives.forEach(cat => {
                 contentHtml += `
                     <div class="category-block" style="page-break-inside: avoid; margin-bottom: 25px;">
-                        <h3 class="category-title" style="background-color: #f1f5f9; padding: 6px 10px; border-left: 4px solid #d97706; font-size: 11px; margin-bottom: 10px; text-transform: uppercase;">
+                        <h3 style="background-color: #f1f5f9; padding: 6px 10px; border-left: 4px solid #d97706; font-size: 11px; margin-bottom: 10px; text-transform: uppercase;">
                             Kelas: ${cat.className} (${cat.gender === 'L' ? 'Lelaki' : 'Perempuan'})
                         </h3>
                         <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
@@ -1505,14 +1679,11 @@
             const printTemplate = `
                 <html>
                 <head>
-                    <title>Senarai Wakil Rasmi Kejohanan Sukan Sekolah</title>
+                    <title>Senarai Wakil Sukan Terpilih</title>
                     <style>
                         body { font-family: 'Inter', sans-serif; font-size: 10px; margin: 25px; color: #333; }
                         .header-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
                         .school-title { font-size: 14px; font-weight: 800; text-transform: uppercase; }
-                        .report-title { font-size: 11px; font-weight: 700; color: #b45309; margin-top: 5px; }
-                        .stats-container { display: flex; gap: 15px; margin-bottom: 15px; background: #fffbeb; padding: 10px; border: 1px solid #fef3c7; border-radius: 8px; }
-                        .stat-box { font-size: 10px; font-weight: bold; }
                         table { width: 100%; border-collapse: collapse; }
                         table th, table td { border: 1px solid #e2e8f0; }
                     </style>
@@ -1520,37 +1691,13 @@
                 <body>
                     <table class="header-table">
                         <tr>
-                            <td style="width: 80px; text-align: center; vertical-align: middle;">
-                                <div style="width: 50px; height: 50px; background: linear-gradient(to right, #d97706, #f59e0b); border-radius: 10px; display: inline-block;"></div>
-                            </td>
                             <td>
-                                <div class="school-title">Laporan Calon Wakil Kejohanan Sukan Tahunan</div>
-                                <div style="font-weight: 600; color: #555;">Berdasarkan Ranking Pencapaian Tertinggi Sukantara</div>
-                                <div class="report-title">SENARAI WAKIL ELIT TERPILIH - TAPISAN: ${houseName === 'ALL' ? 'SEMUA RUMAH SUKAN' : 'RUMAH ' + houseName.toUpperCase()}</div>
+                                <div class="school-title">Laporan Calon Elit Kejohanan Sukan Tahunan</div>
+                                <div style="font-weight: 600; color: #555;">Disinkronisasikan Bersama Google Sheets & Firebase</div>
                             </td>
                         </tr>
                     </table>
-
-                    <div class="stats-container">
-                        <div class="stat-box">Syarat Kelayakan: <span style="color: #b45309;">2 Rekod Terbaik Mengikut Kelas & Kategori Kelayakan</span></div>
-                        <div class="stat-box">Tarikh Analisis: <span>${new Date().toLocaleDateString('ms-MY')}</span></div>
-                    </div>
-
                     ${contentHtml}
-
-                    <div style="margin-top: 40px; display: flex; justify-content: space-between;">
-                        <div style="width: 200px; text-align: center;">
-                            <p>Dianalisis Oleh:</p>
-                            <div style="border-bottom: 1px solid #000; margin-bottom: 5px; height: 35px;"></div>
-                            <p style="font-weight: bold;">(Urus Setia Sukantara)</p>
-                        </div>
-                        <div style="width: 200px; text-align: center;">
-                            <p>Diluluskan Oleh:</p>
-                            <div style="border-bottom: 1px solid #000; margin-bottom: 5px; height: 35px;"></div>
-                            <p style="font-weight: bold;">(Guru Besar / PK Kokurikulum)</p>
-                        </div>
-                    </div>
-
                     <script>
                         window.onload = function() {
                             window.print();
@@ -1597,9 +1744,7 @@
                             <span>Kelas ${cat.className} (${genderLabel})</span>
                         </h3>
                     </div>
-                    <div class="space-y-2" id="cat-events-${cat.className.replace(/\s+/g, '')}-${cat.gender}">
-                        <!-- Loaded dynamically -->
-                    </div>
+                    <div class="space-y-2" id="cat-events-${cat.className.replace(/\s+/g, '')}-${cat.gender}"></div>
                 `;
 
                 const eventsContainer = card.querySelector(`#cat-events-${cat.className.replace(/\s+/g, '')}-${cat.gender}`);
@@ -1670,27 +1815,27 @@
                 });
                 updateDbStatus(false, "Berjaya Diselaraskan");
             } catch (error) {
-                console.error("Error sending to Sheets:", error);
-                updateDbStatus(false, "Gagal Selaras", "danger");
+                console.error("Gagal menyelaraskan kemas kini ke Google Sheets:", error);
+                updateDbStatus(false, "Ralat Penyelarasan", "danger");
             }
         }
 
         async function fetchFromGoogleSheets() {
             if (!googleScriptUrl) return null;
             try {
-                updateDbStatus(true, "Memuat turun data...");
+                updateDbStatus(true, "Menarik data...");
                 const response = await fetch(googleScriptUrl);
                 const result = await response.json();
                 if (result && result.success) {
                     updateDbStatus(false, "Berjaya Diselaraskan");
                     return result;
                 } else {
-                    updateDbStatus(false, "Ralat Google Sheets", "danger");
+                    updateDbStatus(false, "Gagal Selaras", "danger");
                     return null;
                 }
             } catch (error) {
                 console.error("Error fetching from Sheets:", error);
-                updateDbStatus(false, "Gagal Membaca", "danger");
+                updateDbStatus(false, "Ralat Sheets", "danger");
                 return null;
             }
         }
@@ -1708,8 +1853,12 @@
             } else {
                 if (type === "success") {
                     indicator.className = "w-1.5 h-1.5 rounded-full bg-emerald-500";
-                    statusText.innerText = text || "Sheets Aktif";
+                    statusText.innerText = text || "Berjaya Diselaraskan";
                     badge.className = "px-2.5 py-1 text-[10px] font-semibold rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1.5 shadow-sm transition-all duration-300";
+                } else if (type === "warning") {
+                    indicator.className = "w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse";
+                    statusText.innerText = text || "Mod Tempatan";
+                    badge.className = "px-2.5 py-1 text-[10px] font-semibold rounded-full bg-amber-50 text-amber-700 border border-amber-200 flex items-center gap-1.5 shadow-sm transition-all duration-300";
                 } else {
                     indicator.className = "w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse";
                     statusText.innerText = text || "Sambungan Gagal";
@@ -1798,46 +1947,14 @@
                 urlInput.value = googleScriptUrl;
             }
 
-            const savedThresholds = localStorage.getItem('sukantara_thresholds_v2');
-            if (savedThresholds) {
-                thresholds = JSON.parse(savedThresholds);
-            } else {
-                localStorage.setItem('sukantara_thresholds_v2', JSON.stringify(thresholds));
-            }
-            updateThresholdInputsUI();
             setupThresholdListeners();
 
-            const localHouses = localStorage.getItem('sukantara_houses');
-            const localStudents = localStorage.getItem('sukantara_students');
-            if (localHouses) {
-                houses = JSON.parse(localHouses);
+            if (firebaseConfig) {
+                await initFirebase();
             } else {
-                houses = [
-                    { id: "h1", name: "Merah" },
-                    { id: "h2", name: "Biru" },
-                    { id: "h3", name: "Kuning" },
-                    { id: "h4", name: "Hijau" }
-                ];
-                localStorage.setItem('sukantara_houses', JSON.stringify(houses));
+                loadLocalData();
+                updateDbStatus(false, "Mod Demo (Tanpa Firebase)", "warning");
             }
-
-            if (localStudents) {
-                students = JSON.parse(localStudents);
-                normalizeAllStoredData();
-            } else {
-                students = [];
-            }
-
-            seedMockStudentsIfEmpty();
-
-            if (houses.length > 0) {
-                activeHouseTab = houses[0].name;
-            }
-
-            applyThresholdVisibility();
-            syncData();
-
-            updateDbStatus(false, "Sedia (Tempatan)");
         }
 
         const studentForm = document.getElementById('studentForm');
@@ -1896,21 +2013,28 @@
                     `Adakah anda pasti mahu MENGOSONGKAN (reset) semua rekod prestasi masa/jarak dan kotak kelayakan bagi KESEMUA ${count} murid di bawah Rumah ${activeHouseTab}?`,
                     true,
                     "Ya, Set Semula",
-                    () => {
-                        students.forEach(s => {
-                            if (s.house === activeHouseTab) {
-                                s.longJumpEligible = false;
-                                s.longJumpRecord = "";
-                                s.highJumpEligible = false;
-                                s.highJumpRecord = "";
-                                s.runningEligible = false;
-                                s.runningRecord = "";
-                                s.shotPutEligible = false;
-                                s.shotPutRecord = "";
-                                s.totalPoints = 0;
-                            }
+                    async () => {
+                        const targetStudents = students.filter(s => s.house === activeHouseTab);
+                        targetStudents.forEach(s => {
+                            s.longJumpEligible = false;
+                            s.longJumpRecord = "";
+                            s.highJumpEligible = false;
+                            s.highJumpRecord = "";
+                            s.runningEligible = false;
+                            s.runningRecord = "";
+                            s.shotPutEligible = false;
+                            s.shotPutRecord = "";
+                            s.totalPoints = 0;
                         });
+
                         localStorage.setItem('sukantara_students', JSON.stringify(students));
+                        
+                        if (firebaseActive && db) {
+                            for (const s of targetStudents) {
+                                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'students', s.id), s);
+                            }
+                        }
+
                         syncData();
                         showToast(`Semua rekod sukan bagi Rumah ${activeHouseTab} dikosongkan.`, "success");
                     }
@@ -2000,7 +2124,7 @@
         }
 
         if (saveThresholdConfigBtn) {
-            saveThresholdConfigBtn.addEventListener('click', () => {
+            saveThresholdConfigBtn.addEventListener('click', async () => {
                 ['pra', 'tahap1', 'tahap2'].forEach(category => {
                     ['longJump', 'highJump', 'running', 'shotPut'].forEach(field => {
                         const modalEl = document.getElementById(`modal_threshold_${category}_${field}`);
@@ -2011,6 +2135,12 @@
                 });
 
                 localStorage.setItem('sukantara_thresholds_v2', JSON.stringify(thresholds));
+                
+                if (firebaseActive && db) {
+                    const thresholdsDoc = doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'thresholds');
+                    await setDoc(thresholdsDoc, thresholds).catch(err => console.error(err));
+                }
+
                 updateThresholdInputsUI();
                 reEvaluateAllStudents();
                 syncData();
@@ -2026,13 +2156,19 @@
                     "Adakah anda pasti mahu menetapkan had kelayakan minima sukan kembali kepada nilai asal?",
                     false,
                     "Ya, Teruskan",
-                    () => {
+                    async () => {
                         thresholds = {
                             pra: { longJump: "2.00", highJump: "0.80", running: "15.0", shotPut: "3.00" },
                             tahap1: { longJump: "2.50", highJump: "0.90", running: "13.5", shotPut: "4.00" },
                             tahap2: { longJump: "3.00", highJump: "1.00", running: "12.0", shotPut: "5.00" }
                         };
                         localStorage.setItem('sukantara_thresholds_v2', JSON.stringify(thresholds));
+                        
+                        if (firebaseActive && db) {
+                            const thresholdsDoc = doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'thresholds');
+                            await setDoc(thresholdsDoc, thresholds).catch(err => console.error(err));
+                        }
+
                         updateThresholdInputsUI();
                         reEvaluateAllStudents();
                         syncData();
@@ -2134,14 +2270,26 @@
                     if (sheetsData.houses && sheetsData.houses.length > 0) {
                         houses = sheetsData.houses;
                         localStorage.setItem('sukantara_houses', JSON.stringify(houses));
+                        
+                        if (firebaseActive && db) {
+                            for (const h of houses) {
+                                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'houses', h.id), h);
+                            }
+                        }
                     }
                     if (sheetsData.students) {
                         students = sheetsData.students;
                         normalizeAllStoredData();
                         localStorage.setItem('sukantara_students', JSON.stringify(students));
+
+                        if (firebaseActive && db) {
+                            for (const s of students) {
+                                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'students', s.id), s);
+                            }
+                        }
                     }
                     syncData();
-                    showToast("Data Google Sheets berjaya dikemaskini!", "success");
+                    showToast("Data Google Sheets & Firebase berjaya diselaraskan!", "success");
                 } else {
                     showToast("Gagal memuat turun data dari Google Sheets.", "danger");
                 }
@@ -2160,15 +2308,23 @@
                     `Adakah anda pasti mahu memadam KESEMUA ${count} ahli murid di dalam Rumah ${activeHouseTab}?`, 
                     true,
                     "Ya, Padam",
-                    () => {
+                    async () => {
                         const toDelete = students.filter(s => s.house === activeHouseTab);
                         students = students.filter(s => s.house !== activeHouseTab);
                         localStorage.setItem('sukantara_students', JSON.stringify(students));
+                        
+                        if (firebaseActive && db) {
+                            for (const s of toDelete) {
+                                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'students', s.id);
+                                await deleteDoc(docRef).catch(err => console.error(err));
+                            }
+                        }
+
                         syncData();
-                        showToast("Ahli Rumah dipadam secara lokal.", "success");
+                        showToast("Ahli Rumah dipadam.", "success");
                         toDelete.forEach(s => {
                             sendToGoogleSheets("deleteStudent", s.id).catch(err => {
-                                console.error("Gagal menyelaraskan pemadaman ke Google Sheets:", err);
+                                console.error("Gagal menyelaraskan pemadaman ke Sheets:", err);
                             });
                         });
                     }
@@ -2180,7 +2336,7 @@
             clearAllBtn.addEventListener('click', () => {
                 showConfirm(
                     "Padam Keseluruhan Rekod", 
-                    "AMARAN! Tindakan ini akan membuang SEMUA murid dan rumah sukan daripada sistem!", 
+                    "AMARAN! Tindakan ini akan membuang SEMUA murid dan rumah sukan daripada sistem cloud dan lokal!", 
                     true,
                     "Ya, Teruskan",
                     async () => {
@@ -2195,7 +2351,7 @@
                         localStorage.setItem('sukantara_students', JSON.stringify([]));
                         localStorage.setItem('sukantara_houses', JSON.stringify([]));
                         
-                        showToast("Keseluruhan pangkalan data bersihkan.", "success");
+                        showToast("Keseluruhan pangkalan data dibersihkan.", "success");
                         activeHouseTab = "";
                         syncData();
                     }
@@ -2292,6 +2448,12 @@
                                         importCount++;
                                     });
 
+                                    if (firebaseActive && db) {
+                                        for (const s of newImportedStudents) {
+                                            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'students', s.id), s);
+                                        }
+                                    }
+
                                     await sendToGoogleSheets("bulkImport", newImportedStudents);
                                     localStorage.setItem('sukantara_students', JSON.stringify(students));
                                     showToast("Berjaya membawa masuk ahli baharu!", "success");
@@ -2302,7 +2464,7 @@
                         } else if (parsed.houses && parsed.students) {
                             showConfirm(
                                 "Import Fail Sandaran",
-                                "Mengimport fail sandaran penuh akan menimpa seluruh pangkalan data sedia ada anda. Teruskan?",
+                                "Mengimport fail sandaran penuh akan menimpa seluruh pangkalan data sedia ada anda di Firebase dan Google Sheets. Teruskan?",
                                 false,
                                 "Ya, Teruskan",
                                 async () => {
@@ -2312,6 +2474,15 @@
 
                                     localStorage.setItem('sukantara_houses', JSON.stringify(houses));
                                     localStorage.setItem('sukantara_students', JSON.stringify(students));
+
+                                    if (firebaseActive && db) {
+                                        for (const h of houses) {
+                                            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'houses', h.id), h);
+                                        }
+                                        for (const s of students) {
+                                            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'students', s.id), s);
+                                        }
+                                    }
 
                                     await sendToGoogleSheets("bulkImport", students);
                                     for (const h of houses) {
