@@ -131,6 +131,17 @@
                                     <i class="fa-solid fa-trash-can text-rose-500"></i>
                                     <span>Padam Semua Rekod</span>
                                 </button>
+                                <div class="border-t border-slate-100 my-1"></div>
+                                <div class="px-3 py-1.5 flex items-center justify-between" id="toggleContainer">
+                                    <span class="text-[10px] font-bold text-slate-700 flex items-center gap-2">
+                                        <i class="fa-solid fa-eye text-slate-400"></i>
+                                        <span>Papar Had Min di Header</span>
+                                    </span>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" id="toggleHeaderThresholds" class="sr-only peer" checked>
+                                        <div class="w-7 h-4 bg-slate-200 rounded-full peer peer-checked:after:translate-x-3 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-blue-600"></div>
+                                    </label>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -197,7 +208,7 @@
                         </tr>
                         
                         <!-- Header Row 2: Pra Sekolah Thresholds -->
-                        <tr class="bg-slate-800 text-white font-semibold text-[9px] border-b border-slate-700 shadow-sm">
+                        <tr id="row-threshold-pra" class="bg-slate-800 text-white font-semibold text-[9px] border-b border-slate-700 shadow-sm">
                             <th colspan="4" class="py-1 px-2 text-right text-pink-300 uppercase tracking-wider">Had Min Pra Sekolah:</th>
                             <th class="py-1 px-1 bg-pink-950/40 border-r border-slate-700 text-left">
                                 <div class="flex items-center gap-1 justify-start pl-2">
@@ -231,7 +242,7 @@
                         </tr>
 
                         <!-- Header Row 3: Tahap 1 (T1, T2, T3) Thresholds -->
-                        <tr class="bg-slate-800 text-white font-semibold text-[9px] border-b border-slate-700 shadow-sm">
+                        <tr id="row-threshold-tahap1" class="bg-slate-800 text-white font-semibold text-[9px] border-b border-slate-700 shadow-sm">
                             <th colspan="4" class="py-1 px-2 text-right text-teal-300 uppercase tracking-wider">Had Min Tahap 1 (T1-T3):</th>
                             <th class="py-1 px-1 bg-teal-950/40 border-r border-slate-700 text-left">
                                 <div class="flex items-center gap-1 justify-start pl-2">
@@ -265,7 +276,7 @@
                         </tr>
 
                         <!-- Header Row 4: Tahap 2 (T4, T5, T6) Thresholds -->
-                        <tr class="bg-slate-800 text-white font-semibold text-[9px] border-b border-slate-700 shadow-sm">
+                        <tr id="row-threshold-tahap2" class="bg-slate-800 text-white font-semibold text-[9px] border-b border-slate-700 shadow-sm">
                             <th colspan="4" class="py-1 px-2 text-right text-indigo-300 uppercase tracking-wider">Had Min Tahap 2 (T4-T6):</th>
                             <th class="py-1 px-1 bg-indigo-950/40 border-r border-slate-700 text-left">
                                 <div class="flex items-center gap-1 justify-start pl-2">
@@ -768,22 +779,36 @@
             }
 
             houses.forEach(h => {
-                const count = students.filter(s => s.house === h.name).length;
+                // Kira statistik ahli rumah sukan semasa
+                const houseStudents = students.filter(s => s.house === h.name);
+                const total = houseStudents.length;
+                const maleCount = houseStudents.filter(s => s.gender === 'L' || s.gender === 'l').length;
+                const femaleCount = houseStudents.filter(s => s.gender === 'P' || s.gender === 'p').length;
+                
                 const tab = document.createElement('button');
                 const isActive = activeHouseTab === h.name;
                 
                 const themeKey = getHouseColorTheme(h.name);
                 const theme = houseColorMap[themeKey] || houseColorMap["slate"];
                 
-                tab.className = `px-3 py-1.5 text-[10px] font-bold rounded-lg border transition-all duration-200 flex items-center gap-1.5 ${
+                // Menggunakan susunan flex-col untuk memaparkan statistik di baris kedua dengan kemas
+                tab.className = `px-3 py-1.5 text-[10px] rounded-lg border transition-all duration-200 flex flex-col items-start gap-0.5 text-left ${
                     isActive ? theme.activeBtn : theme.inactiveBtn
                 }`;
                 
                 tab.innerHTML = `
-                    <span>Rumah ${h.name}</span>
-                    <span class="px-1 py-0.2 text-[8px] rounded font-semibold ${
-                        isActive ? theme.activeBadge : theme.inactiveBadge
-                    }">${count}</span>
+                    <div class="flex items-center gap-1.5 w-full">
+                        <span class="font-extrabold text-[11px]">Rumah ${h.name}</span>
+                        <span class="px-1 py-0.2 text-[8px] rounded font-bold ${
+                            isActive ? theme.activeBadge : theme.inactiveBadge
+                        }">Jumlah: ${total}</span>
+                    </div>
+                    <div class="text-[8px] font-bold flex gap-2 tracking-wide ${
+                        isActive ? 'text-white/90' : 'text-slate-500'
+                    }">
+                        <span>L: <strong class="${isActive ? 'text-white font-extrabold' : 'text-slate-700 font-extrabold'}">${maleCount}</strong></span>
+                        <span>P: <strong class="${isActive ? 'text-white font-extrabold' : 'text-slate-700 font-extrabold'}">${femaleCount}</strong></span>
+                    </div>
                 `;
                 
                 tab.addEventListener('click', () => {
@@ -1216,6 +1241,33 @@
             return 99;
         }
 
+        const toggleHeaderThresholds = document.getElementById('toggleHeaderThresholds');
+        const toggleContainer = document.getElementById('toggleContainer');
+        const rowPra = document.getElementById('row-threshold-pra');
+        const rowTahap1 = document.getElementById('row-threshold-tahap1');
+        const rowTahap2 = document.getElementById('row-threshold-tahap2');
+
+        function applyThresholdVisibility() {
+            const show = localStorage.getItem('sukantara_show_thresholds') !== 'false';
+            if (toggleHeaderThresholds) toggleHeaderThresholds.checked = show;
+            if (rowPra) rowPra.classList.toggle('hidden', !show);
+            if (rowTahap1) rowTahap1.classList.toggle('hidden', !show);
+            if (rowTahap2) rowTahap2.classList.toggle('hidden', !show);
+        }
+
+        if (toggleContainer) {
+            toggleContainer.addEventListener('click', (e) => {
+                e.stopPropagation(); // Elakkan menu dropdown daripada auto-close semasa suis toggle diklik
+            });
+        }
+
+        if (toggleHeaderThresholds) {
+            toggleHeaderThresholds.addEventListener('change', (e) => {
+                localStorage.setItem('sukantara_show_thresholds', e.target.checked);
+                applyThresholdVisibility();
+            });
+        }
+
         async function initDatabase() {
             const savedUrl = localStorage.getItem('sukantara_gscript_url');
             if (savedUrl) {
@@ -1263,6 +1315,7 @@
                 activeHouseTab = houses[0].name;
             }
 
+            applyThresholdVisibility();
             syncData();
 
             if (googleScriptUrl) {
