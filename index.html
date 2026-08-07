@@ -201,6 +201,10 @@
                                     <i class="fa-solid fa-database text-indigo-500"></i>
                                     <span>Urus Rumah & Google Sheets</span>
                                 </button>
+                                <button id="promoteBulkBtn" class="w-full text-left px-3 py-2 text-[10px] font-semibold text-slate-700 hover:bg-slate-50 hover:text-emerald-600 rounded-lg transition-colors flex items-center gap-2 active:bg-emerald-50 admin-only">
+                                    <i class="fa-solid fa-arrow-up-right-dots text-emerald-500"></i>
+                                    <span>Kenaikan Kelas Pukal</span>
+                                </button>
                                 <button id="importBtn" class="w-full text-left px-3 py-2 text-[10px] font-semibold text-slate-700 hover:bg-slate-50 hover:text-blue-600 rounded-lg transition-colors flex items-center gap-2 active:bg-slate-50 admin-only">
                                     <i class="fa-solid fa-file-import text-blue-500"></i>
                                     <span>Import Data JSON</span>
@@ -247,7 +251,7 @@
                     <div class="leading-relaxed">
                         <strong class="font-bold">💡 Petunjuk Kelayakan Pintar:</strong> 
                         Tanda <strong class="text-blue-900">(✓) = Layak (1 Mata)</strong>. Tulis digit pencapaian di kotak teks kanan. Jika digit melepasi had kelayakan minima, sistem akan <strong class="text-blue-900">auto-tick</strong>. 
-                        Anda juga boleh memasukkan status khas: <strong class="text-blue-900">0</strong> (Tidak Mencuba), <strong class="text-blue-900">TH</strong> (Tidak Hadir), <strong class="text-blue-900">DQ</strong> (Dibatalkan), dan <strong class="text-blue-900">X</strong> (Gagal Percubaan / Tidak Mencapai Target). Status khas ini akan mengosongkan kelayakan secara automatik.
+                        Anda juga boleh memasukkan status khas: <strong class="text-blue-900">0</strong> (Tidak Mencuba), <strong class="text-blue-900">TH</strong> (Tidak Hadir), <strong class="text-blue-900">DQ</strong> (Dibatalkan), dan <strong class="text-blue-900">X</strong> (Gagal Percubaan).
                     </div>
                 </div>
                 
@@ -293,7 +297,7 @@
                         <!-- Butang Padam Semua Ahli Rumah Sukan Aktif -->
                         <button id="deleteHouseMembersBtn" class="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 active:scale-95 text-rose-600 rounded-lg text-[9px] font-bold transition-all flex items-center gap-1 focus:outline-none admin-only" title="Padam semua ahli bagi rumah sukan yang sedang aktif">
                             <i class="fa-solid fa-trash-can text-rose-500"></i>
-                            <span>Padam Semua Ahli Rumah</span>
+                            <span>Padam Ahli Rumah</span>
                         </button>
                     </div>
                 </div>
@@ -305,16 +309,16 @@
                         <!-- Header Row 1: Event Titles -->
                         <tr class="bg-gradient-to-r from-navy-900 to-slate-900 text-white font-extrabold uppercase tracking-wider border-b border-slate-200">
                             <th class="py-2.5 px-1 text-center w-[4%]">Bil</th>
-                            <th class="py-2.5 px-2 w-[20%]">Nama Pelajar</th>
+                            <th class="py-2.5 px-2 w-[18%]">Nama Pelajar</th>
                             <th class="py-2.5 px-0.5 text-center w-[6%]">Jantina</th>
                             <th class="py-2.5 px-0.5 text-center w-[6%]">Kelas</th>
                             <th class="py-2.5 px-0.5 text-center w-[13%] bg-blue-950 text-blue-300 border-r border-slate-800">L. Jauh (Mata)</th>
                             <th class="py-2.5 px-0.5 text-center w-[13%] bg-teal-950 text-teal-300 border-r border-slate-800">L. Tinggi (Mata)</th>
                             <th class="py-2.5 px-0.5 text-center w-[13%] bg-indigo-950 text-indigo-300 border-r border-slate-800">Larian (Mata)</th>
                             <th class="py-2.5 px-0.5 text-center w-[13%] bg-purple-950 text-purple-300 border-r border-slate-800">L. Peluru (Mata)</th>
-                            <th class="py-2.5 px-0.5 text-center w-[5%]">Jumlah</th>
-                            <th class="py-2.5 px-1.5 w-[7%]">Catatan</th>
-                            <th id="actionColumnHeader" class="py-2.5 px-0.5 text-center w-[3%]"></th>
+                            <th class="py-2.5 px-0.5 text-center w-[4%]">Jum</th>
+                            <th class="py-2.5 px-1.5 w-[5%]">Catatan</th>
+                            <th id="actionColumnHeader" class="py-2.5 px-0.5 text-center w-[5%]"></th>
                         </tr>
                         
                         <!-- Header Row 2: Pra Sekolah Thresholds -->
@@ -974,6 +978,18 @@
             return "tahap1"; // Default fallback
         }
 
+        function promoteClass(currentClass) {
+            const c = (currentClass || "").toString().toUpperCase().trim();
+            if (c.includes("PRA") || c.includes("PRE")) return "T1";
+            if (c.includes("T1") || c.includes("TAHUN 1")) return "T2";
+            if (c.includes("T2") || c.includes("TAHUN 2")) return "T3";
+            if (c.includes("T3") || c.includes("TAHUN 3")) return "T4";
+            if (c.includes("T4") || c.includes("TAHUN 4")) return "T5";
+            if (c.includes("T5") || c.includes("TAHUN 5")) return "T6";
+            if (c.includes("T6") || c.includes("TAHUN 6")) return "GRADUATE"; // Flag for deletion
+            return currentClass; // fallback
+        }
+
         function updateThresholdInputsUI() {
             const categories = ['pra', 'tahap1', 'tahap2'];
             const genders = ['L', 'P'];
@@ -1346,6 +1362,7 @@
         const wakilHouseFilter = document.getElementById('wakilHouseFilter');
         const wakilEventFilter = document.getElementById('wakilEventFilter');
         const printWakilBtn = document.getElementById('printWakilBtn');
+        const promoteBulkBtn = document.getElementById('promoteBulkBtn');
 
         if (printReportBtn) {
             printReportBtn.addEventListener('click', () => {
@@ -1498,6 +1515,61 @@
         if (closeThresholdConfigModalBtn) {
             closeThresholdConfigModalBtn.addEventListener('click', () => {
                 thresholdConfigModal.classList.add('hidden');
+            });
+        }
+
+        if (promoteBulkBtn) {
+            promoteBulkBtn.addEventListener('click', () => {
+                gearDropdown.classList.add('hidden');
+                showConfirm(
+                    "Kenaikan Kelas Pukal",
+                    "AMARAN! Tindakan ini akan menaikkan kelas SEMUA murid dalam sistem (Pra->T1->...->T6). Murid di Tahun 6 akan dipadam secara automatik (Tamat Persekolahan). Semua rekod markah sukan akan dikosongkan. Adakah anda pasti untuk teruskan proses ini?",
+                    true,
+                    "Ya, Naikkan Semua Tahun",
+                    async () => {
+                        showToast("Memproses kenaikan tahun dan penetapan semula markah... Sila tunggu", "info");
+                        
+                        const studentsToUpdate = [];
+                        const studentsToDelete = [];
+                        
+                        students.forEach(s => {
+                            const nextClass = promoteClass(s.studentClass);
+                            if (nextClass === "GRADUATE") {
+                                studentsToDelete.push(s);
+                            } else {
+                                s.studentClass = nextClass;
+                                // Reset marks
+                                s.longJumpEligible = false; s.longJumpRecord = "";
+                                s.highJumpEligible = false; s.highJumpRecord = "";
+                                s.runningEligible = false; s.runningRecord = "";
+                                s.shotPutEligible = false; s.shotPutRecord = "";
+                                s.totalPoints = 0;
+                                studentsToUpdate.push(s);
+                            }
+                        });
+                        
+                        // Update local state first
+                        students = studentsToUpdate;
+                        localStorage.setItem('sukantara_students', JSON.stringify(students));
+                        syncData();
+                        
+                        // Fire off db deletion requests
+                        for(const s of studentsToDelete) {
+                            await deleteStudentFromDb(s.id);
+                        }
+                        
+                        // Bulk save updated status
+                        if(studentsToUpdate.length > 0) {
+                            await saveAllStudentsToFirestore(studentsToUpdate);
+                            // Also send to sheets to maintain integrity
+                            studentsToUpdate.forEach(s => {
+                                sendToGoogleSheets("saveStudent", s).catch(e => { console.error(e) });
+                            });
+                        }
+                        
+                        showToast("Proses Kenaikan Kelas Pukal Selesai!", "success");
+                    }
+                );
             });
         }
 
@@ -1747,7 +1819,6 @@
                         normalizeAllStoredData();
                         localStorage.setItem('sukantara_students', JSON.stringify(students));
                         
-                        // CRITICAL FIX: Instantly write batch of Google Sheets students to Firestore to keep Firestore updated
                         showToast("Menyelaraskan data murid ke Firebase Firestore...", "info");
                         await saveAllStudentsToFirestore(students);
                     }
@@ -1927,7 +1998,6 @@
                                         await sendToGoogleSheets("saveHouse", h);
                                     }
                                     
-                                    // CRITICAL FIX: Also write full JSON backup recovery into Cloud Firestore
                                     await saveAllStudentsToFirestore(students);
 
                                     if (houses.length > 0) {
@@ -1969,7 +2039,6 @@
             return "T1";
         }
 
-        // Database Helpers
         async function saveStudentToDb(student) {
             if (!currentUser) return;
             try {
@@ -2181,14 +2250,14 @@
 
                 const isHighlighted = highlightedStudentIds.has(student.id);
                 const nameClass = isHighlighted 
-                    ? "py-2 px-2 font-extrabold text-rose-700 bg-rose-50 border border-rose-200 rounded leading-tight uppercase truncate max-w-[200px]" 
-                    : "py-2 px-2 font-bold text-slate-800 leading-tight uppercase truncate max-w-[200px]";
+                    ? "py-2 px-2 font-extrabold text-rose-700 bg-rose-50 border border-rose-200 rounded leading-tight uppercase truncate max-w-[180px]" 
+                    : "py-2 px-2 font-bold text-slate-800 leading-tight uppercase truncate max-w-[180px]";
                 
                 const nameContent = isHighlighted
                     ? `${student.name} <span class="text-[7px] text-rose-500 font-bold block animate-pulse">(DATA KOSONG!)</span>`
                     : student.name;
 
-                // Row Construction (Uses target thresholds based on student gender)
+                // Row Construction
                 tr.innerHTML = `
                     <td class="py-2 px-1 text-center font-bold text-slate-400">${index + 1}</td>
                     <td class="${nameClass}" title="${student.name}">${nameContent}</td>
@@ -2232,14 +2301,17 @@
                     <td class="py-1 px-1.5">
                         <input type="text" class="w-full px-2 py-1 bg-white hover:bg-slate-50 focus:bg-white border border-slate-100 rounded text-[9px] font-medium text-slate-600 outline-none event-notes-input" data-student-id="${student.id}" placeholder="Catatan..." value="${student.notes || ''}">
                     </td>
-                    <td class="py-2 px-1 text-center">
-                        <button class="p-1 text-slate-300 hover:text-rose-600 transition-colors delete-student-row-btn" data-student-id="${student.id}">
+                    <td class="py-2 px-1 text-center flex items-center justify-center gap-1 h-full pt-2">
+                        <button class="p-1 text-slate-300 hover:text-emerald-500 transition-colors promote-student-row-btn" data-student-id="${student.id}" title="Naik Tahun / Sesi">
+                            <i class="fa-solid fa-turn-up text-[10px]"></i>
+                        </button>
+                        <button class="p-1 text-slate-300 hover:text-rose-600 transition-colors delete-student-row-btn" data-student-id="${student.id}" title="Padam Rekod">
                             <i class="fa-solid fa-trash-can text-[10px]"></i>
                         </button>
                     </td>
                 `;
 
-                // Realtime Auto-Tick Evaluation on Record Change based on L/P thresholds with TH, DQ, 0, X handling
+                // Realtime Auto-Tick Evaluation
                 const recordInputs = tr.querySelectorAll('.event-record-input');
                 recordInputs.forEach(inp => {
                     inp.addEventListener('change', (e) => {
@@ -2247,15 +2319,12 @@
                         let rawVal = e.target.value.trim().toUpperCase();
                         
                         if (rawVal === "0" || rawVal === "TH" || rawVal === "DQ" || rawVal === "X") {
-                            // Set special status (Absent, Disqualified, Did Not Attempt, Failed Attempt)
                             student[`${field}Record`] = rawVal;
                             student[`${field}Eligible`] = false;
                             e.target.value = rawVal;
-                            
                             const chk = tr.querySelector(`.event-checkbox[data-field="${field}"]`);
                             if (chk) chk.checked = false;
                         } else {
-                            // Standard numeric processing
                             let numericStr = rawVal.replace(/[^\d.-]/g, '');
                             let numericVal = parseFloat(numericStr);
                             
@@ -2271,7 +2340,6 @@
                                 const chk = tr.querySelector(`.event-checkbox[data-field="${field}"]`);
                                 if (chk) chk.checked = isEligible;
                             } else {
-                                // Clear invalid values
                                 student[`${field}Record`] = "";
                                 student[`${field}Eligible`] = false;
                                 e.target.value = "";
@@ -2285,7 +2353,6 @@
                     });
                 });
 
-                // Also we should listen to the manual checkbox toggle in real time!
                 const checkboxes = tr.querySelectorAll('.event-checkbox');
                 checkboxes.forEach(chk => {
                     chk.addEventListener('change', (e) => {
@@ -2296,12 +2363,52 @@
                     });
                 });
 
-                // And notes input
                 const notesInput = tr.querySelector('.event-notes-input');
                 if (notesInput) {
                     notesInput.addEventListener('change', (e) => {
                         student.notes = e.target.value.trim();
                         saveStudentToDb(student);
+                    });
+                }
+
+                // Promote (Naik Tahun Individu)
+                const promoteBtn = tr.querySelector('.promote-student-row-btn');
+                if (promoteBtn) {
+                    promoteBtn.addEventListener('click', () => {
+                        const nextClass = promoteClass(student.studentClass);
+                        if (nextClass === "GRADUATE") {
+                            showConfirm(
+                                "Tamat Persekolahan", 
+                                `Adakah anda pasti mahu menamatkan persekolahan (padam secara kekal) rekod "${student.name}" kerana murid telah melepasi Tahun 6?`, 
+                                true, 
+                                "Ya, Padam (Alumni)", 
+                                () => {
+                                    students = students.filter(s => s.id !== student.id);
+                                    deleteStudentFromDb(student.id);
+                                    syncData();
+                                    showToast(`Rekod pelajar alumni "${student.name}" telah dipadam.`, "success");
+                                }
+                            );
+                        } else {
+                            showConfirm(
+                                "Naik Tahun Akademik", 
+                                `Adakah anda pasti mahu menaikkan kelas "${student.name}" dari ${student.studentClass} ke ${nextClass}? (Nota: Markah sukan akan direset untuk persediaan kejohanan baharu)`, 
+                                false, 
+                                "Ya, Naikkan", 
+                                () => {
+                                    student.studentClass = nextClass;
+                                    student.longJumpEligible = false; student.longJumpRecord = "";
+                                    student.highJumpEligible = false; student.highJumpRecord = "";
+                                    student.runningEligible = false; student.runningRecord = "";
+                                    student.shotPutEligible = false; student.shotPutRecord = "";
+                                    student.totalPoints = 0;
+                                    
+                                    saveStudentToDb(student);
+                                    syncData();
+                                    showToast(`${student.name} berjaya dinaikkan kelas ke ${nextClass}.`, "success");
+                                }
+                            );
+                        }
                     });
                 }
 
@@ -2390,18 +2497,14 @@
                         
                         const rec = (s[`${event}Record`] || "").toString().trim().toUpperCase();
                         
-                        // Abaikan secara mutlak rekod kosong, TH, DQ, 0, atau X (Gagal Percubaan)
                         if (!rec || rec === "TH" || rec === "DQ" || rec === "0" || rec === "X") return false;
                         
-                        // Ekstrak hanya nombor (abaikan simbol unit seperti 'm' atau 's')
                         const numericStr = rec.replace(/[^\d.]/g, '');
                         const val = parseFloat(numericStr);
                         
-                        // Pastikan ia adalah nombor sah dan bernilai lebih besar daripada 0 (nombor bererti)
                         return !isNaN(val) && val > 0;
                     });
 
-                    // Susun: larian secara menaik (masa terpantas), acara lain secara menurun (jarak/tinggi tertinggi)
                     list.sort((a, b) => {
                         const valA = parseFloat((a[`${event}Record`] || "").toString().replace(/[^\d.]/g, '')) || 0;
                         const valB = parseFloat((b[`${event}Record`] || "").toString().replace(/[^\d.]/g, '')) || 0;
@@ -2412,11 +2515,9 @@
                         }
                     });
 
-                    // Asingkan dwi-jantina (Lelaki dan Perempuan)
                     let boys = list.filter(s => s.gender === 'L');
                     let girls = list.filter(s => s.gender === 'P');
 
-                    // Ambil Top 2 untuk setiap kumpulan jantina
                     rankedData[cls][event] = {
                         L: boys.slice(0, 2),
                         P: girls.slice(0, 2)
@@ -2433,7 +2534,6 @@
 
             container.innerHTML = "";
 
-            // Isi pilihan Rumah Sukan dalam modal secara dinamik jika kosong
             const filterDropdown = document.getElementById('wakilHouseFilter');
             if (filterDropdown && filterDropdown.options.length <= 1) {
                 houses.forEach(h => {
